@@ -1,10 +1,10 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import useAuthStore from '../../store/authStore'
+import { useAuth } from '../../context/AuthContext'
 
 export default function Sidebar({ items }) {
   const location = useLocation()
   const navigate = useNavigate()
-  const { logout, user } = useAuthStore()
+  const { logout, user } = useAuth()
 
   const initials = user?.full_name
     ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase()

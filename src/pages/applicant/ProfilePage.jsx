@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import api from '../../api/axios'
-import useAuthStore from '../../store/authStore'
+import { useAuth } from '../../context/AuthContext'
 
 const ROLE_LABELS = {
   APPLICANT:    'Aplikant',
@@ -65,7 +65,7 @@ function fromApi(p) {
 
 export default function ProfilePage() {
   const navigate = useNavigate()
-  const { user, logout } = useAuthStore()
+  const { user, logout } = useAuth()
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const [saving,  setSaving]  = useState(false)

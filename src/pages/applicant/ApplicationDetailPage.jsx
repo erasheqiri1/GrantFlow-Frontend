@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import api from '../../api/axios'
-import useAuthStore from '../../store/authStore'
+import { useAuth } from '../../context/AuthContext'
 
 const STATUS_INFO = {
   DRAFT:        { label: 'Draft', bg: 'rgba(107,114,128,0.15)', color: '#9ca3af' },
@@ -14,7 +14,7 @@ const STATUS_INFO = {
 export default function ApplicationDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { logout } = useAuthStore()
+  const { logout } = useAuth()
   const [application, setApplication] = useState(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
