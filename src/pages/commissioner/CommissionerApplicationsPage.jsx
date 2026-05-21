@@ -4,10 +4,9 @@ import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
 
 const NAV = [
-  { to: '/org-admin',              icon: '🏠', label: 'Overview' },
-  { to: '/org-admin/grants',       icon: '📋', label: 'Grante' },
-  { to: '/org-admin/applications', icon: '📬', label: 'Aplikimet' },
-  { to: '/org-admin/team',         icon: '👥', label: 'Ekipi' },
+  { to: '/commissioner',              icon: '🏠', label: 'Dashboard' },
+  { to: '/commissioner/applications', icon: '📋', label: 'Aplikimet' },
+  { to: '/commissioner/profile',      icon: '👤', label: 'Profili' },
 ]
 
 const STATUS_BADGE = {
@@ -32,37 +31,11 @@ function AppModal({ app: initialApp, onClose, onDecision }) {
   const [reason, setReason]         = useState('')
   const [acting, setActing]         = useState(false)
   const [actErr, setActErr]         = useState('')
-  const [commissioners, setCommissioners] = useState([])
-  const [assignMode, setAssignMode] = useState(false)
-  const [assignId, setAssignId]     = useState('')
-  const [assigning, setAssigning]   = useState(false)
 
   const sb = STATUS_BADGE[app.status] || STATUS_BADGE.SUBMITTED
-  const isOrgAdmin     = user?.role === 'ORG_ADMIN'
+  // Vetëm COMMISSIONER mund të aprovojë/refuzojë
   const isCommissioner = user?.role === 'COMMISSIONER'
   const canDecide      = isCommissioner && ['SUBMITTED', 'UNDER_REVIEW'].includes(app.status)
-
-  // Ngarko komisionerët kur org-admin hap modalin
-  useEffect(() => {
-    if (!isOrgAdmin) return
-    api.get('/team').then(r => {
-      const members = Array.isArray(r.data) ? r.data : []
-      setCommissioners(members.filter(m => m.role === 'COMMISSIONER'))
-    }).catch(() => {})
-  }, [isOrgAdmin])
-
-  const handleAssign = async () => {
-    if (!assignId) return
-    setAssigning(true)
-    try {
-      const res = await api.patch(`/applications/${app.id}/assign`, { commissioner_id: assignId })
-      setApp(res.data)
-      setAssignMode(false)
-      onDecision()
-    } catch (err) {
-      setActErr(err.response?.data?.detail || 'Gabim gjatë ricaktimit')
-    } finally { setAssigning(false) }
-  }
 
   const handleApprove = async () => {
     setActing(true); setActErr('')
@@ -107,10 +80,8 @@ function AppModal({ app: initialApp, onClose, onDecision }) {
           </button>
         </div>
 
-        {/* Body — scroll */}
+        {/* Body */}
         <div className="px-6 py-4 overflow-y-auto flex-1 space-y-1">
-
-          {/* Info rreshta */}
           {[
             ['Aplikanti', app.user_name || app.user_email || '—'],
             ['Email',     app.user_email || '—'],
@@ -186,7 +157,7 @@ function AppModal({ app: initialApp, onClose, onDecision }) {
           )}
         </div>
 
-        {/* Footer — veprime */}
+        {/* Footer */}
         <div className="px-6 py-4 flex-shrink-0" style={{ borderTop: '1px solid var(--border)' }}>
           {actErr && (
             <p className="text-xs mb-3" style={{ color: 'var(--danger)' }}>{actErr}</p>
@@ -231,57 +202,24 @@ function AppModal({ app: initialApp, onClose, onDecision }) {
               Mbyll
             </button>
           )}
-
-          {/* Ricakto komisioner — vetëm org-admin, vetëm për aplikime aktive */}
-          {isOrgAdmin && ['SUBMITTED','UNDER_REVIEW'].includes(app.status) && commissioners.length > 0 && (
-            <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--border)' }}>
-              {assignMode ? (
-                <div className="flex gap-2">
-                  <select value={assignId} onChange={e => setAssignId(e.target.value)}
-                    className="flex-1 px-3 py-2 rounded-lg text-sm text-white outline-none"
-                    style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                    <option value="">— Zgjidh komisionerin —</option>
-                    {commissioners.map(c => (
-                      <option key={c.id} value={c.id}>
-                        {[c.first_name, c.last_name].filter(Boolean).join(' ') || c.email}
-                      </option>
-                    ))}
-                  </select>
-                  <button onClick={handleAssign} disabled={assigning || !assignId}
-                    className="px-4 py-2 rounded-lg text-xs font-semibold"
-                    style={{ background: 'var(--accent)', color: '#0f1117' }}>
-                    {assigning ? '...' : 'Cakto'}
-                  </button>
-                  <button onClick={() => setAssignMode(false)}
-                    className="px-3 py-2 rounded-lg text-xs"
-                    style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
-                    Anulo
-                  </button>
-                </div>
-              ) : (
-                <button onClick={() => setAssignMode(true)}
-                  className="text-xs w-full py-2 rounded-lg"
-                  style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
-                  ↺ Ricakto komisionerin
-                </button>
-              )}
-            </div>
-          )}
         </div>
       </div>
     </div>
   )
 }
 
-export default function ApplicationsReviewPage() {
-  const [apps, setApps]       = useState([])
-  const [loading, setLoading] = useState(true)
-  const [status, setStatus]   = useState('')
+export default function CommissionerApplicationsPage() {
+  const { user }                = useAuth()
+  const [apps, setApps]         = useState([])
+  const [loading, setLoading]   = useState(true)
+  const [status, setStatus]     = useState('')
   const [selected, setSelected] = useState(null)
 
   const fetchApps = useCallback(() => {
     setLoading(true)
-    const params = status ? { status } : {}
+    const params = {}
+    if (user?.user_id) params.assigned_to = user.user_id
+    if (status) params.status = status
     api.get('/applications', { params })
       .then(r => setApps(Array.isArray(r.data) ? r.data : r.data.items ?? []))
       .catch(() => {})
@@ -339,7 +277,7 @@ export default function ApplicationsReviewPage() {
               ) : apps.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-5 py-10 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
-                    Nuk ka aplikime.
+                    Nuk ka aplikime të caktuara.
                   </td>
                 </tr>
               ) : apps.map(app => {
@@ -374,7 +312,17 @@ export default function ApplicationsReviewPage() {
                     </td>
 
                     <td className="px-5 py-3.5">
-                      <button onClick={() => setSelected(app)}
+                      <button onClick={async () => {
+                        let current = app
+                        if (app.status === 'SUBMITTED') {
+                          try {
+                            const res = await api.patch(`/applications/${app.id}/start-review`)
+                            current = res.data
+                            setApps(prev => prev.map(a => a.id === app.id ? res.data : a))
+                          } catch {}
+                        }
+                        setSelected(current)
+                      }}
                         className="text-xs px-3 py-1.5 rounded-lg"
                         style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
                         Shiko →
