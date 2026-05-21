@@ -4,11 +4,15 @@ const api = axios.create({
   baseURL: '/api',
 })
 
-// Shto token automatikisht çdo request
+// Shto token + no-cache automatikisht çdo request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
+  }
+  // Parandalon browser cache për GET requests
+  if (!config.method || config.method === 'get') {
+    config.params = { ...config.params, _t: Date.now() }
   }
   return config
 })

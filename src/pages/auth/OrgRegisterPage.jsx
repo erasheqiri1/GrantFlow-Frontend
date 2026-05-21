@@ -43,19 +43,14 @@ export default function OrgRegisterPage() {
     }
     setLoading(true)
     try {
-      const formData = new FormData()
-      formData.append('institution_name', form.institution_name)
-      formData.append('email', form.email)
-      formData.append('nipt', form.nipt)
-      formData.append('slug', form.slug)
-      formData.append('admin_first_name', form.admin_first_name)
-      formData.append('admin_last_name', form.admin_last_name)
-      formData.append('password', form.password)
-      if (docFile) formData.append('document', docFile)
-      if (logoFile) formData.append('logo', logoFile)
-
-      await api.post('/auth/register/org', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      await api.post('/auth/register-org', {
+        org_name:   form.institution_name,
+        org_slug:   form.slug,
+        email:      form.email,
+        password:   form.password,
+        first_name: form.admin_first_name,
+        last_name:  form.admin_last_name,
+        nipt:       form.nipt || undefined,
       })
       setSuccess(true)
     } catch (err) {
