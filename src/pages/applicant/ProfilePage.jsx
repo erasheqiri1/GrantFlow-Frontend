@@ -219,44 +219,42 @@ export default function ProfilePage() {
         </div>
       </nav>
 
-      <div className="max-w-2xl mx-auto px-6 py-8 flex items-center justify-center" style={{ minHeight: 'calc(100vh - 112px)' }}>
+      <div className="max-w-2xl mx-auto px-6 py-8">
 
         {/* ── VIEW MODE ─────────────────────────────── */}
         {!editing && profile && (
-          <>
-            {/* Avatar centered and larger + edit button below */}
-            <div className="rounded-2xl p-6 mb-4 profile-center"
+          <div className="space-y-4">
+
+            {/* Karta e profilit — horizontal */}
+            <div className="rounded-2xl p-5 flex items-center gap-5"
               style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
-              <div className="avatar flex-shrink-0" aria-hidden>
-                <div className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-black"
-                  style={{ background: 'var(--accent)', color: '#0f1117' }}>
-                  {initials || '?'}
-                </div>
+              {/* Avatar */}
+              <div className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-black flex-shrink-0"
+                style={{ background: 'var(--accent)', color: '#0f1117' }}>
+                {initials || '?'}
               </div>
-              <div className="info mt-3 text-center">
-                <h1 className="text-2xl font-bold text-white">{displayName || '—'}</h1>
-                <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>{profile.email}</p>
-                <div className="mt-2">
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full inline-block"
-                    style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}>
-                    {ROLE_LABELS[user?.role] || user?.role}
-                  </span>
-                </div>
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <h1 className="text-xl font-bold text-white truncate">{displayName || '—'}</h1>
+                <p className="text-sm mt-0.5 truncate" style={{ color: 'var(--text-secondary)' }}>{profile.email}</p>
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full inline-block mt-2"
+                  style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}>
+                  {ROLE_LABELS[user?.role] || user?.role}
+                </span>
               </div>
-              <div className="mt-4">
-                <button onClick={handleEdit}
-                  className="text-sm font-semibold px-4 py-2 rounded-lg transition"
-                  style={{ background: 'var(--bg-card)', color: 'var(--accent)', border: '1px solid var(--accent)' }}>
-                  Ndrysho
-                </button>
-              </div>
+              {/* Butoni ndrysho */}
+              <button onClick={handleEdit}
+                className="text-sm font-semibold px-4 py-2 rounded-lg transition flex-shrink-0"
+                style={{ background: 'var(--bg-card)', color: 'var(--accent)', border: '1px solid var(--accent)' }}>
+                Ndrysho
+              </button>
             </div>
 
-            {/* Nëse profili është i pa plotë */}
+            {/* Paralajmërim profil i pa plotë */}
             {!profile.applicant_type && (
-              <div className="rounded-xl p-4 mb-4 flex items-start gap-3"
+              <div className="rounded-xl p-4 flex items-start gap-3"
                 style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.25)' }}>
-                <span className="text-lg font-bold">!</span>
+                <span className="text-lg leading-none mt-0.5">⚠️</span>
                 <div>
                   <p className="text-sm font-semibold" style={{ color: '#facc15' }}>Profili i pa plotë</p>
                   <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
@@ -266,11 +264,11 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* Informata */}
-            <div className="rounded-2xl p-6"
+            {/* Karta e informacioneve */}
+            <div className="rounded-2xl p-5"
               style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
-              <h2 className="font-semibold text-white mb-4">Informata</h2>
-              <div className="space-y-0">
+              <h2 className="font-semibold text-white mb-3">Informata</h2>
+              <div>
                 {[
                   { label: 'Kategoria', value: TYPE_LABEL[profile.applicant_type] },
                   { label: 'Telefoni',  value: profile.phone },
@@ -285,45 +283,45 @@ export default function ProfilePage() {
                   ] : []),
                   // BUSINESS
                   ...(profile.applicant_type === 'BUSINESS' ? [
-                    { label: 'Biznesi',       value: profile.business_name },
-                    { label: 'Tipi',          value: profile.business_type },
-                    { label: 'Fusha',         value: profile.activity_field },
-                    { label: 'Punonjës',      value: profile.num_employees },
-                    { label: 'Themeluar',     value: profile.founded_year ? String(profile.founded_year) : null },
+                    { label: 'Biznesi',    value: profile.business_name },
+                    { label: 'Tipi',       value: profile.business_type },
+                    { label: 'Fusha',      value: profile.activity_field },
+                    { label: 'Punonjës',   value: profile.num_employees },
+                    { label: 'Themeluar',  value: profile.founded_year ? String(profile.founded_year) : null },
                   ] : []),
                   // ORGANIZATION
                   ...(profile.applicant_type === 'ORGANIZATION' ? [
-                    { label: 'Organizata',   value: profile.org_name },
-                    { label: 'Tipi',         value: profile.org_type },
-                    { label: 'Fusha',        value: profile.org_field },
-                    { label: 'Stafi',        value: profile.num_staff },
-                    { label: 'Nr. regj.',    value: profile.reg_number },
+                    { label: 'Organizata', value: profile.org_name },
+                    { label: 'Tipi',       value: profile.org_type },
+                    { label: 'Fusha',      value: profile.org_field },
+                    { label: 'Stafi',      value: profile.num_staff },
+                    { label: 'Nr. regj.',  value: profile.reg_number },
                   ] : []),
                   // INDIVIDUAL
                   ...(profile.applicant_type === 'INDIVIDUAL' ? [
-                    { label: 'Profesioni',   value: profile.profession },
-                    { label: 'Eksperience',  value: profile.experience_years },
-                    { label: 'Aftësitë',     value: profile.key_skills },
-                    { label: 'Portfolio',    value: profile.portfolio_url },
+                    { label: 'Profesioni',  value: profile.profession },
+                    { label: 'Eksperience', value: profile.experience_years },
+                    { label: 'Aftësitë',    value: profile.key_skills },
+                    { label: 'Portfolio',   value: profile.portfolio_url },
                   ] : []),
                   // OTHER
                   ...(profile.applicant_type === 'OTHER' ? [
-                    { label: 'Roli',         value: profile.role_title },
-                    { label: 'Interesimi',   value: profile.interest_field },
-                    { label: 'Link',         value: profile.relevant_link },
+                    { label: 'Roli',       value: profile.role_title },
+                    { label: 'Interesimi', value: profile.interest_field },
+                    { label: 'Link',       value: profile.relevant_link },
                   ] : []),
                 ].filter(r => r.value).map((row, i, arr) => (
                   <div key={row.label}
-                    className="flex items-center justify-between py-3"
+                    className="flex items-start justify-between gap-6 py-3"
                     style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none' }}>
-                    <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{row.label}</span>
-                    <span className="text-sm text-white text-right max-w-xs truncate">{row.value}</span>
+                    <span className="text-sm flex-shrink-0 w-28" style={{ color: 'var(--text-muted)' }}>{row.label}</span>
+                    <span className="text-sm text-white text-right break-words min-w-0">{row.value}</span>
                   </div>
                 ))}
                 {[
                   profile.applicant_type, profile.phone, profile.address,
                   profile.university, profile.business_name, profile.org_name,
-                  profile.profession, profile.key_skills
+                  profile.profession, profile.key_skills,
                 ].every(v => !v) && (
                   <p className="text-sm text-center py-4" style={{ color: 'var(--text-muted)' }}>
                     Asnjë e dhënë e shtuar ende. Kliko "Ndrysho" për të plotësuar.
@@ -331,12 +329,13 @@ export default function ProfilePage() {
                 )}
               </div>
             </div>
-          </>
+
+          </div>
         )}
 
         {/* ── EDIT MODE ─────────────────────────────── */}
         {editing && (
-          <form onSubmit={handleSave} className="space-y-4">
+          <form onSubmit={handleSave} className="space-y-4 pb-6">
             {/* Header edit */}
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-lg font-bold text-white">Ndrysho profilin</h2>
