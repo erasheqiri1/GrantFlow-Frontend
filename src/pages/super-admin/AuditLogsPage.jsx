@@ -65,22 +65,25 @@ export default function AuditLogsPage() {
 
   const formatEntity = (l) => {
     const d = parseDetails(l.details)
-    // Organizata → emri i org
-    if (['APPROVE_TENANT', 'REJECT_TENANT'].includes(l.action))
-      return d.org_name ?? l.tenant_name ?? '—'
-    // Përdorues → email i userit
-    if (['ACTIVATE_USER', 'DEACTIVATE_USER', 'CREATE_SUPER_ADMIN', 'INVITE_SUPER_ADMIN'].includes(l.action))
-      return d.email ?? d.invited_email ?? '—'
-    // Ftesa anëtari → email i ftuar
-    if (l.action === 'INVITE_USER')
-      return d.email ?? '—'
-    // Grante → emri i organizatës që e krijoi
-    if (['CREATE_GRANT', 'PUBLISH_GRANT', 'CLOSE_GRANT', 'UPDATE_GRANT', 'DELETE_GRANT'].includes(l.action))
-      return l.tenant_name ?? d.title ?? '—'
-    // Aplikime → emri i grantit ose tenant
-    if (l.action?.includes('APPLICATION'))
-      return l.tenant_name ?? '—'
-    return l.tenant_name ?? l.entity ?? '—'
+    const short = l.entity_id ? `${l.entity_id.slice(0, 8)}…` : null
+    const base  = (type) => short ? `${type} · ${short}` : type
+
+    if (l.action?.includes('GRANT')) {
+      const name = d.title || l.tenant_name
+      return name ? `grant · ${name}` : base('grant')
+    }
+    if (l.action?.includes('APPLICATION')) {
+      return d.grant_title ? `aplikim · ${d.grant_title}` : base('application')
+    }
+    if (['APPROVE_TENANT', 'REJECT_TENANT'].includes(l.action)) {
+      return d.org_name || l.tenant_name || base('tenant')
+    }
+    if (['ACTIVATE_USER', 'DEACTIVATE_USER', 'CREATE_SUPER_ADMIN',
+         'INVITE_SUPER_ADMIN', 'INVITE_USER', 'REMOVE_MEMBER'].includes(l.action)) {
+      return d.email || d.invited_email || base('user')
+    }
+    // fallback i përgjithshëm
+    return l.tenant_name || (l.entity && short ? `${l.entity} · ${short}` : l.entity) || '—'
   }
 
   return (
