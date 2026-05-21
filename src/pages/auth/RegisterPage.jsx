@@ -1,30 +1,67 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import api from '../../api/axios'
+import { useAuth } from '../../context/AuthContext'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
-  const [role, setRole] = useState('applicant') // 'applicant' | 'org'
-  const [form, setForm] = useState({ first_name: '', last_name: '', email: '', password: '', confirm_password: '' })
+  const { login } = useAuth()
+  const [role, setRole] = useState('applicant')
+  const [form, setForm] = useState({
+    first_name: '', last_name: '', email: '', password: '', confirm_password: '',
+    org_name: '', org_slug: '', nipt: '',  docFile: null,
+  })
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPass, setShowPass] = useState(false)
+
+  const set = (field) => (e) => setForm({ ...form, [field]: e.target.value })
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+    setSuccess('')
+
     if (form.password !== form.confirm_password) {
       setError('Fjalëkalimet nuk përputhen')
       return
     }
+
     setLoading(true)
     try {
-      await api.post('/auth/register', {
-        full_name: `${form.first_name} ${form.last_name}`.trim(),
-        email: form.email,
-        password: form.password,
-      })
-      navigate('/login')
+      if (role === 'applicant') {
+        const res = await api.post('/auth/register', {
+          first_name: form.first_name,
+          last_name: form.last_name,
+          email: form.email,
+          password: form.password,
+        })
+        const { access_token, role: userRole } = res.data
+        login(access_token, { role: userRole })
+        navigate('/grants')
+      } else {
+        await api.post('/auth/register-org', {
+          first_name: form.first_name,
+          last_name: form.last_name,
+          email: form.email,
+          password: form.password,
+          org_name: form.org_name,
+          org_slug: form.org_slug,
+          nipt: form.nipt || null,
+        })
+
+        // Ngarko dokumentin nëse është zgjedhur
+        if (form.docFile) {
+          const fd = new FormData()
+          fd.append('file', form.docFile)
+          await api.post(`/auth/register-org/upload-doc?org_slug=${form.org_slug}`, fd, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          })
+        }
+
+        setSuccess('Organizata u regjistrua me sukses! Super Admin do ta aprovojë llogarinë tuaj.')
+      }
     } catch (err) {
       setError(err.response?.data?.detail || 'Gabim gjatë regjistrimit')
     } finally {
@@ -34,13 +71,16 @@ export default function RegisterPage() {
 
   const inp = "w-full px-5 py-4 rounded-lg text-base text-white outline-none transition"
   const inpStyle = { background: 'var(--bg-card)', border: '1px solid var(--border)' }
+  const focus = (e) => (e.target.style.borderColor = 'var(--accent)')
+  const blur  = (e) => (e.target.style.borderColor = 'var(--border)')
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12" style={{ background: 'var(--bg-primary)' }}>
       <div className="w-full max-w-lg px-6">
         {/* Logo */}
         <div className="flex flex-col items-center mb-6">
-          <div className="w-12 h-12 rounded-full flex items-center justify-center mb-2" style={{ background: 'var(--accent-dim)', border: '2px solid var(--accent)' }}>
+          <div className="w-12 h-12 rounded-full flex items-center justify-center mb-2"
+            style={{ background: 'var(--accent-dim)', border: '2px solid var(--accent)' }}>
             <span className="text-xl font-black" style={{ color: 'var(--accent)' }}>G</span>
           </div>
           <div className="text-xl font-black tracking-wide">
@@ -56,130 +96,149 @@ export default function RegisterPage() {
 
           {/* Role tabs */}
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <button onClick={() => setRole('applicant')}
-              className="flex items-center gap-2 p-3 rounded-xl transition text-left"
-              style={{
-                background: role === 'applicant' ? 'var(--accent-dim)' : 'var(--bg-card)',
-                border: `1px solid ${role === 'applicant' ? 'var(--accent)' : 'var(--border)'}`,
-              }}>
-              <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                style={{ background: role === 'applicant' ? 'var(--accent)' : 'var(--border)' }}>
-                <span className="text-sm font-semibold">A</span>
-              </div>
-              <div>
-                <div className="text-sm font-semibold" style={{ color: role === 'applicant' ? 'var(--accent)' : 'white' }}>Aplikant</div>
-                <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Apliko në grante</div>
-              </div>
-            </button>
-
-            <button onClick={() => setRole('org')}
-              className="flex items-center gap-2 p-3 rounded-xl transition text-left"
-              style={{
-                background: role === 'org' ? 'var(--accent-dim)' : 'var(--bg-card)',
-                border: `1px solid ${role === 'org' ? 'var(--accent)' : 'var(--border)'}`,
-              }}>
-              <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                style={{ background: role === 'org' ? 'var(--accent)' : 'var(--border)' }}>
-                <span className="text-sm">🏛</span>
-              </div>
-              <div>
-                <div className="text-sm font-semibold" style={{ color: role === 'org' ? 'var(--accent)' : 'white' }}>Organizatë</div>
-                <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Publiko grante</div>
-              </div>
-            </button>
+            {[
+              { key: 'applicant', icon: 'A', label: 'Aplikant', sub: 'Apliko në grante' },
+              { key: 'org',       icon: '🏛', label: 'Organizatë', sub: 'Publiko grante' },
+            ].map(({ key, icon, label, sub }) => (
+              <button key={key} type="button" onClick={() => { setRole(key); setError(''); setSuccess('') }}
+                className="flex items-center gap-2 p-3 rounded-xl transition text-left"
+                style={{
+                  background: role === key ? 'var(--accent-dim)' : 'var(--bg-card)',
+                  border: `1px solid ${role === key ? 'var(--accent)' : 'var(--border)'}`,
+                }}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ background: role === key ? 'var(--accent)' : 'var(--border)' }}>
+                  <span className="text-sm font-semibold">{icon}</span>
+                </div>
+                <div>
+                  <div className="text-sm font-semibold" style={{ color: role === key ? 'var(--accent)' : 'white' }}>{label}</div>
+                  <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{sub}</div>
+                </div>
+              </button>
+            ))}
           </div>
 
           {error && (
-            <div className="rounded-lg px-4 py-3 mb-4 text-sm" style={{ background: 'rgba(248,113,113,0.1)', color: 'var(--danger)', border: '1px solid rgba(248,113,113,0.2)' }}>
+            <div className="rounded-lg px-4 py-3 mb-4 text-sm"
+              style={{ background: 'rgba(248,113,113,0.1)', color: 'var(--danger)', border: '1px solid rgba(248,113,113,0.2)' }}>
               {error}
             </div>
           )}
+          {success && (
+            <div className="rounded-lg px-4 py-3 mb-4 text-sm"
+              style={{ background: 'rgba(74,222,128,0.1)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.2)' }}>
+              {success}
+            </div>
+          )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {role === 'applicant' ? (
-              <>
-                {/* Llogaria e aplikantit */}
-                <div className="text-xs font-semibold mb-2 flex items-center gap-2" style={{ color: 'var(--text-muted)' }}>
-                  <span>👤</span> Llogaria e aplikantit
+          {!success && (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Emri + Mbiemri — të dyja rolet */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Emri</label>
+                  <input required value={form.first_name} onChange={set('first_name')}
+                    placeholder="Emri" className={inp} style={inpStyle} onFocus={focus} onBlur={blur} />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Mbiemri</label>
+                  <input required value={form.last_name} onChange={set('last_name')}
+                    placeholder="Mbiemri" className={inp} style={inpStyle} onFocus={focus} onBlur={blur} />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Email</label>
+                <input type="email" required value={form.email} onChange={set('email')}
+                  placeholder="Shkruaj email-in" className={inp} style={inpStyle} onFocus={focus} onBlur={blur} />
+              </div>
+
+              {/* Fushat shtesë për organizatë */}
+              {role === 'org' && (
+                <>
                   <div>
-                    <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Emri</label>
-                    <input required value={form.first_name} onChange={e => setForm({ ...form, first_name: e.target.value })}
-                      placeholder="Shkruaj emrin" className={inp} style={inpStyle}
-                      onFocus={e => e.target.style.borderColor = 'var(--accent)'}
-                      onBlur={e => e.target.style.borderColor = 'var(--border)'} />
+                    <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Emri i organizatës</label>
+                    <input required value={form.org_name} onChange={set('org_name')}
+                      placeholder="p.sh. Universiteti i Prishtinës" className={inp} style={inpStyle} onFocus={focus} onBlur={blur} />
                   </div>
                   <div>
-                    <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Mbiemri</label>
-                    <input required value={form.last_name} onChange={e => setForm({ ...form, last_name: e.target.value })}
-                      placeholder="Shkruaj mbiemrin" className={inp} style={inpStyle}
-                      onFocus={e => e.target.style.borderColor = 'var(--accent)'}
-                      onBlur={e => e.target.style.borderColor = 'var(--border)'} />
+                    <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Slug (ID unik)</label>
+                    <input required value={form.org_slug} onChange={set('org_slug')}
+                      placeholder="p.sh. uni-prishtina" className={inp} style={inpStyle} onFocus={focus} onBlur={blur} />
+                    <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                      Vetëm shkronja të vogla, numra dhe vizë (-)
+                    </p>
                   </div>
-                </div>
-                <div>
-                  <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Email</label>
-                  <input type="email" required value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
-                    placeholder="Shkruaj email-in" className={inp} style={inpStyle}
-                    onFocus={e => e.target.style.borderColor = 'var(--accent)'}
-                    onBlur={e => e.target.style.borderColor = 'var(--border)'} />
-                </div>
-                <div>
-                  <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Fjalëkalimi</label>
-                  <div className="relative">
-                    <input type={showPass ? 'text' : 'password'} required value={form.password}
-                      onChange={e => setForm({ ...form, password: e.target.value })}
-                      placeholder="Krijo fjalëkalimin" className={`${inp} pr-10`} style={inpStyle}
-                      onFocus={e => e.target.style.borderColor = 'var(--accent)'}
-                      onBlur={e => e.target.style.borderColor = 'var(--border)'} />
-                    <button type="button" onClick={() => setShowPass(!showPass)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--text-muted)' }}>
-                      {showPass ? '🙈' : '👁'}
-                    </button>
+                  <div>
+                    <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>
+                      NIPT <span style={{ color: 'var(--text-muted)' }}>(Numri i Identifikimit për Personin Tatimor)</span>
+                    </label>
+                    <input value={form.nipt} onChange={set('nipt')}
+                      placeholder="p.sh. K12345678A" className={inp} style={inpStyle} onFocus={focus} onBlur={blur} />
                   </div>
-                </div>
-                <div>
-                  <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Konfirmo fjalëkalimin</label>
-                  <div className="relative">
-                    <input type={showPass ? 'text' : 'password'} required value={form.confirm_password}
-                      onChange={e => setForm({ ...form, confirm_password: e.target.value })}
-                      placeholder="Konfirmo fjalëkalimin" className={`${inp} pr-10`} style={inpStyle}
-                      onFocus={e => e.target.style.borderColor = 'var(--accent)'}
-                      onBlur={e => e.target.style.borderColor = 'var(--border)'} />
-                    <button type="button" onClick={() => setShowPass(!showPass)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--text-muted)' }}>
-                      {showPass ? '🙈' : '👁'}
-                    </button>
+                  <div>
+                    <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>
+                      Dokument verifikimi <span style={{ color: 'var(--text-muted)' }}>(opsional · PDF, JPG, PNG · max 5MB)</span>
+                    </label>
+                    <input
+                      type="file" accept=".pdf,.jpg,.jpeg,.png"
+                      onChange={(e) => setForm({ ...form, docFile: e.target.files[0] || null })}
+                      className="w-full px-4 py-3 rounded-lg text-sm text-white outline-none"
+                      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+                    />
+                    {form.docFile && (
+                      <p className="text-xs mt-1" style={{ color: 'var(--accent)' }}>
+                        ✓ {form.docFile.name}
+                      </p>
+                    )}
                   </div>
+                </>
+              )}
+
+              <div>
+                <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Fjalëkalimi</label>
+                <div className="relative">
+                  <input type={showPass ? 'text' : 'password'} required value={form.password}
+                    onChange={set('password')} placeholder="Krijo fjalëkalimin"
+                    className={`${inp} pr-10`} style={inpStyle} onFocus={focus} onBlur={blur} />
+                  <button type="button" onClick={() => setShowPass(!showPass)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--text-muted)' }}>
+                    {showPass ? '🙈' : '👁'}
+                  </button>
                 </div>
-              </>
-            ) : (
-              <div className="rounded-xl p-4 text-center" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                <div className="text-3xl mb-2">🏛</div>
-                <p className="text-sm font-medium text-white mb-1">Regjistro organizatën</p>
-                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                  Plotëso formularin e organizatës — pas regjistrimit Super Admin e aprovon llogarinë tuaj.
+                <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                  Min. 8 karaktere, 1 shkronjë e madhe, 1 numër, 1 karakter special (!@#$%^&*)
                 </p>
               </div>
-            )}
 
-            {role === 'applicant' && (
+              <div>
+                <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Konfirmo fjalëkalimin</label>
+                <div className="relative">
+                  <input type={showPass ? 'text' : 'password'} required value={form.confirm_password}
+                    onChange={set('confirm_password')} placeholder="Konfirmo fjalëkalimin"
+                    className={`${inp} pr-10`} style={inpStyle} onFocus={focus} onBlur={blur} />
+                  <button type="button" onClick={() => setShowPass(!showPass)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--text-muted)' }}>
+                    {showPass ? '🙈' : '👁'}
+                  </button>
+                </div>
+              </div>
+
               <button type="submit" disabled={loading}
                 className="w-full py-4 rounded-lg font-semibold text-base transition mt-2"
                 style={{ background: 'var(--accent)', color: '#0f1117' }}>
-                {loading ? 'Duke u regjistruar...' : 'Regjistrohu si aplikant'}
+                {loading ? 'Duke u regjistruar...' : role === 'applicant' ? 'Regjistrohu si aplikant' : 'Regjistro organizatën'}
               </button>
-            )}
-            {role === 'org' && (
-              <button type="button"
-                className="w-full py-4 rounded-lg font-semibold text-base transition"
-                style={{ background: 'var(--accent)', color: '#0f1117' }}
-                onClick={() => navigate('/register/org')}>
-                Vazhdo regjistrimin →
-              </button>
-            )}
-          </form>
+            </form>
+          )}
+
+          {success && (
+            <button onClick={() => navigate('/login')}
+              className="w-full py-4 rounded-lg font-semibold text-base transition mt-4"
+              style={{ background: 'var(--accent)', color: '#0f1117' }}>
+              Shko te login →
+            </button>
+          )}
 
           <p className="text-center text-sm mt-4" style={{ color: 'var(--text-secondary)' }}>
             Ke llogari?{' '}
