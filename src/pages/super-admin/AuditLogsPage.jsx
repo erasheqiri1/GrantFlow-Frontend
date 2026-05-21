@@ -58,10 +58,29 @@ export default function AuditLogsPage() {
     hour: '2-digit', minute: '2-digit'
   }) : '—'
 
+  const parseDetails = (raw) => {
+    if (!raw) return {}
+    try { return typeof raw === 'string' ? JSON.parse(raw) : raw } catch { return {} }
+  }
+
   const formatEntity = (l) => {
-    if (l.tenant_name) return l.tenant_name
-    if (l.entity_id)   return `${l.entity} · ${l.entity_id.slice(0, 8)}…`
-    return l.entity ?? '—'
+    const d = parseDetails(l.details)
+    // Organizata → emri i org
+    if (['APPROVE_TENANT', 'REJECT_TENANT'].includes(l.action))
+      return d.org_name ?? l.tenant_name ?? '—'
+    // Përdorues → email i userit
+    if (['ACTIVATE_USER', 'DEACTIVATE_USER', 'CREATE_SUPER_ADMIN', 'INVITE_SUPER_ADMIN'].includes(l.action))
+      return d.email ?? d.invited_email ?? '—'
+    // Ftesa anëtari → email i ftuar
+    if (l.action === 'INVITE_USER')
+      return d.email ?? '—'
+    // Grante → emri i organizatës që e krijoi
+    if (['CREATE_GRANT', 'PUBLISH_GRANT', 'CLOSE_GRANT', 'UPDATE_GRANT', 'DELETE_GRANT'].includes(l.action))
+      return l.tenant_name ?? d.title ?? '—'
+    // Aplikime → emri i grantit ose tenant
+    if (l.action?.includes('APPLICATION'))
+      return l.tenant_name ?? '—'
+    return l.tenant_name ?? l.entity ?? '—'
   }
 
   return (
@@ -95,7 +114,7 @@ export default function AuditLogsPage() {
             <table className="w-full">
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  {['Koha', 'Përdoruesi', 'Veprimi', 'Entiteti', 'Detajet'].map(h => (
+                  {['Koha', 'Përdoruesi', 'Veprimi', 'Entiteti'].map(h => (
                     <th key={h} className="px-5 py-3 text-left text-xs font-medium"
                       style={{ color: 'var(--text-muted)' }}>{h}</th>
                   ))}
@@ -123,14 +142,11 @@ export default function AuditLogsPage() {
                       {formatEntity(l)}
                     </td>
 
-                    <td className="px-5 py-3.5 text-xs" style={{ color: 'var(--text-muted)' }}>
-                      {l.details ?? '—'}
-                    </td>
                   </tr>
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-5 py-10 text-center text-sm"
+                    <td colSpan={4} className="px-5 py-10 text-center text-sm"
                       style={{ color: 'var(--text-muted)' }}>
                       {search ? 'Nuk u gjet asnjë regjistrim.' : 'Nuk ka regjistrime ende.'}
                     </td>
