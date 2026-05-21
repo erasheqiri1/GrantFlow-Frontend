@@ -18,10 +18,17 @@ const STATUS_BADGE = {
 
 export default function SuperAdminDashboard() {
   const [tenants, setTenants] = useState([])
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
-    api.get('/tenants').then(r => setTenants(r.data)).catch(() => {})
+    api.get('/tenants').then(r => setTenants(r.data.items ?? r.data)).catch(() => {})
   }, [])
+
+  const filtered = tenants.filter(t =>
+    t.name?.toLowerCase().includes(search.toLowerCase()) ||
+    t.email?.toLowerCase().includes(search.toLowerCase()) ||
+    t.slug?.toLowerCase().includes(search.toLowerCase())
+  )
 
   return (
     <div className="flex min-h-screen" style={{ background: 'var(--bg-primary)' }}>
@@ -57,7 +64,11 @@ export default function SuperAdminDashboard() {
           <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
             <div className="flex items-center justify-between">
               <h2 className="font-semibold text-white">Organizatat</h2>
-              <input placeholder="🔍  Kërko..." className="px-3 py-1.5 rounded-lg text-xs text-white outline-none"
+              <input
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="🔍  Kërko..."
+                className="px-3 py-1.5 rounded-lg text-xs text-white outline-none"
                 style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }} />
             </div>
           </div>
@@ -70,7 +81,7 @@ export default function SuperAdminDashboard() {
               </tr>
             </thead>
             <tbody>
-              {tenants.map((t) => {
+              {filtered.map((t) => {
                 const s = STATUS_BADGE[t.status] || STATUS_BADGE.PENDING
                 return (
                   <tr key={t.id} style={{ borderBottom: '1px solid var(--border)' }}
@@ -94,7 +105,7 @@ export default function SuperAdminDashboard() {
                   </tr>
                 )
               })}
-              {tenants.length === 0 && (
+              {filtered.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-5 py-10 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
                     Nuk ka organizata ende.
