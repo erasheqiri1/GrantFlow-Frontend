@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext'
 
 const NAV = [
   { to: '/org-admin', icon: '🏠', label: 'Overview' },
-  { to: '/org-admin/grants', icon: '📋', label: 'Shto grant' },
+  { to: '/org-admin/grants', icon: '📋', label: 'Grante' },
   { to: '/org-admin/applications', icon: '📬', label: 'Aplikimet' },
   { to: '/org-admin/team', icon: '👥', label: 'Ekipi' },
 ]
@@ -29,14 +29,26 @@ const STATUS_BADGE = {
 
 export default function OrgDashboard() {
   const { user } = useAuth()
-  const [grants, setGrants] = useState([])
+  const [grants,  setGrants]  = useState([])
+  const [apps,    setApps]    = useState([])
+  const [members, setMembers] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    api.get('/grants').then(r => setGrants(r.data)).catch(() => {})
+    Promise.all([
+      api.get('/grants').catch(() => ({ data: [] })),
+      api.get('/applications').catch(() => ({ data: [] })),
+      api.get('/team').catch(() => ({ data: [] })),
+    ]).then(([gRes, aRes, tRes]) => {
+      setGrants(Array.isArray(gRes.data) ? gRes.data : [])
+      setApps(Array.isArray(aRes.data) ? aRes.data : aRes.data?.items ?? [])
+      setMembers(Array.isArray(tRes.data) ? tRes.data : [])
+    }).finally(() => setLoading(false))
   }, [])
 
   const published = grants.filter(g => g.status === 'PUBLISHED').length
-  const totalApps = grants.reduce((s, g) => s + 0, 0)
+  const approved  = apps.filter(a => a.status === 'APPROVED').length
+  const pending   = apps.filter(a => ['SUBMITTED', 'UNDER_REVIEW'].includes(a.status)).length
 
   const firstName = user?.full_name?.split(' ')[0] || 'Admin'
 
@@ -62,10 +74,10 @@ export default function OrgDashboard() {
 
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4 mb-8">
-          <StatCard label="Grante aktive" value={published} sub={`${grants.length} në shqyrtim`} color="var(--accent)" />
-          <StatCard label="Aplikime totale" value="—" sub="+23 sot" />
-          <StatCard label="Anëtarë ekipit" value="—" sub="1 ftesë aktive" />
-          <StatCard label="Aprovuar" value="—" sub="këtë sezon" color="var(--accent)" />
+          <StatCard label="Grante aktive"    value={loading ? '—' : published}       sub={`${grants.length} gjithsej`} color="var(--accent)" />
+          <StatCard label="Aplikime totale"  value={loading ? '—' : apps.length}     sub={`${pending} në pritje`} />
+          <StatCard label="Anëtarë ekipit"   value={loading ? '—' : members.length}  sub="komisioner + admin" />
+          <StatCard label="Aprovuar"         value={loading ? '—' : approved}         sub="gjithsej" color="#4ade80" />
         </div>
 
         {/* Grants table */}
@@ -99,7 +111,9 @@ export default function OrgDashboard() {
                     <td className="px-5 py-3.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
                       {g.grant_value ? `${g.grant_value.toLocaleString()}€` : '—'}
                     </td>
-                    <td className="px-5 py-3.5 text-sm" style={{ color: 'var(--text-secondary)' }}>—</td>
+                    <td className="px-5 py-3.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                      {apps.filter(a => a.grant_id === g.id).length || '—'}
+                    </td>
                     <td className="px-5 py-3.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
                       {g.deadline ? new Date(g.deadline).toLocaleDateString('sq-AL', { timeZone: 'UTC' }) : '—'}
                     </td>

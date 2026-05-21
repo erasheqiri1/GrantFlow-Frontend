@@ -18,10 +18,40 @@ export default function RegisterPage() {
 
   const set = (field) => (e) => setForm({ ...form, [field]: e.target.value })
 
+  const validatePassword = (pwd) => {
+    if (pwd.length < 8)               return 'Fjalëkalimi duhet të ketë të paktën 8 karaktere'
+    if (!/[A-Z]/.test(pwd))           return 'Duhet të ketë të paktën 1 shkronjë të madhe'
+    if (!/[0-9]/.test(pwd))           return 'Duhet të ketë të paktën 1 numër'
+    if (!/[!@#$%^&*]/.test(pwd))      return 'Duhet të ketë të paktën 1 karakter special (!@#$%^&*)'
+    return null
+  }
+
+  const parseError = (err) => {
+    const detail = err.response?.data?.detail
+    if (!detail) return 'Gabim gjatë regjistrimit'
+    if (typeof detail === 'string') return detail
+    if (Array.isArray(detail)) return detail.map(d => d.msg || d.message || JSON.stringify(d)).join(', ')
+    return 'Gabim gjatë regjistrimit'
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setSuccess('')
+
+    if (role === 'org') {
+      if (!/^[a-z0-9-]+$/.test(form.org_slug)) {
+        setError('Slug-u mund të përmbajë vetëm shkronja të vogla, numra dhe vizë (-)')
+        return
+      }
+      if (form.org_slug.length < 3) {
+        setError('Slug-u duhet të ketë të paktën 3 karaktere')
+        return
+      }
+    }
+
+    const pwdErr = validatePassword(form.password)
+    if (pwdErr) { setError(pwdErr); return }
 
     if (form.password !== form.confirm_password) {
       setError('Fjalëkalimet nuk përputhen')
@@ -63,7 +93,7 @@ export default function RegisterPage() {
         setSuccess('Organizata u regjistrua me sukses! Super Admin do ta aprovojë llogarinë tuaj.')
       }
     } catch (err) {
-      setError(err.response?.data?.detail || 'Gabim gjatë regjistrimit')
+      setError(parseError(err))
     } finally {
       setLoading(false)
     }
@@ -163,7 +193,8 @@ export default function RegisterPage() {
                   </div>
                   <div>
                     <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Slug (ID unik)</label>
-                    <input required value={form.org_slug} onChange={set('org_slug')}
+                    <input required value={form.org_slug}
+                      onChange={e => setForm({ ...form, org_slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
                       placeholder="p.sh. uni-prishtina" className={inp} style={inpStyle} onFocus={focus} onBlur={blur} />
                     <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
                       Vetëm shkronja të vogla, numra dhe vizë (-)

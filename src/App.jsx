@@ -19,9 +19,12 @@ import OrgDashboard from './pages/org-admin/OrgDashboard'
 import GrantsManagePage from './pages/org-admin/GrantsManagePage'
 import GrantFormPage from './pages/org-admin/GrantFormPage'
 import ApplicationsReviewPage from './pages/org-admin/ApplicationsReviewPage'
+import TeamPage from './pages/org-admin/TeamPage'
 
 // Commissioner pages
 import CommissionerDashboard from './pages/commissioner/CommissionerDashboard'
+import CommissionerApplicationsPage from './pages/commissioner/CommissionerApplicationsPage'
+import CommissionerProfilePage from './pages/commissioner/CommissionerProfilePage'
 
 // Super Admin pages
 import SuperAdminDashboard from './pages/super-admin/SuperAdminDashboard'
@@ -71,9 +74,12 @@ export default function App() {
         <Route path="/org-admin/grants/new"         element={<ProtectedRoute role="ORG_ADMIN"><GrantFormPage /></ProtectedRoute>} />
         <Route path="/org-admin/grants/:id/edit"    element={<ProtectedRoute role="ORG_ADMIN"><GrantFormPage /></ProtectedRoute>} />
         <Route path="/org-admin/applications"       element={<ProtectedRoute role="ORG_ADMIN"><ApplicationsReviewPage /></ProtectedRoute>} />
+        <Route path="/org-admin/team"              element={<ProtectedRoute role="ORG_ADMIN"><TeamPage /></ProtectedRoute>} />
 
         {/* Commissioner */}
-        <Route path="/commissioner" element={<ProtectedRoute role="COMMISSIONER"><CommissionerDashboard /></ProtectedRoute>} />
+        <Route path="/commissioner"              element={<ProtectedRoute role="COMMISSIONER"><CommissionerDashboard /></ProtectedRoute>} />
+        <Route path="/commissioner/applications" element={<ProtectedRoute role="COMMISSIONER"><CommissionerApplicationsPage /></ProtectedRoute>} />
+        <Route path="/commissioner/profile"      element={<ProtectedRoute role="COMMISSIONER"><CommissionerProfilePage /></ProtectedRoute>} />
 
         {/* Super Admin */}
         <Route path="/super-admin"            element={<ProtectedRoute role="SUPER_ADMIN"><SuperAdminDashboard /></ProtectedRoute>} />

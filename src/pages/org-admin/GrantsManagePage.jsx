@@ -5,7 +5,7 @@ import api from '../../api/axios'
 
 const NAV = [
   { to: '/org-admin', icon: '🏠', label: 'Overview' },
-  { to: '/org-admin/grants', icon: '📋', label: 'Shto grant' },
+  { to: '/org-admin/grants', icon: '📋', label: 'Grante' },
   { to: '/org-admin/applications', icon: '📬', label: 'Aplikimet' },
   { to: '/org-admin/team', icon: '👥', label: 'Ekipi' },
 ]
@@ -27,9 +27,19 @@ export default function GrantsManagePage() {
 
   useEffect(() => { fetchGrants() }, [])
 
-  const handlePublish = async (id) => { await api.patch(`/grants/${id}/publish`); fetchGrants() }
-  const handleClose   = async (id) => { await api.patch(`/grants/${id}/close`);   fetchGrants() }
-  const handleDelete  = async (id) => { if (!confirm('Fshi grantin?')) return; await api.delete(`/grants/${id}`); fetchGrants() }
+  const handlePublish = async (id) => {
+    try { await api.patch(`/grants/${id}/publish`) } catch {}
+    fetchGrants()
+  }
+  const handleClose = async (id) => {
+    try { await api.patch(`/grants/${id}/close`) } catch {}
+    fetchGrants()
+  }
+  const handleDelete = async (id) => {
+    if (!confirm('A jeni i sigurt që doni ta fshini këtë grant?')) return
+    try { await api.delete(`/grants/${id}`) } catch {}
+    fetchGrants()
+  }
 
   return (
     <div className="flex min-h-screen" style={{ background: 'var(--bg-primary)' }}>
