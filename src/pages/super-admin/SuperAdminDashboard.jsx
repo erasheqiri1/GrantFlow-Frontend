@@ -18,10 +18,18 @@ const STATUS_BADGE = {
 
 export default function SuperAdminDashboard() {
   const [tenants, setTenants] = useState([])
+  const [stats,   setStats]   = useState({ total_grants: 0, total_applications: 0 })
   const [search, setSearch] = useState('')
 
-  useEffect(() => {
+  const load = () => {
     api.get('/tenants').then(r => setTenants(r.data.items ?? r.data)).catch(() => {})
+    api.get('/tenants/stats').then(r => setStats(r.data)).catch(() => {})
+  }
+
+  useEffect(() => {
+    load()
+    window.addEventListener('focus', load)
+    return () => window.removeEventListener('focus', load)
   }, [])
 
   const filtered = tenants.filter(t =>
@@ -46,10 +54,10 @@ export default function SuperAdminDashboard() {
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4 mb-8">
           {[
-            { label: 'Organizata', value: tenants.filter(t => t.status === 'ACTIVE').length, sub: '+1 këtë muaj', color: 'var(--accent)' },
+            { label: 'Organizata',    value: tenants.filter(t => t.status === 'ACTIVE').length,  sub: 'organizata aktive', color: 'var(--accent)' },
             { label: 'Pret aprovim', value: tenants.filter(t => t.status === 'PENDING').length, sub: 'kërkesa aktive' },
-            { label: 'Grante aktive', value: '28', sub: '+4 këtë javë' },
-            { label: 'Aplikime', value: '1,240', sub: '+67 sot' },
+            { label: 'Grante aktive', value: stats.total_grants,       sub: 'nga të gjitha org-at' },
+            { label: 'Aplikime',      value: stats.total_applications, sub: 'nga të gjitha org-at' },
           ].map(s => (
             <div key={s.label} className="rounded-xl p-4" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
               <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>{s.label}</p>

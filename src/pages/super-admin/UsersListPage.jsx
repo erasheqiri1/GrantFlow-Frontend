@@ -32,15 +32,22 @@ export default function UsersListPage() {
       .finally(() => setLoading(false))
   }
 
-  useEffect(() => { loadUsers() }, [])
+  useEffect(() => {
+    loadUsers()
+    window.addEventListener('focus', loadUsers)
+    return () => window.removeEventListener('focus', loadUsers)
+  }, [])
 
   const toggleActive = async (u) => {
     const action = u.is_active ? 'deaktivizoni' : 'aktivizoni'
     if (!confirm(`A jeni i sigurt që doni ta ${action} "${u.email}"?`)) return
     setActionId(u.id)
     try {
-      await api.patch(`/users/${u.id}/toggle-active`)
-      loadUsers()
+      const res = await api.patch(`/users/${u.id}/toggle-active`)
+      // Update direkt në state pa pritur fetch të ri
+      setUsers(prev => prev.map(x =>
+        x.id === u.id ? { ...x, is_active: res.data.is_active } : x
+      ))
     } catch (err) {
       alert(err.response?.data?.detail || 'Gabim')
     } finally {
@@ -105,19 +112,26 @@ export default function UsersListPage() {
                         </span>
                       </td>
                       <td className="px-5 py-3.5">
-                        <span className="text-xs font-semibold px-2.5 py-1 rounded-full"
-                          style={{
-                            background: u.is_active ? 'rgba(74,222,128,0.15)' : 'rgba(248,113,113,0.1)',
-                            color: u.is_active ? '#4ade80' : '#f87171',
-                          }}>
-                          {u.is_active ? 'Aktiv' : 'Joaktiv'}
-                        </span>
+                        {u.tenant_status === 'PENDING' ? (
+                          <span className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                            style={{ background: 'rgba(251,191,36,0.15)', color: '#fbbf24' }}>
+                            Në pritje
+                          </span>
+                        ) : (
+                          <span className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                            style={{
+                              background: u.is_active ? 'rgba(74,222,128,0.15)' : 'rgba(248,113,113,0.1)',
+                              color: u.is_active ? '#4ade80' : '#f87171',
+                            }}>
+                            {u.is_active ? 'Aktiv' : 'Joaktiv'}
+                          </span>
+                        )}
                       </td>
                       <td className="px-5 py-3.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
                         {u.created_at ? new Date(u.created_at).toLocaleDateString('sq-AL') : '—'}
                       </td>
                       <td className="px-5 py-3.5">
-                        {u.id !== currentUser?.user_id && (
+                        {u.id !== currentUser?.user_id && u.tenant_status !== 'PENDING' && (
                           <button
                             disabled={actionId === u.id}
                             onClick={() => toggleActive(u)}
