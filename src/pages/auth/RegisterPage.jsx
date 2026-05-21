@@ -175,7 +175,7 @@ export default function RegisterPage() {
               <button type="button"
                 className="w-full py-3 rounded-lg font-semibold text-sm transition"
                 style={{ background: 'var(--accent)', color: '#0f1117' }}
-                onClick={() => alert('Formulari i organizatës do të implementohet!')}>
+                onClick={() => navigate('/register/org')}>
                 Vazhdo regjistrimin →
               </button>
             )}
