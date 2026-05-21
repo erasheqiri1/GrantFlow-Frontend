@@ -10,9 +10,33 @@ const NAV = [
   { to: '/super-admin/add-admin',  icon: '➕', label: 'Shto super_admin' },
 ]
 
+const ACTION_LABEL = {
+  // Grante
+  CREATE_GRANT:        'Krijoi grantin',
+  PUBLISH_GRANT:       'Publikoi grantin',
+  CLOSE_GRANT:         'Mbylli grantin',
+  UPDATE_GRANT:        'Ndryshoi grantin',
+  DELETE_GRANT:        'Fshiu grantin',
+  // Aplikime
+  SUBMIT_APPLICATION:  'Dorëzoi aplikimin',
+  APPROVE_APPLICATION: 'Aprovoi aplikimin',
+  REJECT_APPLICATION:  'Refuzoi aplikimin',
+  // Organizata
+  APPROVE_TENANT:      'Aprovoi organizatën',
+  REJECT_TENANT:       'Refuzoi organizatën',
+  // Përdorues
+  ACTIVATE_USER:       'Aktivizoi përdoruesin',
+  DEACTIVATE_USER:     'Deaktivizoi përdoruesin',
+  CREATE_SUPER_ADMIN:  'Krijoi super admin',
+  INVITE_SUPER_ADMIN:  'Dërgoi ftesë super admin',
+  // Team
+  INVITE_USER:         'Ftoi anëtar ekipi',
+  REMOVE_MEMBER:       'Largoi anëtarin',
+}
+
 export default function AuditLogsPage() {
-  const [logs, setLogs] = useState([])
-  const [search, setSearch] = useState('')
+  const [logs, setLogs]       = useState([])
+  const [search, setSearch]   = useState('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -23,11 +47,22 @@ export default function AuditLogsPage() {
   }, [])
 
   const filtered = logs.filter(l =>
-    l.action?.toLowerCase().includes(search.toLowerCase()) ||
     l.user_email?.toLowerCase().includes(search.toLowerCase()) ||
+    l.action?.toLowerCase().includes(search.toLowerCase()) ||
     l.entity?.toLowerCase().includes(search.toLowerCase()) ||
     l.tenant_name?.toLowerCase().includes(search.toLowerCase())
   )
+
+  const formatDate = (d) => d ? new Date(d).toLocaleString('sq-AL', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  }) : '—'
+
+  const formatEntity = (l) => {
+    if (l.tenant_name) return l.tenant_name
+    if (l.entity_id)   return `${l.entity} · ${l.entity_id.slice(0, 8)}…`
+    return l.entity ?? '—'
+  }
 
   return (
     <div className="flex min-h-screen" style={{ background: 'var(--bg-primary)' }}>
@@ -36,7 +71,7 @@ export default function AuditLogsPage() {
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-white">Audit Logs</h1>
           <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-            Regjistrimi i veprimeve të kryera në platformë
+            Gjithë aktivitetet në sistem
           </p>
         </div>
 
@@ -46,20 +81,23 @@ export default function AuditLogsPage() {
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="🔍  Kërko veprim, email, entitet..."
-              className="px-3 py-1.5 rounded-lg text-xs text-white outline-none w-64"
+              placeholder="🔍  Kërko përdorues, veprim, entitet..."
+              className="px-3 py-1.5 rounded-lg text-xs text-white outline-none w-72"
               style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
             />
           </div>
 
           {loading ? (
-            <div className="px-5 py-16 text-center text-sm" style={{ color: 'var(--text-muted)' }}>Duke ngarkuar...</div>
+            <div className="px-5 py-16 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
+              Duke ngarkuar...
+            </div>
           ) : (
             <table className="w-full">
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  {['Veprimi', 'Entiteti', 'Useri', 'Organizata', 'IP', 'Data'].map(h => (
-                    <th key={h} className="px-5 py-3 text-left text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{h}</th>
+                  {['Koha', 'Përdoruesi', 'Veprimi', 'Entiteti', 'Detajet'].map(h => (
+                    <th key={h} className="px-5 py-3 text-left text-xs font-medium"
+                      style={{ color: 'var(--text-muted)' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -68,32 +106,32 @@ export default function AuditLogsPage() {
                   <tr key={l.id} style={{ borderBottom: '1px solid var(--border)' }}
                     onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                    <td className="px-5 py-3.5">
-                      <span className="text-xs font-mono font-semibold px-2 py-1 rounded"
-                        style={{ background: 'rgba(96,165,250,0.1)', color: '#60a5fa' }}>
-                        {l.action}
-                      </span>
+
+                    <td className="px-5 py-3.5 text-xs" style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                      {formatDate(l.created_at)}
                     </td>
-                    <td className="px-5 py-3.5 text-xs font-mono" style={{ color: 'var(--text-secondary)' }}>
-                      {l.entity}{l.entity_id ? ` · ${l.entity_id.slice(0, 8)}…` : ''}
-                    </td>
+
                     <td className="px-5 py-3.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
                       {l.user_email ?? '—'}
                     </td>
-                    <td className="px-5 py-3.5 text-xs" style={{ color: 'var(--text-muted)' }}>
-                      {l.tenant_name ?? '—'}
+
+                    <td className="px-5 py-3.5 text-xs font-medium text-white">
+                      {ACTION_LABEL[l.action] ?? l.action}
                     </td>
-                    <td className="px-5 py-3.5 text-xs font-mono" style={{ color: 'var(--text-muted)' }}>
-                      {l.ip_address ?? '—'}
+
+                    <td className="px-5 py-3.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                      {formatEntity(l)}
                     </td>
+
                     <td className="px-5 py-3.5 text-xs" style={{ color: 'var(--text-muted)' }}>
-                      {l.created_at ? new Date(l.created_at).toLocaleString('sq-AL') : '—'}
+                      {l.details ?? '—'}
                     </td>
                   </tr>
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-5 py-10 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
+                    <td colSpan={5} className="px-5 py-10 text-center text-sm"
+                      style={{ color: 'var(--text-muted)' }}>
                       {search ? 'Nuk u gjet asnjë regjistrim.' : 'Nuk ka regjistrime ende.'}
                     </td>
                   </tr>
