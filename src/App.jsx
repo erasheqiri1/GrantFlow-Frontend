@@ -25,6 +25,10 @@ import CommissionerDashboard from './pages/commissioner/CommissionerDashboard'
 
 // Super Admin pages
 import SuperAdminDashboard from './pages/super-admin/SuperAdminDashboard'
+import PendingOrgsPage from './pages/super-admin/PendingOrgsPage'
+import UsersListPage from './pages/super-admin/UsersListPage'
+import AuditLogsPage from './pages/super-admin/AuditLogsPage'
+import AddSuperAdminPage from './pages/super-admin/AddSuperAdminPage'
 
 // Layout
 import ProtectedRoute from './components/layout/ProtectedRoute'
@@ -71,7 +75,11 @@ export default function App() {
         <Route path="/commissioner" element={<ProtectedRoute role="COMMISSIONER"><CommissionerDashboard /></ProtectedRoute>} />
 
         {/* Super Admin */}
-        <Route path="/super-admin" element={<ProtectedRoute role="SUPER_ADMIN"><SuperAdminDashboard /></ProtectedRoute>} />
+        <Route path="/super-admin"            element={<ProtectedRoute role="SUPER_ADMIN"><SuperAdminDashboard /></ProtectedRoute>} />
+        <Route path="/super-admin/pending"    element={<ProtectedRoute role="SUPER_ADMIN"><PendingOrgsPage /></ProtectedRoute>} />
+        <Route path="/super-admin/users"      element={<ProtectedRoute role="SUPER_ADMIN"><UsersListPage /></ProtectedRoute>} />
+        <Route path="/super-admin/audit"      element={<ProtectedRoute role="SUPER_ADMIN"><AuditLogsPage /></ProtectedRoute>} />
+        <Route path="/super-admin/add-admin"  element={<ProtectedRoute role="SUPER_ADMIN"><AddSuperAdminPage /></ProtectedRoute>} />
 
         {/* 404 */}
         <Route path="*" element={<Navigate to="/" replace />} />
