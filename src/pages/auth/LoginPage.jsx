@@ -8,6 +8,7 @@ export default function LoginPage() {
   const login = useAuthStore((s) => s.login)
   const [form, setForm] = useState({ email: '', password: '', tenant_slug: '' })
   const [showPass, setShowPass] = useState(false)
+  const [showStaffLogin, setShowStaffLogin] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -23,7 +24,12 @@ export default function LoginPage() {
       login(access_token, { role, user_id, tenant_slug })
       navigate('/')
     } catch (err) {
-      setError(err.response?.data?.detail || 'Email ose fjalëkalim i gabuar')
+      const detail = err.response?.data?.detail || 'Email ose fjalëkalim i gabuar'
+      setError(detail)
+      // Nëse backend tregon shumë organizata, shfaq fushën e slug-ut
+      if (err.response?.status === 400 && detail.includes('organizata')) {
+        setShowStaffLogin(true)
+      }
     } finally {
       setLoading(false)
     }
@@ -99,21 +105,26 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Tenant slug — vetëm për staf */}
-            <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
-                Organizata <span style={{ color: 'var(--text-muted)' }}>(vetëm për staf)</span>
-              </label>
-              <input
-                type="text" value={form.tenant_slug}
-                onChange={(e) => setForm({ ...form, tenant_slug: e.target.value })}
-                placeholder="p.sh. uni-prishtina"
-                className="w-full px-4 py-2.5 rounded-lg text-sm text-white outline-none transition"
-                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
-                onFocus={e => e.target.style.borderColor = 'var(--accent)'}
-                onBlur={e => e.target.style.borderColor = 'var(--border)'}
-              />
-            </div>
+            {/* Tenant slug — shfaqet vetëm kur backend kthen gabim për shumë organizata */}
+            {showStaffLogin && (
+              <div>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+                  Organizata (slug)
+                </label>
+                <input
+                  type="text" value={form.tenant_slug}
+                  onChange={(e) => setForm({ ...form, tenant_slug: e.target.value })}
+                  placeholder="p.sh. uni-prishtina"
+                  className="w-full px-4 py-2.5 rounded-lg text-sm text-white outline-none transition"
+                  style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+                  onFocus={e => e.target.style.borderColor = 'var(--accent)'}
+                  onBlur={e => e.target.style.borderColor = 'var(--border)'}
+                />
+                <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                  Keni akses në shumë organizata — zgjidhni njërën
+                </p>
+              </div>
+            )}
 
             <button type="submit" disabled={loading}
               className="w-full py-3 rounded-lg font-semibold text-sm transition mt-2"

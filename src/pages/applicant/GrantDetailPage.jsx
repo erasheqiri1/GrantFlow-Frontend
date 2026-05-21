@@ -2,82 +2,153 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import api from '../../api/axios'
 
+const STATUS_INFO = {
+  DRAFT:        { label: 'Draft', color: '#9ca3af' },
+  SUBMITTED:    { label: 'Dorëzuar', color: '#60a5fa' },
+  UNDER_REVIEW: { label: 'Në shqyrtim', color: '#facc15' },
+  APPROVED:     { label: 'Aprovuar', color: '#4ade80' },
+  REJECTED:     { label: 'Refuzuar', color: '#f87171' },
+}
+
 export default function GrantDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [grant, setGrant] = useState(null)
+  const [existingApplication, setExistingApplication] = useState(null)
+  const [profileComplete, setProfileComplete] = useState(true)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    api.get(`/grants/${id}`)
-      .then((res) => setGrant(res.data))
+    const fetchGrant = api.get(`/grants/${id}`)
+    const fetchApps = api.get('/applications/my').catch(() => ({ data: [] }))
+    const fetchProfile = api.get('/profile/me').catch(() => ({ data: null }))
+
+    Promise.all([fetchGrant, fetchApps, fetchProfile])
+      .then(([grantRes, appsRes, profileRes]) => {
+        setGrant(grantRes.data)
+        const applied = appsRes.data.find(
+          app => String(app.grant_id || app.grant?.id) === String(id)
+        )
+        setExistingApplication(applied || null)
+        const p = profileRes.data
+        setProfileComplete(!!(p && p.applicant_type))
+      })
       .catch(() => setError('Granti nuk u gjet.'))
       .finally(() => setLoading(false))
   }, [id])
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-400">Duke ngarkuar...</div>
-  if (error)   return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
+      <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Duke ngarkuar...</div>
+    </div>
+  )
+  if (error) return (
+    <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
+      <div className="text-sm" style={{ color: 'var(--danger)' }}>{error}</div>
+    </div>
+  )
+
+  const appStatus = existingApplication ? STATUS_INFO[existingApplication.status] : null
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white border-b border-gray-200 px-6 py-4">
-        <Link to="/grants" className="text-sm text-blue-600 hover:underline">← Kthehu te grante</Link>
+    <div className="min-h-screen" style={{ background: 'var(--bg-primary)' }}>
+      <nav className="flex items-center px-6 py-3 sticky top-0 z-10"
+        style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)' }}>
+        <Link to="/grants" className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+          ← Kthehu te grante
+        </Link>
       </nav>
 
       <div className="max-w-3xl mx-auto px-6 py-8">
-        <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-xs bg-blue-50 text-blue-600 font-medium px-2 py-0.5 rounded-full">
+        {/* Already applied banner */}
+        {existingApplication && (
+          <div className="rounded-xl p-4 mb-4 flex items-center justify-between"
+            style={{ background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.25)' }}>
+            <div>
+              <p className="text-sm font-semibold" style={{ color: 'var(--accent)' }}>
+                Keni aplikuar tashmë për këtë grant
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                Statusi:{' '}
+                <span style={{ color: appStatus?.color }}>
+                  {appStatus?.label}
+                </span>
+              </p>
+            </div>
+            <button onClick={() => navigate('/my-applications')}
+              className="text-xs font-semibold px-3 py-1.5 rounded-lg"
+              style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}>
+              Shiko aplikimin →
+            </button>
+          </div>
+        )}
+
+        {/* Grant info */}
+        <div className="rounded-2xl p-6 mb-4"
+          style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full"
+              style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}>
               {grant.applicant_type}
             </span>
-            <span className="text-xs bg-green-50 text-green-600 font-medium px-2 py-0.5 rounded-full">
+            <span className="text-xs px-2.5 py-1 rounded-full"
+              style={{ background: 'rgba(34,197,94,0.1)', color: '#4ade80' }}>
               {grant.status}
             </span>
-            {grant.org_name && <span className="text-xs text-gray-400">{grant.org_name}</span>}
+            {grant.org_name && (
+              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{grant.org_name}</span>
+            )}
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900 mb-3">{grant.title}</h1>
+          <h1 className="text-2xl font-bold text-white mb-3">{grant.title}</h1>
 
           {grant.description && (
-            <p className="text-gray-600 mb-4">{grant.description}</p>
+            <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>{grant.description}</p>
           )}
 
-          <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="grid grid-cols-2 gap-3 text-sm">
             {grant.grant_value && (
-              <div className="bg-gray-50 rounded-lg p-3">
-                <div className="text-gray-400 text-xs mb-1">Vlera e grantit</div>
-                <div className="font-semibold">{grant.grant_value.toLocaleString()} {grant.currency}</div>
+              <div className="rounded-xl p-3" style={{ background: 'var(--bg-card)' }}>
+                <div className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Vlera e grantit</div>
+                <div className="font-semibold text-white">
+                  {grant.grant_value.toLocaleString()} {grant.currency}
+                </div>
               </div>
             )}
             {grant.deadline && (
-              <div className="bg-gray-50 rounded-lg p-3">
-                <div className="text-gray-400 text-xs mb-1">Afati</div>
-                <div className="font-semibold">{new Date(grant.deadline).toLocaleDateString('sq-AL')}</div>
+              <div className="rounded-xl p-3" style={{ background: 'var(--bg-card)' }}>
+                <div className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Afati</div>
+                <div className="font-semibold text-white">
+                  {new Date(grant.deadline).toLocaleDateString('sq-AL')}
+                </div>
               </div>
             )}
             {grant.max_applicants && (
-              <div className="bg-gray-50 rounded-lg p-3">
-                <div className="text-gray-400 text-xs mb-1">Maks. aplikantë</div>
-                <div className="font-semibold">{grant.max_applicants}</div>
+              <div className="rounded-xl p-3" style={{ background: 'var(--bg-card)' }}>
+                <div className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Maks. aplikantë</div>
+                <div className="font-semibold text-white">{grant.max_applicants}</div>
               </div>
             )}
           </div>
         </div>
 
-        {/* Pyetjet */}
+        {/* Questions */}
         {grant.questions?.length > 0 && (
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Pyetjet e aplikimit</h2>
+          <div className="rounded-2xl p-6 mb-4"
+            style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
+            <h2 className="font-semibold text-white mb-4">Pyetjet e aplikimit</h2>
             <div className="space-y-3">
               {grant.questions.map((q, i) => (
                 <div key={q.id} className="flex gap-3">
-                  <span className="text-blue-500 font-bold text-sm mt-0.5">{i + 1}.</span>
+                  <span className="font-bold text-sm mt-0.5" style={{ color: 'var(--accent)' }}>{i + 1}.</span>
                   <div>
-                    <p className="text-sm text-gray-800">{q.question_text}</p>
+                    <p className="text-sm text-white">{q.question_text}</p>
                     <div className="flex gap-2 mt-1">
-                      <span className="text-xs text-gray-400">{q.question_type}</span>
-                      {q.is_required && <span className="text-xs text-red-400">* i detyrueshëm</span>}
+                      <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{q.question_type}</span>
+                      {q.is_required && (
+                        <span className="text-xs" style={{ color: 'var(--danger)' }}>* i detyrueshëm</span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -86,12 +157,43 @@ export default function GrantDetailPage() {
           </div>
         )}
 
-        <button
-          onClick={() => navigate(`/grants/${id}/apply`)}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition"
-        >
-          Apliko tani
-        </button>
+        {/* Apply button */}
+        {existingApplication ? (
+          <button
+            onClick={() => navigate('/my-applications')}
+            className="w-full py-3 rounded-xl font-semibold text-sm transition"
+            style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
+            Shiko aplikimin tuaj →
+          </button>
+        ) : !profileComplete ? (
+          <div>
+            <div className="rounded-xl p-4 mb-3 flex items-start gap-3"
+              style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.25)' }}>
+              <span className="text-lg flex-shrink-0">⚠️</span>
+              <div>
+                <p className="text-sm font-semibold" style={{ color: '#facc15' }}>
+                  Profili i pa plotë
+                </p>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+                  Para se të aplikosh, duhet të plotësosh profilin tënd — të paktën kategoria e aplikantit.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate('/profile')}
+              className="w-full py-3 rounded-xl font-semibold text-sm transition"
+              style={{ background: 'rgba(234,179,8,0.15)', color: '#facc15', border: '1px solid rgba(234,179,8,0.3)' }}>
+              Plotëso profilin para se të aplikosh →
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => navigate(`/grants/${id}/apply`)}
+            className="w-full py-3 rounded-xl font-semibold text-sm transition"
+            style={{ background: 'var(--accent)', color: '#0f1117' }}>
+            Apliko tani
+          </button>
+        )}
       </div>
     </div>
   )

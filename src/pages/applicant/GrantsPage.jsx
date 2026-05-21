@@ -11,6 +11,7 @@ export default function GrantsPage() {
   const [grants, setGrants] = useState([])
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState({ title: '', applicant_type: '', deadline_to: '' })
+  const [appliedGrantIds, setAppliedGrantIds] = useState(new Set())
 
   const fetchGrants = async () => {
     setLoading(true)
@@ -28,7 +29,17 @@ export default function GrantsPage() {
     }
   }
 
-  useEffect(() => { fetchGrants() }, [])
+  useEffect(() => {
+    fetchGrants()
+    api.get('/applications/my')
+      .then(res => {
+        const ids = new Set(
+          res.data.map(app => String(app.grant_id || app.grant?.id)).filter(Boolean)
+        )
+        setAppliedGrantIds(ids)
+      })
+      .catch(() => {})
+  }, [])
 
   const initials = user?.full_name
     ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase()
@@ -53,12 +64,16 @@ export default function GrantsPage() {
             style={{ background: 'var(--bg-card)' }}>
             <span>🔔</span>
           </button>
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => { logout(); navigate('/login') }}>
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
-              style={{ background: 'var(--accent)', color: '#0f1117' }}>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold cursor-pointer"
+              style={{ background: 'var(--accent)', color: '#0f1117' }}
+              onClick={() => navigate('/profile')}>
               {initials}
             </div>
-            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Dil</span>
+            <button className="text-sm" style={{ color: 'var(--text-secondary)' }}
+              onClick={() => { logout(); navigate('/login') }}>
+              Dil
+            </button>
           </div>
         </div>
       </nav>
@@ -183,11 +198,19 @@ export default function GrantsPage() {
                   )}
                 </div>
 
-                <Link to={`/grants/${grant.id}`}
-                  className="w-full py-2 rounded-xl text-sm font-semibold text-center transition"
-                  style={{ background: 'var(--accent-dim)', color: 'var(--accent)', border: '1px solid rgba(74,222,128,0.2)' }}>
-                  Apliko →
-                </Link>
+                {appliedGrantIds.has(String(grant.id)) ? (
+                  <Link to={`/grants/${grant.id}`}
+                    className="w-full py-2 rounded-xl text-sm font-semibold text-center transition"
+                    style={{ background: 'var(--bg-card)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
+                    ✓ Ke aplikuar
+                  </Link>
+                ) : (
+                  <Link to={`/grants/${grant.id}`}
+                    className="w-full py-2 rounded-xl text-sm font-semibold text-center transition"
+                    style={{ background: 'var(--accent-dim)', color: 'var(--accent)', border: '1px solid rgba(74,222,128,0.2)' }}>
+                    Apliko →
+                  </Link>
+                )}
               </div>
             ))}
           </div>

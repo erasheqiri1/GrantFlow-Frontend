@@ -4,12 +4,15 @@ import useAuthStore from './store/authStore'
 // Auth pages
 import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
+import OrgRegisterPage from './pages/auth/OrgRegisterPage'
 
 // Applicant pages
 import GrantsPage from './pages/applicant/GrantsPage'
 import GrantDetailPage from './pages/applicant/GrantDetailPage'
 import ApplyPage from './pages/applicant/ApplyPage'
 import MyApplicationsPage from './pages/applicant/MyApplicationsPage'
+import ApplicationDetailPage from './pages/applicant/ApplicationDetailPage'
+import ProfilePage from './pages/applicant/ProfilePage'
 
 // Org Admin pages
 import OrgDashboard from './pages/org-admin/OrgDashboard'
@@ -44,15 +47,18 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         {/* Public */}
-        <Route path="/login"    element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/"         element={<RoleRedirect />} />
+        <Route path="/login"        element={<LoginPage />} />
+        <Route path="/register"     element={<RegisterPage />} />
+        <Route path="/register/org" element={<OrgRegisterPage />} />
+        <Route path="/"             element={<RoleRedirect />} />
 
         {/* Applicant */}
-        <Route path="/grants"                element={<ProtectedRoute role="APPLICANT"><GrantsPage /></ProtectedRoute>} />
-        <Route path="/grants/:id"            element={<ProtectedRoute role="APPLICANT"><GrantDetailPage /></ProtectedRoute>} />
-        <Route path="/grants/:id/apply"      element={<ProtectedRoute role="APPLICANT"><ApplyPage /></ProtectedRoute>} />
-        <Route path="/my-applications"       element={<ProtectedRoute role="APPLICANT"><MyApplicationsPage /></ProtectedRoute>} />
+        <Route path="/grants"                  element={<ProtectedRoute role="APPLICANT"><GrantsPage /></ProtectedRoute>} />
+        <Route path="/grants/:id"              element={<ProtectedRoute role="APPLICANT"><GrantDetailPage /></ProtectedRoute>} />
+        <Route path="/grants/:id/apply"        element={<ProtectedRoute role="APPLICANT"><ApplyPage /></ProtectedRoute>} />
+        <Route path="/my-applications"         element={<ProtectedRoute role="APPLICANT"><MyApplicationsPage /></ProtectedRoute>} />
+        <Route path="/my-applications/:id"     element={<ProtectedRoute role="APPLICANT"><ApplicationDetailPage /></ProtectedRoute>} />
+        <Route path="/profile"                 element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
 
         {/* Org Admin */}
         <Route path="/org-admin"                    element={<ProtectedRoute role="ORG_ADMIN"><OrgDashboard /></ProtectedRoute>} />
