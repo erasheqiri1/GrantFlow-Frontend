@@ -64,7 +64,7 @@ export default function ApplicationDetailPage() {
     || (application?.grant_id ? `Grant #${application.grant_id}` : 'Aplikim')
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg-primary)' }}>
+    <div className="min-h-screen applicant-page" style={{ background: 'var(--bg-primary)' }}>
       {/* Navbar */}
       <nav className="flex items-center justify-between px-6 py-3 sticky top-0 z-10"
         style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)' }}>
@@ -94,12 +94,11 @@ export default function ApplicationDetailPage() {
             </span>
           </div>
           <h1 className="text-xl font-bold text-white mb-3">{grantTitle}</h1>
-          <div className="space-y-1 text-xs" style={{ color: 'var(--text-muted)' }}>
-            <p>Krijuar: {application?.created_at
-              ? new Date(application.created_at).toLocaleDateString('sq-AL')
-              : '—'}</p>
-            {application?.submitted_at && (
+          <div className="space-y-1 text-xs application-detail-dates" style={{ color: 'var(--text-muted)' }}>
+            {application?.submitted_at ? (
               <p>Dorëzuar: {new Date(application.submitted_at).toLocaleDateString('sq-AL')}</p>
+            ) : (
+              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>—</p>
             )}
           </div>
 
@@ -139,6 +138,36 @@ export default function ApplicationDetailPage() {
                     {ans.answer_text || '—'}
                   </p>
                 </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Dokumentet mbështetëse */}
+        {application?.attachments?.length > 0 && (
+          <div className="rounded-2xl p-6 mb-4"
+            style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
+            <h2 className="font-semibold text-white mb-3">Dokumentet mbështetëse</h2>
+            <div className="space-y-2">
+              {application.attachments.map(att => (
+                <a
+                  key={att.id}
+                  href={att.file_path}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 transition hover:opacity-80"
+                  style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                  <span className="text-lg">📄</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-white truncate">{att.file_name}</p>
+                    {att.size_bytes && (
+                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                        {(att.size_bytes / 1024).toFixed(0)} KB
+                      </p>
+                    )}
+                  </div>
+                  <span className="text-xs flex-shrink-0" style={{ color: 'var(--accent)' }}>Hap →</span>
+                </a>
               ))}
             </div>
           </div>

@@ -32,7 +32,7 @@ export default function MyApplicationsPage() {
     : 'AR'
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg-primary)' }}>
+    <div className="min-h-screen applicant-page" style={{ background: 'var(--bg-primary)' }}>
       {/* Navbar */}
       <nav className="flex items-center justify-between px-6 py-3 sticky top-0 z-10"
         style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)' }}>
@@ -45,26 +45,29 @@ export default function MyApplicationsPage() {
             <span className="text-sm font-semibold" style={{ color: 'var(--accent)' }}>Aplikimet e mia</span>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <button className="relative w-8 h-8 flex items-center justify-center rounded-lg"
-            style={{ background: 'var(--bg-card)' }}>
-            <span>🔔</span>
+        <div className="flex items-center gap-4">
+          <button className="relative w-10 h-10 flex items-center justify-center rounded-lg"
+            style={{ background: 'var(--bg-card)' }} aria-label="Notifications">
+            <span aria-hidden="true">🔔</span>
           </button>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold cursor-pointer"
-              style={{ background: 'var(--accent)', color: '#0f1117' }}
-              onClick={() => navigate('/profile')}>
-              {initials}
-            </div>
-            <button className="text-sm" style={{ color: 'var(--text-secondary)' }}
-              onClick={() => { logout(); navigate('/login') }}>
-              Dil
-            </button>
-          </div>
+
+          <button onClick={() => navigate('/profile')}
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            style={{ background: 'var(--accent)', color: '#0f1117' }} aria-label="Profile">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-3.866 0-7 3.134-7 7h2c0-2.757 2.243-5 5-5s5 2.243 5 5h2c0-3.866-3.134-7-7-7z" fill="currentColor"/>
+            </svg>
+          </button>
+
+          <button className="px-3 py-2 rounded-lg text-sm font-semibold"
+            style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
+            onClick={() => { logout(); navigate('/login') }}>
+            Dil
+          </button>
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-6 py-8">
+      <div className="max-w-4xl mx-auto px-6 py-8 my-applications">
         <h2 className="text-2xl font-bold text-white mb-6">Aplikimet e mia</h2>
 
         {loading ? (
@@ -73,7 +76,7 @@ export default function MyApplicationsPage() {
           </div>
         ) : applications.length === 0 ? (
           <div className="text-center py-16">
-            <div className="text-4xl mb-4">📋</div>
+            <div className="text-4xl mb-4"></div>
             <p className="mb-4" style={{ color: 'var(--text-secondary)' }}>Nuk ke asnjë aplikim ende.</p>
             <Link to="/grants" className="font-semibold" style={{ color: 'var(--accent)' }}>
               Shfleto grantet →
@@ -96,9 +99,10 @@ export default function MyApplicationsPage() {
                       </div>
                       <h3 className="font-semibold text-white truncate">{grantName(app)}</h3>
                       <div className="text-xs mt-1 space-y-0.5" style={{ color: 'var(--text-muted)' }}>
-                        <p>Krijuar: {new Date(app.created_at).toLocaleDateString('sq-AL')}</p>
-                        {app.submitted_at && (
+                        {app.submitted_at ? (
                           <p>Dorëzuar: {new Date(app.submitted_at).toLocaleDateString('sq-AL')}</p>
+                        ) : (
+                          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>—</p>
                         )}
                       </div>
                       {app.decision_reason && (

@@ -36,10 +36,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
-      <div className="w-full max-w-md px-4">
+    <div className="min-h-screen flex items-center justify-center py-12" style={{ background: 'var(--bg-primary)' }}>
+      <div className="w-full max-w-lg px-6">
         {/* Logo */}
-        <div className="flex flex-col items-center mb-8">
+        <div className="flex flex-col items-center mb-6">
           <div className="w-14 h-14 rounded-full flex items-center justify-center mb-3" style={{ background: 'var(--accent-dim)', border: '2px solid var(--accent)' }}>
             <span className="text-2xl font-black" style={{ color: 'var(--accent)' }}>G</span>
           </div>
@@ -62,17 +62,16 @@ export default function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
             <div>
               <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>Email</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base" style={{ color: 'var(--text-muted)' }}>✉</span>
+              <div>
                 <input
                   type="email" required value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="Shkruaj email-in"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm text-white outline-none transition"
+                  className="w-full px-5 py-4 rounded-lg text-base text-white outline-none transition"
                   style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
                   onFocus={e => e.target.style.borderColor = 'var(--accent)'}
                   onBlur={e => e.target.style.borderColor = 'var(--border)'}
@@ -84,20 +83,19 @@ export default function LoginPage() {
             <div>
               <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>Fjalëkalimi</label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base" style={{ color: 'var(--text-muted)' }}>🔒</span>
                 <input
                   type={showPass ? 'text' : 'password'} required value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   placeholder="Shkruaj fjalëkalimin"
-                  className="w-full pl-10 pr-10 py-2.5 rounded-lg text-sm text-white outline-none transition"
+                  className="w-full px-5 pr-12 py-4 rounded-lg text-base text-white outline-none transition"
                   style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
                   onFocus={e => e.target.style.borderColor = 'var(--accent)'}
                   onBlur={e => e.target.style.borderColor = 'var(--border)'}
                 />
                 <button type="button" onClick={() => setShowPass(!showPass)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-sm"
                   style={{ color: 'var(--text-muted)' }}>
-                  {showPass ? '🙈' : '👁'}
+                  {showPass ? 'Hide' : 'Show'}
                 </button>
               </div>
               <div className="text-right mt-1">
@@ -115,7 +113,7 @@ export default function LoginPage() {
                   type="text" value={form.tenant_slug}
                   onChange={(e) => setForm({ ...form, tenant_slug: e.target.value })}
                   placeholder="p.sh. uni-prishtina"
-                  className="w-full px-4 py-2.5 rounded-lg text-sm text-white outline-none transition"
+                  className="w-full px-5 py-4 rounded-lg text-base text-white outline-none transition"
                   style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
                   onFocus={e => e.target.style.borderColor = 'var(--accent)'}
                   onBlur={e => e.target.style.borderColor = 'var(--border)'}
@@ -127,7 +125,7 @@ export default function LoginPage() {
             )}
 
             <button type="submit" disabled={loading}
-              className="w-full py-3 rounded-lg font-semibold text-sm transition mt-2"
+              className="w-full py-4 rounded-lg font-semibold text-base transition mt-2"
               style={{ background: loading ? 'var(--accent-dark)' : 'var(--accent)', color: '#0f1117' }}>
               {loading ? 'Duke u kyçur...' : 'Hyr tani'}
             </button>

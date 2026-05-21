@@ -16,23 +16,39 @@ export default function GrantDetailPage() {
   const [grant, setGrant] = useState(null)
   const [existingApplication, setExistingApplication] = useState(null)
   const [profileComplete, setProfileComplete] = useState(true)
+  const [typeAllowed, setTypeAllowed] = useState(true)
+  const [userType, setUserType] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+  const TYPE_LABELS = {
+    STUDENT: 'Student', BUSINESS: 'Biznes', ORGANIZATION: 'Organizatë (OJQ)',
+    INDIVIDUAL: 'Individual', OTHER: 'Tjetër', ANY: 'Të gjithë',
+  }
+
   useEffect(() => {
-    const fetchGrant = api.get(`/grants/${id}`)
-    const fetchApps = api.get('/applications/my').catch(() => ({ data: [] }))
+    const fetchGrant   = api.get(`/grants/${id}`)
+    const fetchApps    = api.get('/applications/my').catch(() => ({ data: [] }))
     const fetchProfile = api.get('/profile/me').catch(() => ({ data: null }))
 
     Promise.all([fetchGrant, fetchApps, fetchProfile])
       .then(([grantRes, appsRes, profileRes]) => {
-        setGrant(grantRes.data)
+        const g = grantRes.data
+        setGrant(g)
+
         const applied = appsRes.data.find(
           app => String(app.grant_id || app.grant?.id) === String(id)
         )
         setExistingApplication(applied || null)
+
         const p = profileRes.data
-        setProfileComplete(!!(p && p.applicant_type))
+        const hasType = !!(p && p.applicant_type)
+        setProfileComplete(hasType)
+        setUserType(p?.applicant_type || '')
+
+        if (hasType && g.applicant_type !== 'ANY') {
+          setTypeAllowed(p.applicant_type === g.applicant_type)
+        }
       })
       .catch(() => setError('Granti nuk u gjet.'))
       .finally(() => setLoading(false))
@@ -52,7 +68,7 @@ export default function GrantDetailPage() {
   const appStatus = existingApplication ? STATUS_INFO[existingApplication.status] : null
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg-primary)' }}>
+    <div className="min-h-screen applicant-page" style={{ background: 'var(--bg-primary)' }}>
       <nav className="flex items-center px-6 py-3 sticky top-0 z-10"
         style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)' }}>
         <Link to="/grants" className="text-sm" style={{ color: 'var(--text-secondary)' }}>
@@ -120,7 +136,7 @@ export default function GrantDetailPage() {
               <div className="rounded-xl p-3" style={{ background: 'var(--bg-card)' }}>
                 <div className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Afati</div>
                 <div className="font-semibold text-white">
-                  {new Date(grant.deadline).toLocaleDateString('sq-AL')}
+                  {new Date(grant.deadline).toLocaleDateString('sq-AL', { timeZone: 'UTC' })}
                 </div>
               </div>
             )}
@@ -169,22 +185,33 @@ export default function GrantDetailPage() {
           <div>
             <div className="rounded-xl p-4 mb-3 flex items-start gap-3"
               style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.25)' }}>
-              <span className="text-lg flex-shrink-0">⚠️</span>
+              <span className="text-lg flex-shrink-0 font-bold">!</span>
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#facc15' }}>
-                  Profili i pa plotë
-                </p>
+                <p className="text-sm font-semibold" style={{ color: '#facc15' }}>Profili i pa plotë</p>
                 <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
-                  Para se të aplikosh, duhet të plotësosh profilin tënd — të paktën kategoria e aplikantit.
+                  Duhet të plotësosh kategorinë e profilit para se të aplikosh.
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => navigate('/profile')}
+            <button onClick={() => navigate('/profile')}
               className="w-full py-3 rounded-xl font-semibold text-sm transition"
               style={{ background: 'rgba(234,179,8,0.15)', color: '#facc15', border: '1px solid rgba(234,179,8,0.3)' }}>
-              Plotëso profilin para se të aplikosh →
+              Plotëso profilin →
             </button>
+          </div>
+        ) : !typeAllowed ? (
+          <div className="rounded-xl p-4 flex items-start gap-3"
+            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}>
+            <span className="text-lg flex-shrink-0 font-bold">!</span>
+            <div>
+              <p className="text-sm font-semibold" style={{ color: '#f87171' }}>
+                Ky grant nuk është për kategorinë tënde
+              </p>
+              <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+                Granti kërkon: <span className="font-semibold text-white">{TYPE_LABELS[grant?.applicant_type]}</span>
+                {' · '}Kategoria jote: <span className="font-semibold text-white">{TYPE_LABELS[userType] || '—'}</span>
+              </p>
+            </div>
           </div>
         ) : (
           <button

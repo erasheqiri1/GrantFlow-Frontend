@@ -1,0 +1,158 @@
+/* UI improvements for a more professional look */
+
+/* Card enhancements */
+.rounded-2xl {
+  border-radius: 1rem; /* match Tailwind rounded-2xl */
+  transition: box-shadow .18s ease, transform .12s ease;
+  box-shadow: 0 8px 24px rgba(2,6,23,0.12);
+  border: 1px solid rgba(255,255,255,0.03);
+}
+.rounded-2xl:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(2,6,23,0.14); }
+
+/* Inputs and selects */
+input[type="text"], input[type="email"], input[type="password"], textarea, select {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+  border-radius: .625rem; /* 10px */
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  box-shadow: 0 0 0 6px rgba(34,197,94,0.06); /* subtle accent ring */
+  border-color: var(--accent);
+}
+
+/* Buttons */
+button {
+  transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+}
+button:hover { transform: translateY(-1px); }
+button:active { transform: translateY(0); }
+
+/* Primary buttons subtle shadow */
+.btn-primary, button[style*="var(--accent)"] {
+  box-shadow: 0 6px 18px rgba(34,197,94,0.06);
+}
+
+/* Headings */
+h1, h2, h3 { line-height: 1.15; letter-spacing: 0.2px; }
+
+/* Auth form sizing consistency */
+.min-h-screen .rounded-2xl { max-width: 760px; margin: 0 auto; }
+
+/* Search and filter tweaks */
+.search-input { padding-left: 1rem !important; height: 48px; }
+.filters { gap: 1rem !important; }
+
+/* Notification dot (if used) */
+.notification-dot { width: 12px; height: 12px; border-radius: 9999px; display: inline-block; background: var(--accent); }
+
+/* Top navigation */
+.app-nav { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.app-nav .w-10 { width: 40px; height: 40px; }
+
+/* Profile header alignment (applicant pages) */
+.applicant-page .profile-card { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+.applicant-page .profile-card .info { flex:1; text-align:left; }
+@media (max-width: 640px) {
+  .applicant-page .profile-card { flex-direction:column; align-items:center; text-align:center; }
+  .applicant-page .profile-card .info { text-align:center; }
+}
+
+/* Centered profile layout - larger and more prominent */
+.profile-center { display:flex; flex-direction:column; align-items:center; text-align:center; max-width: 920px; margin: 0 auto; padding: 2rem; box-shadow: 0 14px 40px rgba(2,6,23,0.12); border-radius: 1rem; background: transparent; }
+.profile-center .avatar { margin-bottom: 0.75rem; }
+.profile-center .avatar .w-20 { width: 112px; height: 112px; }
+.profile-center .info h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+.profile-center .info p { font-size: 1rem; color: var(--text-secondary); }
+.profile-center .mt-4 button { padding: 0.6rem 1rem; font-size: 1rem; border-radius: .75rem; }
+
+/* Wrapper to center whole content block */
+.profile-center-wrapper { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; max-width: 980px; margin: 0 auto; transform: scale(1.06); }
+.profile-center-wrapper > .rounded-2xl { width: 100%; }
+
+@media (max-width: 1024px) {
+  .profile-center { max-width: 680px; padding: 1.5rem; }
+  .profile-center .avatar .w-20 { width: 96px; height: 96px; }
+  .profile-center .info h1 { font-size: 1.6rem; }
+}
+@media (max-width: 640px) {
+  .profile-center { padding: 1rem; }
+  .profile-center .avatar .w-20 { width: 80px; height: 80px; }
+  .profile-center .info h1 { font-size: 1.4rem; }
+}
+
+
+/* Grant action buttons */
+.grant-btn {
+  display: inline-block;
+  width: 100%;
+  padding: 0.7rem 0;
+  border-radius: 0.75rem;
+  text-align: center;
+  font-weight: 600;
+  transition: background-color .12s ease, transform .12s ease, box-shadow .12s ease;
+  border: 1px solid var(--border);
+}
+.grant-btn.apply {
+  background: var(--accent);
+  color: #0f1117;
+  box-shadow: 0 8px 20px rgba(34,197,94,0.06);
+}
+.grant-btn.apply:hover { filter: brightness(0.98); transform: translateY(-1px); }
+.grant-btn.applied {
+  background: var(--bg-card);
+  color: var(--text-muted);
+}
+
+/* 5-column full-width grid with responsive fallbacks (fixed equal-width columns) */
+.grant-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  width: 100%;
+}
+/* fixed-height, equal-size cards */
+.grant-grid > .grant-card { display:flex; flex-direction:column; justify-content:space-between; width: 100%; height: 240px; padding: 0.4rem !important; box-sizing: border-box; overflow: hidden; }
+.grant-card { min-height: 240px; }
+
+/* enforce consistent text clamping */
+.grant-card h3,
+.grant-card p {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.grant-card h3 { -webkit-line-clamp: 2; font-size: 0.98rem; margin-bottom: 0.2rem; line-height: 1.16; }
+.grant-card p { -webkit-line-clamp: 2; font-size: 0.8rem; margin-bottom: 0.2rem; color: var(--text-secondary); }
+.grant-card .text-xs { font-size: 0.72rem; }
+
+/* Buttons and meta spacing */
+.grant-card .grant-btn { padding: 0.35rem 0; font-size: 0.86rem; }
+.grant-card .flex.items-center.gap-3 { gap: 6px !important; }
+
+/* Responsive breakpoints */
+@media (max-width: 1280px) { .grant-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 1024px) { .grant-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px) { .grant-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) {
+  .grant-grid { grid-template-columns: 1fr; gap: 10px; }
+  .grant-grid > .grant-card { width: 100%; height: auto; min-height: unset; }
+}
+
+/* Small utility */
+.rounded-xl { transition: box-shadow .12s ease; }
+
+/* My Applications page tweaks */
+.my-applications .rounded-2xl { padding: 0.9rem !important; }
+.my-applications h3 { font-size: 1rem; margin-top: 0.2rem; }
+.my-applications .text-xs { font-size: 0.78rem; }
+.my-applications .status-badge { padding: 0.28rem 0.6rem; font-size: 0.72rem; }
+.my-applications .rounded-2xl .flex-1 { min-width: 0; }
+.my-applications .rounded-2xl .truncate { max-width: 42rem; }
+
+/* Application detail spacing and date tweaks */
+.application-detail-dates p { margin: 0; padding: 0.15rem 0; }
+.application-detail-dates { margin-bottom: 0.9rem; }
+
+/* Slightly increase spacing between rounded sections on detail pages */
+.max-w-3xl .rounded-2xl { margin-bottom: 0.9rem; }
