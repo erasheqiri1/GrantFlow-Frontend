@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext'
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const login = useAuth((s) => s.login)
+  const { login } = useAuth()
   const [form, setForm] = useState({ email: '', password: '', tenant_slug: '' })
   const [showPass, setShowPass] = useState(false)
   const [showStaffLogin, setShowStaffLogin] = useState(false)
