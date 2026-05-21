@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import useAuthStore from './store/authStore'
+import { useAuth } from './context/AuthContext'
 
 // Auth pages
 import LoginPage from './pages/auth/LoginPage'
@@ -35,7 +35,7 @@ import './styles/applicant-fixes.css'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 
 function RoleRedirect() {
-  const { user } = useAuthStore()
+  const { user } = useAuth()
   if (!user) return <Navigate to="/login" replace />
 
   switch (user.role) {

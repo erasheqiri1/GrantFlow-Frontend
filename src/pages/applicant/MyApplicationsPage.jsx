@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import api from '../../api/axios'
-import useAuthStore from '../../store/authStore'
+import { useAuth } from '../../context/AuthContext'
 
 const STATUS_INFO = {
   DRAFT:        { label: 'Draft', bg: 'rgba(107,114,128,0.15)', color: '#9ca3af' },
@@ -16,7 +16,7 @@ function grantName(app) {
 }
 
 export default function MyApplicationsPage() {
-  const { logout, user } = useAuthStore()
+  const { logout, user } = useAuth()
   const navigate = useNavigate()
   const [applications, setApplications] = useState([])
   const [loading, setLoading] = useState(true)

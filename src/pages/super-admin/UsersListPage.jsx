@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import Sidebar from '../../components/layout/Sidebar'
 import api from '../../api/axios'
-import useAuthStore from '../../store/authStore'
+import { useAuth } from '../../context/AuthContext'
 
 const NAV = [
   { to: '/super-admin',            icon: '🏠', label: 'Overview' },
@@ -23,7 +23,7 @@ export default function UsersListPage() {
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [actionId, setActionId] = useState(null)
-  const { user: currentUser } = useAuthStore()
+  const { user: currentUser } = useAuth()
 
   const loadUsers = () => {
     api.get('/users')

@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import api from '../../api/axios'
-import useAuthStore from '../../store/authStore'
+import { useAuth } from '../../context/AuthContext'
 
 const APPLICANT_TYPES = ['STUDENT', 'BUSINESS', 'ORGANIZATION', 'INDIVIDUAL']
 
 export default function GrantsPage() {
-  const { logout, user } = useAuthStore()
+  const { logout, user } = useAuth()
   const navigate = useNavigate()
   const [grants, setGrants] = useState([])
   const [loading, setLoading] = useState(true)

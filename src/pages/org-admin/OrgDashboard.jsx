@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Sidebar from '../../components/layout/Sidebar'
 import api from '../../api/axios'
-import useAuthStore from '../../store/authStore'
+import { useAuth } from '../../context/AuthContext'
 
 const NAV = [
   { to: '/org-admin', icon: '🏠', label: 'Overview' },
@@ -28,7 +28,7 @@ const STATUS_BADGE = {
 }
 
 export default function OrgDashboard() {
-  const { user } = useAuthStore()
+  const { user } = useAuth()
   const [grants, setGrants] = useState([])
 
   useEffect(() => {
