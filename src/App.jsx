@@ -31,6 +31,7 @@ import AuditLogsPage from './pages/super-admin/AuditLogsPage'
 import AddSuperAdminPage from './pages/super-admin/AddSuperAdminPage'
 
 // Layout
+import './styles/applicant-fixes.css'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 
 function RoleRedirect() {

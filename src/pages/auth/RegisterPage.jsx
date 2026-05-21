@@ -32,12 +32,12 @@ export default function RegisterPage() {
     }
   }
 
-  const inp = "w-full px-4 py-2.5 rounded-lg text-sm text-white outline-none transition"
+  const inp = "w-full px-5 py-4 rounded-lg text-base text-white outline-none transition"
   const inpStyle = { background: 'var(--bg-card)', border: '1px solid var(--border)' }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-8" style={{ background: 'var(--bg-primary)' }}>
-      <div className="w-full max-w-md px-4">
+    <div className="min-h-screen flex items-center justify-center py-12" style={{ background: 'var(--bg-primary)' }}>
+      <div className="w-full max-w-lg px-6">
         {/* Logo */}
         <div className="flex flex-col items-center mb-6">
           <div className="w-12 h-12 rounded-full flex items-center justify-center mb-2" style={{ background: 'var(--accent-dim)', border: '2px solid var(--accent)' }}>
@@ -55,7 +55,7 @@ export default function RegisterPage() {
           </p>
 
           {/* Role tabs */}
-          <div className="grid grid-cols-2 gap-3 mb-6">
+          <div className="grid grid-cols-2 gap-4 mb-6">
             <button onClick={() => setRole('applicant')}
               className="flex items-center gap-2 p-3 rounded-xl transition text-left"
               style={{
@@ -64,7 +64,7 @@ export default function RegisterPage() {
               }}>
               <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
                 style={{ background: role === 'applicant' ? 'var(--accent)' : 'var(--border)' }}>
-                <span className="text-sm">👤</span>
+                <span className="text-sm font-semibold">A</span>
               </div>
               <div>
                 <div className="text-sm font-semibold" style={{ color: role === 'applicant' ? 'var(--accent)' : 'white' }}>Aplikant</div>
@@ -95,7 +95,7 @@ export default function RegisterPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {role === 'applicant' ? (
               <>
                 {/* Llogaria e aplikantit */}
@@ -166,14 +166,14 @@ export default function RegisterPage() {
 
             {role === 'applicant' && (
               <button type="submit" disabled={loading}
-                className="w-full py-3 rounded-lg font-semibold text-sm transition mt-2"
+                className="w-full py-4 rounded-lg font-semibold text-base transition mt-2"
                 style={{ background: 'var(--accent)', color: '#0f1117' }}>
                 {loading ? 'Duke u regjistruar...' : 'Regjistrohu si aplikant'}
               </button>
             )}
             {role === 'org' && (
               <button type="button"
-                className="w-full py-3 rounded-lg font-semibold text-sm transition"
+                className="w-full py-4 rounded-lg font-semibold text-base transition"
                 style={{ background: 'var(--accent)', color: '#0f1117' }}
                 onClick={() => navigate('/register/org')}>
                 Vazhdo regjistrimin →

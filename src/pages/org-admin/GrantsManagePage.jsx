@@ -75,7 +75,7 @@ export default function GrantsManagePage() {
                       {g.grant_value ? `${g.grant_value.toLocaleString()}€` : '—'}
                     </td>
                     <td className="px-5 py-3.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                      {g.deadline ? new Date(g.deadline).toLocaleDateString('sq-AL') : '—'}
+                      {g.deadline ? new Date(g.deadline).toLocaleDateString('sq-AL', { timeZone: 'UTC' }) : '—'}
                     </td>
                     <td className="px-5 py-3.5">
                       <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: s.bg, color: s.color }}>
