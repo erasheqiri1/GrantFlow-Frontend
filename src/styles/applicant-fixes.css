@@ -37,7 +37,6 @@ button:active { transform: translateY(0); }
 h1, h2, h3 { line-height: 1.15; letter-spacing: 0.2px; }
 
 /* Auth form sizing consistency */
-.min-h-screen .rounded-2xl { max-width: 760px; margin: 0 auto; }
 
 /* Search and filter tweaks */
 .search-input { padding-left: 1rem !important; height: 48px; }
