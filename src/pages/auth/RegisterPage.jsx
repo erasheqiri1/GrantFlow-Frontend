@@ -9,20 +9,21 @@ export default function RegisterPage() {
   const [role, setRole] = useState('applicant')
   const [form, setForm] = useState({
     first_name: '', last_name: '', email: '', password: '', confirm_password: '',
-    org_name: '', org_slug: '', nipt: '',  docFile: null,
+    org_name: '', org_slug: '', nipt: '', docFile: null,
   })
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPass, setShowPass] = useState(false)
+  const [showConfirmPass, setShowConfirmPass] = useState(false)
 
   const set = (field) => (e) => setForm({ ...form, [field]: e.target.value })
 
   const validatePassword = (pwd) => {
-    if (pwd.length < 8)               return 'Fjalëkalimi duhet të ketë të paktën 8 karaktere'
-    if (!/[A-Z]/.test(pwd))           return 'Duhet të ketë të paktën 1 shkronjë të madhe'
-    if (!/[0-9]/.test(pwd))           return 'Duhet të ketë të paktën 1 numër'
-    if (!/[!@#$%^&*]/.test(pwd))      return 'Duhet të ketë të paktën 1 karakter special (!@#$%^&*)'
+    if (pwd.length < 8)          return 'Fjalëkalimi duhet të ketë të paktën 8 karaktere'
+    if (!/[A-Z]/.test(pwd))      return 'Duhet të ketë të paktën 1 shkronjë të madhe'
+    if (!/[0-9]/.test(pwd))      return 'Duhet të ketë të paktën 1 numër'
+    if (!/[!@#$%^&*]/.test(pwd)) return 'Duhet të ketë të paktën 1 karakter special (!@#$%^&*)'
     return null
   }
 
@@ -63,9 +64,9 @@ export default function RegisterPage() {
       if (role === 'applicant') {
         const res = await api.post('/auth/register', {
           first_name: form.first_name,
-          last_name: form.last_name,
-          email: form.email,
-          password: form.password,
+          last_name:  form.last_name,
+          email:      form.email,
+          password:   form.password,
         })
         const { access_token, role: userRole } = res.data
         login(access_token, { role: userRole })
@@ -73,15 +74,14 @@ export default function RegisterPage() {
       } else {
         await api.post('/auth/register-org', {
           first_name: form.first_name,
-          last_name: form.last_name,
-          email: form.email,
-          password: form.password,
-          org_name: form.org_name,
-          org_slug: form.org_slug,
-          nipt: form.nipt || null,
+          last_name:  form.last_name,
+          email:      form.email,
+          password:   form.password,
+          org_name:   form.org_name,
+          org_slug:   form.org_slug,
+          nipt:       form.nipt || null,
         })
 
-        // Ngarko dokumentin nëse është zgjedhur
         if (form.docFile) {
           const fd = new FormData()
           fd.append('file', form.docFile)
@@ -99,181 +99,280 @@ export default function RegisterPage() {
     }
   }
 
-  const inp = "w-full px-5 py-4 rounded-lg text-base text-white outline-none transition"
-  const inpStyle = { background: 'var(--bg-card)', border: '1px solid var(--border)' }
-  const focus = (e) => (e.target.style.borderColor = 'var(--accent)')
-  const blur  = (e) => (e.target.style.borderColor = 'var(--border)')
+  /* ── Shared input helpers ── */
+  const inputBase = "w-full pl-11 pr-4 py-3.5 rounded-xl text-sm text-white outline-none transition-all duration-200"
+  const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }
+  const onFocus = e => { e.target.style.borderColor = 'rgba(0,230,118,0.5)'; e.target.style.background = 'rgba(0,230,118,0.03)' }
+  const onBlur  = e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.background = 'rgba(255,255,255,0.05)' }
+
+  const FieldLabel = ({ children }) => (
+    <label className="block text-xs font-semibold uppercase tracking-widest mb-2"
+      style={{ color: 'rgba(255,255,255,0.35)' }}>
+      {children}
+    </label>
+  )
+
+  const ShowHideBtn = ({ shown, toggle }) => (
+    <button type="button" onClick={toggle}
+      className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold uppercase tracking-wider transition"
+      style={{ color: 'rgba(255,255,255,0.3)' }}
+      onMouseEnter={e => e.target.style.color = '#00e676'}
+      onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.3)'}>
+      {shown ? 'Fshih' : 'Shfaq'}
+    </button>
+  )
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12" style={{ background: 'var(--bg-primary)' }}>
-      <div className="w-full max-w-lg px-6">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4" style={{ background: '#0a0d14' }}>
+      <div className="w-full max-w-lg">
+
         {/* Logo */}
-        <div className="flex flex-col items-center mb-6">
-          <div className="w-12 h-12 rounded-full flex items-center justify-center mb-2"
-            style={{ background: 'var(--accent-dim)', border: '2px solid var(--accent)' }}>
-            <span className="text-xl font-black" style={{ color: 'var(--accent)' }}>G</span>
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background: 'rgba(0,230,118,0.15)', border: '1px solid rgba(0,230,118,0.3)' }}>
+            <span className="text-lg font-black" style={{ color: '#00e676' }}>G</span>
           </div>
-          <div className="text-xl font-black tracking-wide">
-            <span className="text-white">GRANT</span><span style={{ color: 'var(--accent)' }}>FLOW</span>
-          </div>
+          <span className="text-xl font-black tracking-wider text-white">
+            GRANT<span style={{ color: '#00e676' }}>FLOW</span>
+          </span>
         </div>
 
-        <div className="rounded-2xl p-8" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
-          <h1 className="text-xl font-bold text-white text-center mb-1">Krijo llogarinë tënde</h1>
-          <p className="text-center text-sm mb-5" style={{ color: 'var(--text-secondary)' }}>
-            Zgjidhni rolin tuaj për të vazhduar me regjistrimin
-          </p>
+        {/* Card */}
+        <div className="rounded-2xl p-8"
+          style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+
+          <div className="mb-6 text-center">
+            <h1 className="text-2xl font-black text-white mb-2">Krijo llogarinë 🚀</h1>
+            <p className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>
+              Zgjidhni llojin e llogarisë për të filluar
+            </p>
+          </div>
 
           {/* Role tabs */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-2 gap-3 mb-6">
             {[
-              { key: 'applicant', icon: 'A', label: 'Aplikant', sub: 'Apliko në grante' },
-              { key: 'org',       icon: '🏛', label: 'Organizatë', sub: 'Publiko grante' },
+              { key: 'applicant', icon: '👤', label: 'Aplikant',   sub: 'Apliko në grante' },
+              { key: 'org',       icon: '🏛', label: 'Organizatë', sub: 'Publiko grante'   },
             ].map(({ key, icon, label, sub }) => (
-              <button key={key} type="button" onClick={() => { setRole(key); setError(''); setSuccess('') }}
-                className="flex items-center gap-2 p-3 rounded-xl transition text-left"
+              <button key={key} type="button"
+                onClick={() => { setRole(key); setError(''); setSuccess('') }}
+                className="flex items-center gap-3 p-4 rounded-xl transition-all duration-200 text-left"
                 style={{
-                  background: role === key ? 'var(--accent-dim)' : 'var(--bg-card)',
-                  border: `1px solid ${role === key ? 'var(--accent)' : 'var(--border)'}`,
+                  background: role === key ? 'rgba(0,230,118,0.08)' : 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${role === key ? 'rgba(0,230,118,0.4)' : 'rgba(255,255,255,0.08)'}`,
                 }}>
-                <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{ background: role === key ? 'var(--accent)' : 'var(--border)' }}>
-                  <span className="text-sm font-semibold">{icon}</span>
-                </div>
+                <span className="text-xl flex-shrink-0">{icon}</span>
                 <div>
-                  <div className="text-sm font-semibold" style={{ color: role === key ? 'var(--accent)' : 'white' }}>{label}</div>
-                  <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{sub}</div>
+                  <div className="text-sm font-bold"
+                    style={{ color: role === key ? '#00e676' : 'white' }}>{label}</div>
+                  <div className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>{sub}</div>
                 </div>
               </button>
             ))}
           </div>
 
+          {/* Alerts */}
           {error && (
-            <div className="rounded-lg px-4 py-3 mb-4 text-sm"
-              style={{ background: 'rgba(248,113,113,0.1)', color: 'var(--danger)', border: '1px solid rgba(248,113,113,0.2)' }}>
-              {error}
+            <div className="flex items-start gap-3 rounded-xl px-4 py-3 mb-5 text-sm"
+              style={{ background: 'rgba(248,113,113,0.08)', color: '#f87171', border: '1px solid rgba(248,113,113,0.15)' }}>
+              <span className="mt-0.5 flex-shrink-0">⚠</span>
+              <span>{error}</span>
             </div>
           )}
           {success && (
-            <div className="rounded-lg px-4 py-3 mb-4 text-sm"
-              style={{ background: 'rgba(74,222,128,0.1)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.2)' }}>
-              {success}
+            <div className="flex items-start gap-3 rounded-xl px-4 py-3 mb-5 text-sm"
+              style={{ background: 'rgba(0,230,118,0.08)', color: '#00e676', border: '1px solid rgba(0,230,118,0.2)' }}>
+              <span className="mt-0.5 flex-shrink-0">✓</span>
+              <span>{success}</span>
             </div>
           )}
 
-          {!success && (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Emri + Mbiemri — të dyja rolet */}
+          {!success ? (
+            <form onSubmit={handleSubmit} className="space-y-5">
+
+              {/* Emri + Mbiemri */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Emri</label>
-                  <input required value={form.first_name} onChange={set('first_name')}
-                    placeholder="Emri" className={inp} style={inpStyle} onFocus={focus} onBlur={blur} />
+                  <FieldLabel>Emri</FieldLabel>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold"
+                      style={{ color: 'rgba(255,255,255,0.2)' }}>A</span>
+                    <input required value={form.first_name} onChange={set('first_name')}
+                      placeholder="Emri" className={inputBase} style={{ ...inputStyle }}
+                      onFocus={onFocus} onBlur={onBlur} />
+                  </div>
                 </div>
                 <div>
-                  <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Mbiemri</label>
-                  <input required value={form.last_name} onChange={set('last_name')}
-                    placeholder="Mbiemri" className={inp} style={inpStyle} onFocus={focus} onBlur={blur} />
+                  <FieldLabel>Mbiemri</FieldLabel>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold"
+                      style={{ color: 'rgba(255,255,255,0.2)' }}>A</span>
+                    <input required value={form.last_name} onChange={set('last_name')}
+                      placeholder="Mbiemri" className={inputBase} style={{ ...inputStyle }}
+                      onFocus={onFocus} onBlur={onBlur} />
+                  </div>
                 </div>
               </div>
 
+              {/* Email */}
               <div>
-                <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Email</label>
-                <input type="email" required value={form.email} onChange={set('email')}
-                  placeholder="Shkruaj email-in" className={inp} style={inpStyle} onFocus={focus} onBlur={blur} />
+                <FieldLabel>Email</FieldLabel>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base"
+                    style={{ color: 'rgba(255,255,255,0.2)' }}>✉</span>
+                  <input type="email" required value={form.email} onChange={set('email')}
+                    placeholder="emri@shembull.com" className={inputBase} style={{ ...inputStyle }}
+                    onFocus={onFocus} onBlur={onBlur} />
+                </div>
               </div>
 
-              {/* Fushat shtesë për organizatë */}
+              {/* Organizatë — fushat shtesë */}
               {role === 'org' && (
                 <>
-                  <div>
-                    <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Emri i organizatës</label>
-                    <input required value={form.org_name} onChange={set('org_name')}
-                      placeholder="p.sh. Universiteti i Prishtinës" className={inp} style={inpStyle} onFocus={focus} onBlur={blur} />
+                  {/* Divider */}
+                  <div className="flex items-center gap-3 pt-1">
+                    <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+                    <span className="text-xs font-semibold uppercase tracking-widest"
+                      style={{ color: 'rgba(255,255,255,0.2)' }}>Organizata</span>
+                    <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
                   </div>
+
                   <div>
-                    <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Slug (ID unik)</label>
-                    <input required value={form.org_slug}
-                      onChange={e => setForm({ ...form, org_slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
-                      placeholder="p.sh. uni-prishtina" className={inp} style={inpStyle} onFocus={focus} onBlur={blur} />
-                    <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                    <FieldLabel>Emri i organizatës</FieldLabel>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base"
+                        style={{ color: 'rgba(255,255,255,0.2)' }}>🏢</span>
+                      <input required value={form.org_name} onChange={set('org_name')}
+                        placeholder="p.sh. Universiteti i Prishtinës"
+                        className={inputBase} style={{ ...inputStyle }}
+                        onFocus={onFocus} onBlur={onBlur} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <FieldLabel>Slug (ID unik)</FieldLabel>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base font-black"
+                        style={{ color: 'rgba(255,255,255,0.2)' }}>#</span>
+                      <input required value={form.org_slug}
+                        onChange={e => setForm({ ...form, org_slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
+                        placeholder="uni-prishtina"
+                        className={inputBase} style={{ ...inputStyle }}
+                        onFocus={onFocus} onBlur={onBlur} />
+                    </div>
+                    <p className="text-xs mt-1.5" style={{ color: 'rgba(255,255,255,0.25)' }}>
                       Vetëm shkronja të vogla, numra dhe vizë (-)
                     </p>
                   </div>
+
                   <div>
-                    <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>
-                      NIPT <span style={{ color: 'var(--text-muted)' }}>(Numri i Identifikimit për Personin Tatimor)</span>
-                    </label>
-                    <input value={form.nipt} onChange={set('nipt')}
-                      placeholder="p.sh. K12345678A" className={inp} style={inpStyle} onFocus={focus} onBlur={blur} />
+                    <FieldLabel>NIPT (opsional)</FieldLabel>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base"
+                        style={{ color: 'rgba(255,255,255,0.2)' }}>🪪</span>
+                      <input value={form.nipt} onChange={set('nipt')}
+                        placeholder="p.sh. K12345678A"
+                        className={inputBase} style={{ ...inputStyle }}
+                        onFocus={onFocus} onBlur={onBlur} />
+                    </div>
                   </div>
+
                   <div>
-                    <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>
-                      Dokument verifikimi <span style={{ color: 'var(--text-muted)' }}>(opsional · PDF, JPG, PNG · max 5MB)</span>
-                    </label>
-                    <input
-                      type="file" accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) => setForm({ ...form, docFile: e.target.files[0] || null })}
-                      className="w-full px-4 py-3 rounded-lg text-sm text-white outline-none"
-                      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
-                    />
+                    <FieldLabel>Dokument verifikimi (opsional)</FieldLabel>
+                    <div className="rounded-xl px-4 py-3"
+                      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <input type="file" accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={(e) => setForm({ ...form, docFile: e.target.files[0] || null })}
+                        className="w-full text-sm" style={{ color: 'rgba(255,255,255,0.4)' }} />
+                    </div>
                     {form.docFile && (
-                      <p className="text-xs mt-1" style={{ color: 'var(--accent)' }}>
-                        ✓ {form.docFile.name}
+                      <p className="text-xs mt-1.5 flex items-center gap-1.5" style={{ color: '#00e676' }}>
+                        <span>✓</span> {form.docFile.name}
                       </p>
                     )}
+                    <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.25)' }}>
+                      PDF, JPG, PNG · max 5 MB
+                    </p>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="flex items-center gap-3 pt-1">
+                    <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+                    <span className="text-xs font-semibold uppercase tracking-widest"
+                      style={{ color: 'rgba(255,255,255,0.2)' }}>Siguria</span>
+                    <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
                   </div>
                 </>
               )}
 
+              {/* Fjalëkalimi */}
               <div>
-                <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Fjalëkalimi</label>
+                <FieldLabel>Fjalëkalimi</FieldLabel>
                 <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base"
+                    style={{ color: 'rgba(255,255,255,0.2)' }}>🔒</span>
                   <input type={showPass ? 'text' : 'password'} required value={form.password}
                     onChange={set('password')} placeholder="Krijo fjalëkalimin"
-                    className={`${inp} pr-10`} style={inpStyle} onFocus={focus} onBlur={blur} />
-                  <button type="button" onClick={() => setShowPass(!showPass)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--text-muted)' }}>
-                    {showPass ? '🙈' : '👁'}
-                  </button>
+                    className={`${inputBase} pr-16`} style={{ ...inputStyle }}
+                    onFocus={onFocus} onBlur={onBlur} />
+                  <ShowHideBtn shown={showPass} toggle={() => setShowPass(v => !v)} />
                 </div>
-                <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-                  Min. 8 karaktere, 1 shkronjë e madhe, 1 numër, 1 karakter special (!@#$%^&*)
+                <p className="text-xs mt-1.5" style={{ color: 'rgba(255,255,255,0.25)' }}>
+                  Min. 8 karaktere · 1 shkronjë e madhe · 1 numër · 1 karakter special
                 </p>
               </div>
 
+              {/* Konfirmo */}
               <div>
-                <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Konfirmo fjalëkalimin</label>
+                <FieldLabel>Konfirmo fjalëkalimin</FieldLabel>
                 <div className="relative">
-                  <input type={showPass ? 'text' : 'password'} required value={form.confirm_password}
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base"
+                    style={{ color: 'rgba(255,255,255,0.2)' }}>🔒</span>
+                  <input type={showConfirmPass ? 'text' : 'password'} required value={form.confirm_password}
                     onChange={set('confirm_password')} placeholder="Konfirmo fjalëkalimin"
-                    className={`${inp} pr-10`} style={inpStyle} onFocus={focus} onBlur={blur} />
-                  <button type="button" onClick={() => setShowPass(!showPass)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--text-muted)' }}>
-                    {showPass ? '🙈' : '👁'}
-                  </button>
+                    className={`${inputBase} pr-16`} style={{ ...inputStyle }}
+                    onFocus={onFocus} onBlur={onBlur} />
+                  <ShowHideBtn shown={showConfirmPass} toggle={() => setShowConfirmPass(v => !v)} />
                 </div>
               </div>
 
+              {/* Submit */}
               <button type="submit" disabled={loading}
-                className="w-full py-4 rounded-lg font-semibold text-base transition mt-2"
-                style={{ background: 'var(--accent)', color: '#0f1117' }}>
-                {loading ? 'Duke u regjistruar...' : role === 'applicant' ? 'Regjistrohu si aplikant' : 'Regjistro organizatën'}
+                className="w-full py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all duration-200 mt-2"
+                style={{
+                  background: loading ? 'rgba(0,230,118,0.4)' : '#00e676',
+                  color: '#0a0d14',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  boxShadow: loading ? 'none' : '0 0 20px rgba(0,230,118,0.25)',
+                }}>
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    Duke u regjistruar...
+                  </span>
+                ) : role === 'applicant' ? 'Regjistrohu si aplikant →' : 'Regjistro organizatën →'}
               </button>
             </form>
-          )}
-
-          {success && (
+          ) : (
             <button onClick={() => navigate('/login')}
-              className="w-full py-4 rounded-lg font-semibold text-base transition mt-4"
-              style={{ background: 'var(--accent)', color: '#0f1117' }}>
-              Shko te login →
+              className="w-full py-3.5 rounded-xl font-bold text-sm tracking-wide"
+              style={{ background: '#00e676', color: '#0a0d14', boxShadow: '0 0 20px rgba(0,230,118,0.25)' }}>
+              Shko te kyçja →
             </button>
           )}
 
-          <p className="text-center text-sm mt-4" style={{ color: 'var(--text-secondary)' }}>
+          {/* Divider */}
+          <div className="flex items-center gap-3 my-6">
+            <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+            <span className="text-xs" style={{ color: 'rgba(255,255,255,0.2)' }}>ose</span>
+            <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+          </div>
+
+          <p className="text-center text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>
             Ke llogari?{' '}
-            <Link to="/login" className="font-semibold" style={{ color: 'var(--accent)' }}>Kyçu</Link>
+            <Link to="/login" className="font-semibold transition-colors" style={{ color: '#00e676' }}>
+              Kyçu tani
+            </Link>
           </p>
         </div>
       </div>
