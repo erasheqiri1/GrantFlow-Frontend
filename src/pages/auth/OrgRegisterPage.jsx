@@ -14,17 +14,13 @@ export default function OrgRegisterPage() {
     password: '',
     confirm_password: '',
   })
-  const [docFile, setDocFile] = useState(null)
+  const [docFile,  setDocFile]  = useState(null)
   const [logoFile, setLogoFile] = useState(null)
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
+  const [error,    setError]    = useState('')
+  const [loading,  setLoading]  = useState(false)
+  const [success,  setSuccess]  = useState(false)
   const [showPass, setShowPass] = useState(false)
-
-  const inp = 'w-full px-4 py-2.5 rounded-lg text-sm text-white outline-none transition'
-  const inpStyle = { background: 'var(--bg-card)', border: '1px solid var(--border)' }
-  const focusAccent = (e) => (e.target.style.borderColor = 'var(--accent)')
-  const blurBorder = (e) => (e.target.style.borderColor = 'var(--border)')
+  const [showConfirmPass, setShowConfirmPass] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -34,11 +30,11 @@ export default function OrgRegisterPage() {
       return
     }
     if (docFile && docFile.size > 10 * 1024 * 1024) {
-      setError('Dokumenti nuk mund të jetë më i madh se 10MB')
+      setError('Dokumenti nuk mund të jetë më i madh se 10 MB')
       return
     }
     if (logoFile && logoFile.size > 2 * 1024 * 1024) {
-      setError('Logoja nuk mund të jetë më e madhe se 2MB')
+      setError('Logoja nuk mund të jetë më e madhe se 2 MB')
       return
     }
     setLoading(true)
@@ -60,17 +56,55 @@ export default function OrgRegisterPage() {
     }
   }
 
+  /* ── Shared input helpers ── */
+  const inputBase  = "w-full pl-11 pr-4 py-3.5 rounded-xl text-sm text-white outline-none transition-all duration-200"
+  const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }
+  const onFocus    = e => { e.target.style.borderColor = 'rgba(0,230,118,0.5)'; e.target.style.background = 'rgba(0,230,118,0.03)' }
+  const onBlur     = e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.background = 'rgba(255,255,255,0.05)' }
+
+  const FieldLabel = ({ children }) => (
+    <label className="block text-xs font-semibold uppercase tracking-widest mb-2"
+      style={{ color: 'rgba(255,255,255,0.35)' }}>
+      {children}
+    </label>
+  )
+
+  const SectionDivider = ({ label }) => (
+    <div className="flex items-center gap-3 pt-1">
+      <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+      <span className="text-xs font-semibold uppercase tracking-widest"
+        style={{ color: 'rgba(255,255,255,0.2)' }}>{label}</span>
+      <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+    </div>
+  )
+
+  const ShowHideBtn = ({ shown, toggle }) => (
+    <button type="button" onClick={toggle}
+      className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold uppercase tracking-wider transition"
+      style={{ color: 'rgba(255,255,255,0.3)' }}
+      onMouseEnter={e => e.target.style.color = '#00e676'}
+      onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.3)'}>
+      {shown ? 'Fshih' : 'Shfaq'}
+    </button>
+  )
+
+  /* ── Success state ── */
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
-        <div className="text-center max-w-md px-4">
-          <div className="text-5xl mb-4">✅</div>
-          <h2 className="text-xl font-bold text-white mb-2">Kërkesa u dërgua!</h2>
-          <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#0a0d14' }}>
+        <div className="w-full max-w-md text-center">
+          <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6"
+            style={{ background: 'rgba(0,230,118,0.1)', border: '1px solid rgba(0,230,118,0.3)' }}>
+            <span className="text-4xl">✅</span>
+          </div>
+          <h2 className="text-2xl font-black text-white mb-3">Kërkesa u dërgua!</h2>
+          <p className="text-sm leading-relaxed mb-8" style={{ color: 'rgba(255,255,255,0.5)' }}>
             Organizata juaj është regjistruar dhe pret aprovimin nga Super Admin.
             Do të njoftoheni me email kur llogaria të aktivizohet.
           </p>
-          <Link to="/login" className="font-semibold" style={{ color: 'var(--accent)' }}>
+          <Link to="/login"
+            className="inline-block py-3.5 px-8 rounded-xl font-bold text-sm tracking-wide"
+            style={{ background: '#00e676', color: '#0a0d14', boxShadow: '0 0 20px rgba(0,230,118,0.25)' }}>
             Kthehu te kyçja →
           </Link>
         </div>
@@ -79,176 +113,233 @@ export default function OrgRegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-10" style={{ background: 'var(--bg-primary)' }}>
-      <div className="w-full max-w-lg px-4">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4" style={{ background: '#0a0d14' }}>
+      <div className="w-full max-w-lg">
+
         {/* Logo */}
-        <div className="flex flex-col items-center mb-6">
-          <div className="w-12 h-12 rounded-full flex items-center justify-center mb-2"
-            style={{ background: 'var(--accent-dim)', border: '2px solid var(--accent)' }}>
-            <span className="text-xl font-black" style={{ color: 'var(--accent)' }}>G</span>
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background: 'rgba(0,230,118,0.15)', border: '1px solid rgba(0,230,118,0.3)' }}>
+            <span className="text-lg font-black" style={{ color: '#00e676' }}>G</span>
           </div>
-          <div className="text-xl font-black tracking-wide">
-            <span className="text-white">GRANT</span><span style={{ color: 'var(--accent)' }}>FLOW</span>
-          </div>
+          <span className="text-xl font-black tracking-wider text-white">
+            GRANT<span style={{ color: '#00e676' }}>FLOW</span>
+          </span>
         </div>
 
-        <div className="rounded-2xl p-8" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
-          <h1 className="text-xl font-bold text-white text-center mb-1">Regjistro organizatën</h1>
-          <p className="text-center text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
-            Pas regjistrimit, Super Admin do ta aprovojë llogarinë tuaj
-          </p>
+        {/* Card */}
+        <div className="rounded-2xl p-8"
+          style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
 
+          {/* Header */}
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: 'rgba(0,230,118,0.1)', border: '1px solid rgba(0,230,118,0.2)' }}>
+              <span className="text-xl">🏛</span>
+            </div>
+            <div>
+              <h1 className="text-xl font-black text-white">Regjistro organizatën</h1>
+              <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                Pas aprovimit nga Super Admin do të keni akses të plotë
+              </p>
+            </div>
+          </div>
+
+          {/* Error */}
           {error && (
-            <div className="rounded-lg px-4 py-3 mb-4 text-sm"
-              style={{ background: 'rgba(248,113,113,0.1)', color: 'var(--danger)', border: '1px solid rgba(248,113,113,0.2)' }}>
-              {error}
+            <div className="flex items-start gap-3 rounded-xl px-4 py-3 mb-5 text-sm"
+              style={{ background: 'rgba(248,113,113,0.08)', color: '#f87171', border: '1px solid rgba(248,113,113,0.15)' }}>
+              <span className="mt-0.5 flex-shrink-0">⚠</span>
+              <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Organizata */}
-            <p className="text-xs font-semibold flex items-center gap-2" style={{ color: 'var(--text-muted)' }}>
-              🏛 Informata e organizatës
-            </p>
+          <form onSubmit={handleSubmit} className="space-y-5">
+
+            {/* ── Organizata ── */}
+            <SectionDivider label="Informata e organizatës" />
 
             <div>
-              <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Emri i institucionit *</label>
-              <input required value={form.institution_name}
-                onChange={e => setForm({ ...form, institution_name: e.target.value })}
-                placeholder="p.sh. Universiteti i Prishtinës"
-                className={inp} style={inpStyle}
-                onFocus={focusAccent} onBlur={blurBorder} />
+              <FieldLabel>Emri i institucionit</FieldLabel>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base"
+                  style={{ color: 'rgba(255,255,255,0.2)' }}>🏢</span>
+                <input required value={form.institution_name}
+                  onChange={e => setForm({ ...form, institution_name: e.target.value })}
+                  placeholder="p.sh. Universiteti i Prishtinës"
+                  className={inputBase} style={{ ...inputStyle }}
+                  onFocus={onFocus} onBlur={onBlur} />
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Email institucional *</label>
-                <input type="email" required value={form.email}
-                  onChange={e => setForm({ ...form, email: e.target.value })}
-                  placeholder="admin@uni-pr.edu"
-                  className={inp} style={inpStyle}
-                  onFocus={focusAccent} onBlur={blurBorder} />
+                <FieldLabel>Email institucional</FieldLabel>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base"
+                    style={{ color: 'rgba(255,255,255,0.2)' }}>✉</span>
+                  <input type="email" required value={form.email}
+                    onChange={e => setForm({ ...form, email: e.target.value })}
+                    placeholder="admin@uni-pr.edu"
+                    className={inputBase} style={{ ...inputStyle }}
+                    onFocus={onFocus} onBlur={onBlur} />
+                </div>
               </div>
               <div>
-                <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>NIPT *</label>
-                <input required value={form.nipt}
-                  onChange={e => setForm({ ...form, nipt: e.target.value })}
-                  placeholder="K12345678A"
-                  className={inp} style={inpStyle}
-                  onFocus={focusAccent} onBlur={blurBorder} />
+                <FieldLabel>NIPT</FieldLabel>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base"
+                    style={{ color: 'rgba(255,255,255,0.2)' }}>🪪</span>
+                  <input required value={form.nipt}
+                    onChange={e => setForm({ ...form, nipt: e.target.value })}
+                    placeholder="K12345678A"
+                    className={inputBase} style={{ ...inputStyle }}
+                    onFocus={onFocus} onBlur={onBlur} />
+                </div>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>
-                Identifikuesi URL (slug) *
-              </label>
-              <div className="flex items-center rounded-lg overflow-hidden"
-                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                <span className="px-3 py-2.5 text-xs whitespace-nowrap"
-                  style={{ color: 'var(--text-muted)', borderRight: '1px solid var(--border)' }}>
+              <FieldLabel>Identifikuesi URL (slug)</FieldLabel>
+              <div className="flex rounded-xl overflow-hidden"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+                onFocusCapture={e => { e.currentTarget.style.borderColor = 'rgba(0,230,118,0.5)'; e.currentTarget.style.background = 'rgba(0,230,118,0.03)' }}
+                onBlurCapture={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}>
+                <span className="px-3 flex items-center text-xs whitespace-nowrap"
+                  style={{ color: 'rgba(255,255,255,0.25)', borderRight: '1px solid rgba(255,255,255,0.08)' }}>
                   grantflow.com/
                 </span>
                 <input required value={form.slug}
                   onChange={e => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
                   placeholder="uni-prishtina"
-                  className="flex-1 px-3 py-2.5 text-sm text-white outline-none bg-transparent" />
+                  className="flex-1 px-4 py-3.5 text-sm text-white outline-none bg-transparent" />
               </div>
             </div>
 
-            {/* Administratori */}
-            <p className="text-xs font-semibold flex items-center gap-2 pt-2" style={{ color: 'var(--text-muted)' }}>
-              👤 Administratori kryesor
-            </p>
+            {/* ── Administratori ── */}
+            <SectionDivider label="Administratori kryesor" />
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Emri *</label>
-                <input required value={form.admin_first_name}
-                  onChange={e => setForm({ ...form, admin_first_name: e.target.value })}
-                  placeholder="Emri" className={inp} style={inpStyle}
-                  onFocus={focusAccent} onBlur={blurBorder} />
+                <FieldLabel>Emri</FieldLabel>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold"
+                    style={{ color: 'rgba(255,255,255,0.2)' }}>A</span>
+                  <input required value={form.admin_first_name}
+                    onChange={e => setForm({ ...form, admin_first_name: e.target.value })}
+                    placeholder="Emri" className={inputBase} style={{ ...inputStyle }}
+                    onFocus={onFocus} onBlur={onBlur} />
+                </div>
               </div>
               <div>
-                <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Mbiemri *</label>
-                <input required value={form.admin_last_name}
-                  onChange={e => setForm({ ...form, admin_last_name: e.target.value })}
-                  placeholder="Mbiemri" className={inp} style={inpStyle}
-                  onFocus={focusAccent} onBlur={blurBorder} />
+                <FieldLabel>Mbiemri</FieldLabel>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold"
+                    style={{ color: 'rgba(255,255,255,0.2)' }}>A</span>
+                  <input required value={form.admin_last_name}
+                    onChange={e => setForm({ ...form, admin_last_name: e.target.value })}
+                    placeholder="Mbiemri" className={inputBase} style={{ ...inputStyle }}
+                    onFocus={onFocus} onBlur={onBlur} />
+                </div>
               </div>
             </div>
 
+            {/* ── Siguria ── */}
+            <SectionDivider label="Siguria" />
+
             <div>
-              <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Fjalëkalimi *</label>
+              <FieldLabel>Fjalëkalimi</FieldLabel>
               <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base"
+                  style={{ color: 'rgba(255,255,255,0.2)' }}>🔒</span>
                 <input type={showPass ? 'text' : 'password'} required value={form.password}
                   onChange={e => setForm({ ...form, password: e.target.value })}
                   placeholder="Krijo fjalëkalimin"
-                  className={`${inp} pr-10`} style={inpStyle}
-                  onFocus={focusAccent} onBlur={blurBorder} />
-                <button type="button" onClick={() => setShowPass(!showPass)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs"
-                  style={{ color: 'var(--text-muted)' }}>
-                  {showPass ? '🙈' : '👁'}
-                </button>
+                  className={`${inputBase} pr-16`} style={{ ...inputStyle }}
+                  onFocus={onFocus} onBlur={onBlur} />
+                <ShowHideBtn shown={showPass} toggle={() => setShowPass(v => !v)} />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Konfirmo fjalëkalimin *</label>
+              <FieldLabel>Konfirmo fjalëkalimin</FieldLabel>
               <div className="relative">
-                <input type={showPass ? 'text' : 'password'} required value={form.confirm_password}
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base"
+                  style={{ color: 'rgba(255,255,255,0.2)' }}>🔒</span>
+                <input type={showConfirmPass ? 'text' : 'password'} required value={form.confirm_password}
                   onChange={e => setForm({ ...form, confirm_password: e.target.value })}
                   placeholder="Konfirmo fjalëkalimin"
-                  className={`${inp} pr-10`} style={inpStyle}
-                  onFocus={focusAccent} onBlur={blurBorder} />
-                <button type="button" onClick={() => setShowPass(!showPass)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs"
-                  style={{ color: 'var(--text-muted)' }}>
-                  {showPass ? '🙈' : '👁'}
-                </button>
+                  className={`${inputBase} pr-16`} style={{ ...inputStyle }}
+                  onFocus={onFocus} onBlur={onBlur} />
+                <ShowHideBtn shown={showConfirmPass} toggle={() => setShowConfirmPass(v => !v)} />
               </div>
             </div>
 
-            {/* Dokumentet */}
-            <p className="text-xs font-semibold flex items-center gap-2 pt-2" style={{ color: 'var(--text-muted)' }}>
-              📄 Dokumentet
-            </p>
+            {/* ── Dokumentet ── */}
+            <SectionDivider label="Dokumentet" />
 
             <div>
-              <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>
-                Dokument regjistrimi (PDF, maks. 10MB)
-              </label>
-              <div className="rounded-lg px-3 py-2" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+              <FieldLabel>Dokument regjistrimi (opsional)</FieldLabel>
+              <div className="rounded-xl px-4 py-3"
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
                 <input type="file" accept=".pdf"
                   onChange={e => setDocFile(e.target.files[0] || null)}
-                  className="w-full text-sm"
-                  style={{ color: 'var(--text-secondary)' }} />
+                  className="w-full text-sm" style={{ color: 'rgba(255,255,255,0.4)' }} />
               </div>
+              {docFile && (
+                <p className="text-xs mt-1.5 flex items-center gap-1.5" style={{ color: '#00e676' }}>
+                  <span>✓</span> {docFile.name}
+                </p>
+              )}
+              <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.25)' }}>PDF · max 10 MB</p>
             </div>
 
             <div>
-              <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>
-                Logo e organizatës (PNG/JPG, maks. 2MB)
-              </label>
-              <div className="rounded-lg px-3 py-2" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+              <FieldLabel>Logo e organizatës (opsional)</FieldLabel>
+              <div className="rounded-xl px-4 py-3"
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
                 <input type="file" accept=".png,.jpg,.jpeg"
                   onChange={e => setLogoFile(e.target.files[0] || null)}
-                  className="w-full text-sm"
-                  style={{ color: 'var(--text-secondary)' }} />
+                  className="w-full text-sm" style={{ color: 'rgba(255,255,255,0.4)' }} />
               </div>
+              {logoFile && (
+                <p className="text-xs mt-1.5 flex items-center gap-1.5" style={{ color: '#00e676' }}>
+                  <span>✓</span> {logoFile.name}
+                </p>
+              )}
+              <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.25)' }}>PNG, JPG · max 2 MB</p>
             </div>
 
+            {/* Submit */}
             <button type="submit" disabled={loading}
-              className="w-full py-3 rounded-lg font-semibold text-sm transition mt-2"
-              style={{ background: loading ? 'var(--accent-dark)' : 'var(--accent)', color: '#0f1117' }}>
-              {loading ? 'Duke dërguar...' : 'Dërgo kërkesën →'}
+              className="w-full py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all duration-200 mt-2"
+              style={{
+                background: loading ? 'rgba(0,230,118,0.4)' : '#00e676',
+                color: '#0a0d14',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                boxShadow: loading ? 'none' : '0 0 20px rgba(0,230,118,0.25)',
+              }}>
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  Duke dërguar...
+                </span>
+              ) : 'Dërgo kërkesën →'}
             </button>
           </form>
 
-          <p className="text-center text-sm mt-4" style={{ color: 'var(--text-secondary)' }}>
+          {/* Divider */}
+          <div className="flex items-center gap-3 my-6">
+            <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+            <span className="text-xs" style={{ color: 'rgba(255,255,255,0.2)' }}>ose</span>
+            <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+          </div>
+
+          <p className="text-center text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>
             Ke llogari?{' '}
-            <Link to="/login" className="font-semibold" style={{ color: 'var(--accent)' }}>Kyçu</Link>
+            <Link to="/login" className="font-semibold transition-colors" style={{ color: '#00e676' }}>
+              Kyçu tani
+            </Link>
           </p>
         </div>
       </div>
