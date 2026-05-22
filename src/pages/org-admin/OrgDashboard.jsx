@@ -9,6 +9,7 @@ const NAV = [
   { to: '/org-admin/grants', icon: '📋', label: 'Grante' },
   { to: '/org-admin/applications', icon: '📬', label: 'Aplikimet' },
   { to: '/org-admin/team', icon: '👥', label: 'Ekipi' },
+  { to: '/notifications', icon: '🔔', label: 'Njoftimet' },
 ]
 
 function StatCard({ label, value, sub, color }) {

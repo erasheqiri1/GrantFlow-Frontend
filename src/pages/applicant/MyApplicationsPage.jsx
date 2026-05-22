@@ -46,7 +46,8 @@ export default function MyApplicationsPage() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <button className="relative w-10 h-10 flex items-center justify-center rounded-lg"
+          <button onClick={() => navigate('/notifications')}
+            className="relative w-10 h-10 flex items-center justify-center rounded-lg"
             style={{ background: 'var(--bg-card)' }} aria-label="Notifications">
             <span aria-hidden="true">🔔</span>
           </button>
