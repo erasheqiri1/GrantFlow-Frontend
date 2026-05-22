@@ -5,6 +5,7 @@ import { useAuth } from './context/AuthContext'
 import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
 import OrgRegisterPage from './pages/auth/OrgRegisterPage'
+import AcceptInvitePage from './pages/auth/AcceptInvitePage'
 
 // Applicant pages
 import GrantsPage from './pages/applicant/GrantsPage'
@@ -57,7 +58,8 @@ export default function App() {
         {/* Public */}
         <Route path="/login"        element={<LoginPage />} />
         <Route path="/register"     element={<RegisterPage />} />
-        <Route path="/register/org" element={<OrgRegisterPage />} />
+        <Route path="/register/org"  element={<OrgRegisterPage />} />
+        <Route path="/accept-invite" element={<AcceptInvitePage />} />
         <Route path="/"             element={<RoleRedirect />} />
 
         {/* Applicant */}
