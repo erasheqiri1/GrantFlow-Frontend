@@ -6,6 +6,8 @@ import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
 import OrgRegisterPage from './pages/auth/OrgRegisterPage'
 import AcceptInvitePage from './pages/auth/AcceptInvitePage'
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage'
+import ResetPasswordPage from './pages/auth/ResetPasswordPage'
 
 // Applicant pages
 import GrantsPage from './pages/applicant/GrantsPage'
@@ -62,8 +64,10 @@ export default function App() {
         <Route path="/login"        element={<LoginPage />} />
         <Route path="/register"     element={<RegisterPage />} />
         <Route path="/register/org"  element={<OrgRegisterPage />} />
-        <Route path="/accept-invite" element={<AcceptInvitePage />} />
-        <Route path="/"             element={<RoleRedirect />} />
+        <Route path="/accept-invite"    element={<AcceptInvitePage />} />
+        <Route path="/forgot-password"  element={<ForgotPasswordPage />} />
+        <Route path="/reset-password"   element={<ResetPasswordPage />} />
+        <Route path="/"                 element={<RoleRedirect />} />
 
         {/* Applicant */}
         <Route path="/grants"                  element={<ProtectedRoute role="APPLICANT"><GrantsPage /></ProtectedRoute>} />
