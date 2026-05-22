@@ -4,10 +4,9 @@ import api from '../../api/axios'
 import Sidebar from '../../components/layout/Sidebar'
 
 const NAV = [
-  { to: '/org-admin',              icon: '🏠', label: 'Overview' },
-  { to: '/org-admin/grants',       icon: '📋', label: 'Grante' },
-  { to: '/org-admin/applications', icon: '📬', label: 'Aplikimet' },
-  { to: '/org-admin/team',         icon: '👥', label: 'Ekipi' },
+  { to: '/org-admin',        icon: '🏠', label: 'Overview' },
+  { to: '/org-admin/grants', icon: '📋', label: 'Grante' },
+  { to: '/org-admin/team',   icon: '👥', label: 'Ekipi' },
 ]
 
 const APPLICANT_TYPE_LABELS = {
@@ -19,10 +18,10 @@ const APPLICANT_TYPE_LABELS = {
 }
 
 const QUESTION_TYPES = [
-  { value: 'LONG_TEXT',        label: 'Tekst i gjatë' },
-  { value: 'SHORT_TEXT',       label: 'Tekst i shkurtër' },
-  { value: 'YES_NO',           label: 'Po / Jo' },
-  { value: 'MULTIPLE_CHOICE',  label: 'Zgjedhje e shumëfishtë' },
+  { value: 'LONG_TEXT', label: 'Tekst i gjatë' },
+  { value: 'TEXT',      label: 'Tekst i shkurtër' },
+  { value: 'YES_NO',    label: 'Po / Jo' },
+  { value: 'NUMBER',    label: 'Numër' },
 ]
 
 export default function GrantFormPage() {
@@ -107,20 +106,28 @@ export default function GrantFormPage() {
         const newId = res.data.id
         // Batch POST pyetjet lokale
         if (questions.length > 0) {
-          await api.post(`/grants/${newId}/questions`, questions.map((q, i) => ({
-            question_text: q.question_text,
-            question_type: q.question_type,
-            is_required:   q.is_required,
-            order_no:      i + 1,
-          }))).catch(() => {})
+          try {
+            await api.post(`/grants/${newId}/questions`, questions.map((q, i) => ({
+              question_text: q.question_text,
+              question_type: q.question_type,
+              is_required:   q.is_required,
+              order_no:      i + 1,
+            })))
+          } catch (qErr) {
+            console.error('Gabim pyetjet:', qErr.response?.data)
+          }
         }
         // Batch POST kriteret lokale
         if (criteria.length > 0) {
-          await api.post(`/grants/${newId}/criteria`, criteria.map(c => ({
-            name:        c.name,
-            weight:      parseFloat(c.weight) / 100,
-            is_required: c.is_required,
-          }))).catch(() => {})
+          try {
+            await api.post(`/grants/${newId}/criteria`, criteria.map(c => ({
+              name:        c.name,
+              weight:      parseFloat(c.weight) / 100,
+              is_required: c.is_required,
+            })))
+          } catch (cErr) {
+            console.error('Gabim kriteret:', cErr.response?.data)
+          }
         }
         navigate(`/org-admin/grants/${newId}/edit`)
       }
