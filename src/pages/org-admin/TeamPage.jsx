@@ -164,26 +164,32 @@ export default function TeamPage() {
               </button>
             </form>
 
-            {/* Link-u i ftesës pas gjenerimit */}
+            {/* Konfirmim pas gjenerimit */}
             {inviteLink && (
               <div className="mt-4 rounded-xl p-4"
                 style={{ background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.25)' }}>
-                <p className="text-xs font-semibold mb-2" style={{ color: '#4ade80' }}>
-                  {inviteEmailSent
-                    ? '✓ Ftesa u dërgua me email — mund ta ndani edhe link-un manualisht:'
-                    : '✓ Ftesa u gjenerua — ndajeni link-un me anëtarin (email nuk u dërgua):'}
-                </p>
-                <div className="flex items-center gap-2">
-                  <code className="text-xs flex-1 break-all px-3 py-2 rounded-lg"
-                    style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)' }}>
-                    {inviteLink}
-                  </code>
-                  <button onClick={copyLink}
-                    className="text-xs px-3 py-2 rounded-lg flex-shrink-0 font-semibold"
-                    style={{ background: 'var(--accent-dim)', color: 'var(--accent)', border: '1px solid rgba(74,222,128,0.3)' }}>
-                    Kopjo
-                  </button>
-                </div>
+                {inviteEmailSent ? (
+                  <p className="text-xs font-semibold" style={{ color: '#4ade80' }}>
+                    ✓ Ftesa u dërgua me email me sukses
+                  </p>
+                ) : (
+                  <>
+                    <p className="text-xs font-semibold mb-2" style={{ color: '#4ade80' }}>
+                      ✓ Ftesa u gjenerua — ndajeni link-un manualisht (email nuk u dërgua):
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <code className="text-xs flex-1 break-all px-3 py-2 rounded-lg"
+                        style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)' }}>
+                        {inviteLink}
+                      </code>
+                      <button onClick={copyLink}
+                        className="text-xs px-3 py-2 rounded-lg flex-shrink-0 font-semibold"
+                        style={{ background: 'var(--accent-dim)', color: 'var(--accent)', border: '1px solid rgba(74,222,128,0.3)' }}>
+                        Kopjo
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>
