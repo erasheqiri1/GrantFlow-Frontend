@@ -34,6 +34,9 @@ import UsersListPage from './pages/super-admin/UsersListPage'
 import AuditLogsPage from './pages/super-admin/AuditLogsPage'
 import AddSuperAdminPage from './pages/super-admin/AddSuperAdminPage'
 
+// Shared pages
+import NotificationsPage from './pages/NotificationsPage'
+
 // Layout
 import './styles/applicant-fixes.css'
 import ProtectedRoute from './components/layout/ProtectedRoute'
@@ -69,6 +72,7 @@ export default function App() {
         <Route path="/my-applications"         element={<ProtectedRoute role="APPLICANT"><MyApplicationsPage /></ProtectedRoute>} />
         <Route path="/my-applications/:id"     element={<ProtectedRoute role="APPLICANT"><ApplicationDetailPage /></ProtectedRoute>} />
         <Route path="/profile"                 element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+        <Route path="/notifications"           element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
 
         {/* Org Admin */}
         <Route path="/org-admin"                    element={<ProtectedRoute role="ORG_ADMIN"><OrgDashboard /></ProtectedRoute>} />
