@@ -26,8 +26,9 @@ export default function TeamPage() {
   const [members, setMembers]   = useState([])
   const [loading, setLoading]   = useState(true)
   const [invite, setInvite]     = useState({ email: '', role: 'COMMISSIONER' })
-  const [inviting, setInviting] = useState(false)
-  const [inviteToken, setInviteToken] = useState('')   // token i gjeneruar
+  const [inviting, setInviting]       = useState(false)
+  const [inviteLink, setInviteLink]   = useState('')   // linku i plotë i ftesës
+  const [inviteEmailSent, setInviteEmailSent] = useState(false)
   const [inviteErr, setInviteErr]     = useState('')
   const [removingId, setRemovingId]   = useState(null)
 
@@ -44,15 +45,22 @@ export default function TeamPage() {
   const handleInvite = async e => {
     e.preventDefault()
     setInviteErr('')
-    setInviteToken('')
+    setInviteLink('')
+    setInviteEmailSent(false)
     setInviting(true)
     try {
       const res = await api.post('/invitations', invite)
-      setInviteToken(res.data.token || '')
+      setInviteLink(res.data.invite_link || '')
+      setInviteEmailSent(res.data.message?.includes('email') || false)
       setInvite({ email: '', role: 'COMMISSIONER' })
       loadTeam()
     } catch (err) {
-      setInviteErr(err.response?.data?.detail || 'Gabim gjatë dërgimit të ftesës')
+      const detail = err.response?.data?.detail
+      setInviteErr(
+        typeof detail === 'string'
+          ? detail
+          : 'Gabim gjatë gjenerimit të ftesës'
+      )
     } finally {
       setInviting(false)
     }
@@ -71,12 +79,8 @@ export default function TeamPage() {
     }
   }
 
-  const inviteLink = inviteToken
-    ? `${window.location.origin}/invite?token=${inviteToken}`
-    : ''
-
   const copyLink = () => {
-    navigator.clipboard.writeText(inviteLink)
+    if (inviteLink) navigator.clipboard.writeText(inviteLink)
   }
 
   const inp  = 'w-full px-4 py-2.5 rounded-lg text-sm text-white outline-none transition'
@@ -165,7 +169,9 @@ export default function TeamPage() {
               <div className="mt-4 rounded-xl p-4"
                 style={{ background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.25)' }}>
                 <p className="text-xs font-semibold mb-2" style={{ color: '#4ade80' }}>
-                  ✓ Ftesa u gjenerua — ndajeni link-un me anëtarin:
+                  {inviteEmailSent
+                    ? '✓ Ftesa u dërgua me email — mund ta ndani edhe link-un manualisht:'
+                    : '✓ Ftesa u gjenerua — ndajeni link-un me anëtarin (email nuk u dërgua):'}
                 </p>
                 <div className="flex items-center gap-2">
                   <code className="text-xs flex-1 break-all px-3 py-2 rounded-lg"
