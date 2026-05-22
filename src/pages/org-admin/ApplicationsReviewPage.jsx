@@ -1,18 +1,17 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Sidebar from '../../components/layout/Sidebar'
 import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
 
 const NAV = [
-  { to: '/org-admin',              icon: '🏠', label: 'Overview' },
-  { to: '/org-admin/grants',       icon: '📋', label: 'Grante' },
-  { to: '/org-admin/applications', icon: '📬', label: 'Aplikimet' },
-  { to: '/org-admin/team',         icon: '👥', label: 'Ekipi' },
+  { to: '/org-admin',        icon: '🏠', label: 'Overview' },
+  { to: '/org-admin/grants', icon: '📋', label: 'Grante' },
+  { to: '/org-admin/team',   icon: '👥', label: 'Ekipi' },
 ]
 
 const STATUS_BADGE = {
   SUBMITTED:    { label: 'Dorëzuar',    bg: 'rgba(96,165,250,0.15)',  color: '#60a5fa' },
-  UNDER_REVIEW: { label: 'Në shqyrtim', bg: 'rgba(251,191,36,0.15)',  color: '#fbbf24' },
+  UNDER_REVIEW: { label: 'Vlerësuar', bg: 'rgba(168,85,247,0.15)', color: '#a855f7' },
   APPROVED:     { label: 'Aprovuar',    bg: 'rgba(74,222,128,0.15)',  color: '#4ade80' },
   REJECTED:     { label: 'Refuzuar',    bg: 'rgba(248,113,113,0.15)', color: '#f87171' },
 }
@@ -20,12 +19,12 @@ const STATUS_BADGE = {
 const STATUS_LABELS = {
   '':             'Të gjitha',
   'SUBMITTED':    'Dorëzuar',
-  'UNDER_REVIEW': 'Në shqyrtim',
+  'UNDER_REVIEW': 'Vlerësuar',
   'APPROVED':     'Aprovuar',
   'REJECTED':     'Refuzuar',
 }
 
-function AppModal({ app: initialApp, onClose, onDecision }) {
+function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
   const { user }                    = useAuth()
   const [app, setApp]               = useState(initialApp)
   const [rejectMode, setRejectMode] = useState(false)
@@ -37,10 +36,19 @@ function AppModal({ app: initialApp, onClose, onDecision }) {
   const [assignId, setAssignId]     = useState('')
   const [assigning, setAssigning]   = useState(false)
 
-  const sb = STATUS_BADGE[app.status] || STATUS_BADGE.SUBMITTED
-  const isOrgAdmin     = user?.role === 'ORG_ADMIN'
-  const isCommissioner = user?.role === 'COMMISSIONER'
-  const canDecide      = isCommissioner && ['SUBMITTED', 'UNDER_REVIEW'].includes(app.status)
+  // AI Scoring
+  const [aiScore, setAiScore]       = useState(null)
+  const [aiLoading, setAiLoading]   = useState(false)
+  const [aiError, setAiError]       = useState('')
+  const [commScore, setCommScore]   = useState('')
+  const [scoreSubmitted, setScoreSubmitted] = useState(false)
+  const [reviewed, setReviewed]     = useState(initialApp.status === 'UNDER_REVIEW')
+  const pollRef                     = useRef(null)
+
+  const sb           = STATUS_BADGE[app.status] || STATUS_BADGE.SUBMITTED
+  const isOrgAdmin   = user?.role === 'ORG_ADMIN'
+  const canScore     = user?.role === 'COMMISSIONER' && ['SUBMITTED', 'UNDER_REVIEW'].includes(app.status)
+
 
   // Ngarko komisionerët kur org-admin hap modalin
   useEffect(() => {
@@ -51,6 +59,73 @@ function AppModal({ app: initialApp, onClose, onDecision }) {
     }).catch(() => {})
   }, [isOrgAdmin])
 
+  // Prefill nëse ka score ekzistues, nëse jo nis AI automatikisht
+  useEffect(() => {
+    const run = async () => {
+      try {
+        const existing = await api.get(`/applications/${initialApp.id}/score`)
+        setAiScore(existing.data)
+        if (existing.data?.commissioner_score != null) {
+          setCommScore(String(existing.data.commissioner_score))
+          setScoreSubmitted(true)
+        }
+      } catch {
+        setAiLoading(true)
+        try {
+          await api.post(`/applications/${initialApp.id}/score`)
+          pollRef.current = setInterval(async () => {
+            try {
+              const sr = await api.get(`/applications/${initialApp.id}/score`)
+              if (sr.data?.ai_score != null) {
+                setAiScore(sr.data)
+                setAiLoading(false)
+                clearInterval(pollRef.current)
+              }
+            } catch { }
+          }, 3000)
+        } catch (err) {
+          setAiError(err.response?.data?.detail || 'Gabim gjatë vlerësimit AI')
+          setAiLoading(false)
+        }
+      }
+    }
+    run()
+    return () => { if (pollRef.current) clearInterval(pollRef.current) }
+  }, [initialApp.id])
+
+  const handleCommissionerScore = async () => {
+    const val = parseFloat(commScore)
+    if (isNaN(val) || val < 0 || val > 100) { setActErr('Pikët duhet të jenë 0-100'); return }
+    setActing(true); setActErr('')
+    try {
+      const res = await api.patch(`/applications/${app.id}/commissioner-score`, { score: val })
+      setAiScore(res.data)
+      setScoreSubmitted(true)
+      setApp(prev => ({ ...prev, status: 'UNDER_REVIEW' }))
+      setReviewed(true)
+      if (onScored) onScored()
+    } catch (err) {
+      setActErr(err.response?.data?.detail || 'Gabim gjatë ruajtjes së pikëve')
+    } finally { setActing(false) }
+  }
+
+  const handleRivlereso = async () => {
+    setAiLoading(true); setAiError('')
+    try {
+      await api.post(`/applications/${app.id}/score`)
+      pollRef.current = setInterval(async () => {
+        try {
+          const sr = await api.get(`/applications/${app.id}/score`)
+          if (sr.data?.ai_score != null) {
+            setAiScore(sr.data); setAiLoading(false); clearInterval(pollRef.current)
+          }
+        } catch { }
+      }, 3000)
+    } catch (err) {
+      setAiError(err.response?.data?.detail || 'Gabim'); setAiLoading(false)
+    }
+  }
+
   const handleAssign = async () => {
     if (!assignId) return
     setAssigning(true)
@@ -58,7 +133,8 @@ function AppModal({ app: initialApp, onClose, onDecision }) {
       const res = await api.patch(`/applications/${app.id}/assign`, { commissioner_id: assignId })
       setApp(res.data)
       setAssignMode(false)
-      onDecision()
+      setAssignId('')
+      if (onScored) onScored()   // refresh list pa e mbylle modalin
     } catch (err) {
       setActErr(err.response?.data?.detail || 'Gabim gjatë ricaktimit')
     } finally { setAssigning(false) }
@@ -168,7 +244,7 @@ function AppModal({ app: initialApp, onClose, onDecision }) {
 
           {/* Attachments */}
           {app.attachments?.length > 0 && (
-            <div className="py-3">
+            <div className="py-3" style={{ borderBottom: '1px solid var(--border)' }}>
               <p className="text-xs mb-2 font-medium text-white">Dokumentet ({app.attachments.length})</p>
               <div className="space-y-2">
                 {app.attachments.map(att => (
@@ -184,47 +260,113 @@ function AppModal({ app: initialApp, onClose, onDecision }) {
               </div>
             </div>
           )}
+
+          {/* AI Scoring */}
+          <div className="py-3">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-medium text-white">🤖 Vlerësimi AI</p>
+              {aiLoading
+                ? <span className="text-xs animate-pulse" style={{ color: '#60a5fa' }}>⏳ Duke vlerësuar...</span>
+                : aiScore
+                  ? <button onClick={handleRivlereso} className="text-xs px-2 py-1 rounded-lg" style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}>🔄 Rivlerëso</button>
+                  : null}
+            </div>
+            {aiError && <p className="text-xs mb-2" style={{ color: 'var(--danger)' }}>{aiError}</p>}
+            {aiScore ? (
+              <div className="rounded-lg p-3 space-y-2" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl font-bold tabular-nums"
+                    style={{ color: aiScore.ai_score >= 70 ? '#4ade80' : aiScore.ai_score >= 50 ? '#fbbf24' : '#f87171' }}>
+                    {Math.round(aiScore.ai_score ?? 0)}
+                  </span>
+                  <div className="flex-1">
+                    <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+                      <div className="h-full rounded-full" style={{
+                        width: `${aiScore.ai_score ?? 0}%`,
+                        background: aiScore.ai_score >= 70 ? '#4ade80' : aiScore.ai_score >= 50 ? '#fbbf24' : '#f87171',
+                        transition: 'width 0.6s ease',
+                      }} />
+                    </div>
+                    <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                      Score finale: <strong style={{ color: 'var(--text-secondary)' }}>{aiScore.final_score?.toFixed(1) ?? '—'}</strong>
+                      {' · '}{aiScore.model_used ?? '—'}
+                    </p>
+                  </div>
+                </div>
+                {aiScore.justification && (
+                  <p className="text-xs leading-relaxed pt-2" style={{ color: 'var(--text-secondary)', borderTop: '1px solid var(--border)' }}>
+                    {aiScore.justification}
+                  </p>
+                )}
+              </div>
+            ) : !aiLoading && (
+              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Duke ngarkuar vlerësimin AI...</p>
+            )}
+          </div>
         </div>
 
-        {/* Footer — veprime */}
+        {/* Footer */}
         <div className="px-6 py-4 flex-shrink-0" style={{ borderTop: '1px solid var(--border)' }}>
-          {actErr && (
-            <p className="text-xs mb-3" style={{ color: 'var(--danger)' }}>{actErr}</p>
-          )}
+          {actErr && <p className="text-xs mb-3" style={{ color: 'var(--danger)' }}>{actErr}</p>}
 
-          {rejectMode ? (
-            <div className="space-y-3">
-              <textarea rows={2} value={reason} onChange={e => setReason(e.target.value)}
-                placeholder="Arsyeja e refuzimit (opsionale)..."
-                className="w-full px-3 py-2 rounded-lg text-sm text-white outline-none resize-none"
-                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }} />
+          {/* Score input — vetëm COMMISSIONER */}
+          {canScore && (
+            <div className="space-y-2 mb-3">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-medium text-white">✍️ Pikët e mia (0 – 100)</p>
+                {reviewed && (
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                    style={{ background: 'rgba(168,85,247,0.15)', color: '#a855f7' }}>
+                    ✓ Vlerësuar
+                  </span>
+                )}
+              </div>
               <div className="flex gap-2">
-                <button onClick={handleReject} disabled={acting}
-                  className="flex-1 py-2.5 rounded-lg text-sm font-semibold"
-                  style={{ background: 'rgba(248,113,113,0.15)', color: '#f87171', border: '1px solid rgba(248,113,113,0.3)' }}>
-                  {acting ? '...' : '✕ Konfirmo refuzimin'}
-                </button>
-                <button onClick={() => setRejectMode(false)}
-                  className="px-4 py-2.5 rounded-lg text-sm"
-                  style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
-                  Anulo
+                <input type="number" min={0} max={100} step={1}
+                  value={commScore}
+                  onChange={e => { setCommScore(e.target.value); setScoreSubmitted(false) }}
+                  placeholder="p.sh. 75"
+                  className="flex-1 px-3 py-2 rounded-lg text-sm text-white outline-none"
+                  style={{ background: 'var(--bg-card)', border: `1px solid ${scoreSubmitted ? 'rgba(74,222,128,0.5)' : 'var(--border)'}` }}
+                />
+                <button onClick={handleCommissionerScore} disabled={acting || commScore === ''}
+                  className="px-4 py-2 rounded-lg text-sm font-semibold"
+                  style={{ background: 'rgba(74,222,128,0.15)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.3)', opacity: commScore === '' ? 0.5 : 1 }}>
+                  {acting ? '...' : scoreSubmitted ? '✓ Ruajtur' : 'Dorëzo vlerësimin'}
                 </button>
               </div>
+              {aiScore?.final_score != null && (
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                  Score finale: <strong style={{ color: aiScore.final_score >= 60 ? '#4ade80' : '#fbbf24' }}>
+                    {Number(aiScore.final_score).toFixed(1)}
+                  </strong>
+                </p>
+              )}
             </div>
-          ) : canDecide ? (
-            <div className="flex gap-3">
-              <button onClick={handleApprove} disabled={acting}
-                className="flex-1 py-2.5 rounded-lg text-sm font-semibold"
-                style={{ background: 'rgba(74,222,128,0.15)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.3)' }}>
-                {acting ? '...' : '✓ Aprovo'}
-              </button>
-              <button onClick={() => setRejectMode(true)} disabled={acting}
-                className="flex-1 py-2.5 rounded-lg text-sm font-semibold"
-                style={{ background: 'rgba(248,113,113,0.1)', color: '#f87171', border: '1px solid rgba(248,113,113,0.2)' }}>
-                ✕ Refuzo
-              </button>
+          )}
+
+          {/* ORG_ADMIN — shiko score-t, pa mundësi ndryshimi */}
+          {isOrgAdmin && aiScore && (
+            <div className="mb-3 rounded-lg p-3 space-y-1"
+              style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+              <div className="flex justify-between text-xs">
+                <span style={{ color: 'var(--text-muted)' }}>🤖 Score AI</span>
+                <strong style={{ color: 'var(--text-secondary)' }}>{aiScore.ai_score ?? '—'}</strong>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span style={{ color: 'var(--text-muted)' }}>✍️ Score komisioner</span>
+                <strong style={{ color: 'var(--text-secondary)' }}>{aiScore.commissioner_score ?? '—'}</strong>
+              </div>
+              <div className="flex justify-between text-xs pt-1" style={{ borderTop: '1px solid var(--border)' }}>
+                <span style={{ color: 'var(--text-muted)' }}>🏆 Score finale</span>
+                <strong style={{ color: aiScore.final_score >= 60 ? '#4ade80' : aiScore.final_score >= 40 ? '#fbbf24' : '#f87171' }}>
+                  {aiScore.final_score?.toFixed(1) ?? '—'}
+                </strong>
+              </div>
             </div>
-          ) : (
+          )}
+
+          {!canScore && (
             <button onClick={onClose}
               className="w-full py-2.5 rounded-lg text-sm font-semibold"
               style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
@@ -233,8 +375,27 @@ function AppModal({ app: initialApp, onClose, onDecision }) {
           )}
 
           {/* Ricakto komisioner — vetëm org-admin, vetëm për aplikime aktive */}
-          {isOrgAdmin && ['SUBMITTED','UNDER_REVIEW'].includes(app.status) && commissioners.length > 0 && (
+          {isOrgAdmin && app.status === 'SUBMITTED' && commissioners.length > 0 && (
             <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--border)' }}>
+              {/* Komisioner aktual */}
+              {(() => {
+                const current = commissioners.find(c => c.id === app.assigned_to)
+                return current ? (
+                  <div className="flex items-center justify-between mb-2 px-3 py-2 rounded-lg"
+                    style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                    <span className="text-xs" style={{ color: 'var(--text-muted)' }}>👤 Komisioner aktual</span>
+                    <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
+                      {[current.first_name, current.last_name].filter(Boolean).join(' ') || current.email}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between mb-2 px-3 py-2 rounded-lg"
+                    style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                    <span className="text-xs" style={{ color: 'var(--text-muted)' }}>👤 Komisioner aktual</span>
+                    <span className="text-xs italic" style={{ color: 'var(--text-muted)' }}>Pa caktuar</span>
+                  </div>
+                )
+              })()}
               {assignMode ? (
                 <div className="flex gap-2">
                   <select value={assignId} onChange={e => setAssignId(e.target.value)}
@@ -281,7 +442,11 @@ export default function ApplicationsReviewPage() {
 
   const fetchApps = useCallback(() => {
     setLoading(true)
-    const params = status ? { status } : {}
+    const searchParams = new URLSearchParams(window.location.search)
+    const grantId = searchParams.get('grant_id')
+    const params = {}
+    if (status) params.status = status
+    if (grantId) params.grant_id = grantId
     api.get('/applications', { params })
       .then(r => setApps(Array.isArray(r.data) ? r.data : r.data.items ?? []))
       .catch(() => {})
@@ -393,6 +558,7 @@ export default function ApplicationsReviewPage() {
           app={selected}
           onClose={() => setSelected(null)}
           onDecision={() => { setSelected(null); fetchApps() }}
+          onScored={fetchApps}
         />
       )}
     </div>

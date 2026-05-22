@@ -4,10 +4,9 @@ import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
 
 const NAV = [
-  { to: '/org-admin',              icon: '🏠', label: 'Overview' },
-  { to: '/org-admin/grants',       icon: '📋', label: 'Grante' },
-  { to: '/org-admin/applications', icon: '📬', label: 'Aplikimet' },
-  { to: '/org-admin/team',         icon: '👥', label: 'Ekipi' },
+  { to: '/org-admin',        icon: '🏠', label: 'Overview' },
+  { to: '/org-admin/grants', icon: '📋', label: 'Grante' },
+  { to: '/org-admin/team',   icon: '👥', label: 'Ekipi' },
 ]
 
 const ROLE_LABELS = {

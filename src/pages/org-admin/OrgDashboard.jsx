@@ -5,11 +5,10 @@ import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
 
 const NAV = [
-  { to: '/org-admin', icon: '🏠', label: 'Overview' },
+  { to: '/org-admin',        icon: '🏠', label: 'Overview' },
   { to: '/org-admin/grants', icon: '📋', label: 'Grante' },
-  { to: '/org-admin/applications', icon: '📬', label: 'Aplikimet' },
-  { to: '/org-admin/team', icon: '👥', label: 'Ekipi' },
-  { to: '/notifications', icon: '🔔', label: 'Njoftimet' },
+  { to: '/org-admin/team',   icon: '👥', label: 'Ekipi' },
+  { to: '/notifications',    icon: '🔔', label: 'Njoftimet' },
 ]
 
 function StatCard({ label, value, sub, color }) {
@@ -20,12 +19,6 @@ function StatCard({ label, value, sub, color }) {
       {sub && <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{sub}</p>}
     </div>
   )
-}
-
-const STATUS_BADGE = {
-  DRAFT:     { label: 'Draft',   bg: 'rgba(251,191,36,0.15)',  color: '#fbbf24' },
-  PUBLISHED: { label: 'Hapur',  bg: 'rgba(74,222,128,0.15)', color: 'var(--accent)' },
-  CLOSED:    { label: 'Mbyllur', bg: 'rgba(107,114,128,0.15)', color: '#9ca3af' },
 }
 
 export default function OrgDashboard() {
@@ -81,69 +74,6 @@ export default function OrgDashboard() {
           <StatCard label="Aprovuar"         value={loading ? '—' : approved}         sub="gjithsej" color="#4ade80" />
         </div>
 
-        {/* Grants table */}
-        <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
-          <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid var(--border)' }}>
-            <div>
-              <h2 className="font-semibold text-white">Grante e mia</h2>
-              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                Të gjitha grantet e {user?.tenant_slug?.toUpperCase()}
-              </p>
-            </div>
-            <Link to="/org-admin/grants" className="text-xs" style={{ color: 'var(--accent)' }}>Shiko të gjitha →</Link>
-          </div>
-
-          <table className="w-full">
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                {['Titulli', 'Buxheti', 'Aplikime', 'Afati', 'Statusi', 'Veprime'].map(h => (
-                  <th key={h} className="px-5 py-3 text-left text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {grants.slice(0, 5).map((g) => {
-                const s = STATUS_BADGE[g.status] || STATUS_BADGE.DRAFT
-                return (
-                  <tr key={g.id} className="transition" style={{ borderBottom: '1px solid var(--border)' }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                    <td className="px-5 py-3.5 text-sm font-medium text-white">{g.title}</td>
-                    <td className="px-5 py-3.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                      {g.grant_value ? `${g.grant_value.toLocaleString()}€` : '—'}
-                    </td>
-                    <td className="px-5 py-3.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                      {apps.filter(a => a.grant_id === g.id).length || '—'}
-                    </td>
-                    <td className="px-5 py-3.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                      {g.deadline ? new Date(g.deadline).toLocaleDateString('sq-AL', { timeZone: 'UTC' }) : '—'}
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full"
-                        style={{ background: s.bg, color: s.color }}>
-                        {s.label}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <Link to={g.status === 'DRAFT' ? `/org-admin/grants/${g.id}/edit` : '/org-admin/applications'}
-                        className="text-xs font-medium px-3 py-1.5 rounded-lg transition"
-                        style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
-                        {g.status === 'DRAFT' ? 'Ndrysho' : 'Shiko'}
-                      </Link>
-                    </td>
-                  </tr>
-                )
-              })}
-              {grants.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-5 py-8 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
-                    Nuk ka grante ende. <Link to="/org-admin/grants/new" style={{ color: 'var(--accent)' }}>Krijo të parin →</Link>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
       </main>
     </div>
   )
