@@ -103,33 +103,7 @@ export default function GrantFormPage() {
         setSuccess('Granti u ruajt.')
       } else {
         const res = await api.post('/grants', payload)
-        const newId = res.data.id
-        // Batch POST pyetjet lokale
-        if (questions.length > 0) {
-          try {
-            await api.post(`/grants/${newId}/questions`, questions.map((q, i) => ({
-              question_text: q.question_text,
-              question_type: q.question_type,
-              is_required:   q.is_required,
-              order_no:      i + 1,
-            })))
-          } catch (qErr) {
-            console.error('Gabim pyetjet:', qErr.response?.data)
-          }
-        }
-        // Batch POST kriteret lokale
-        if (criteria.length > 0) {
-          try {
-            await api.post(`/grants/${newId}/criteria`, criteria.map(c => ({
-              name:        c.name,
-              weight:      parseFloat(c.weight) / 100,
-              is_required: c.is_required,
-            })))
-          } catch (cErr) {
-            console.error('Gabim kriteret:', cErr.response?.data)
-          }
-        }
-        navigate(`/org-admin/grants/${newId}/edit`)
+        navigate(`/org-admin/grants/${res.data.id}/edit`)
       }
     } catch (err) {
       setError(err.response?.data?.detail || 'Gabim gjatë ruajtjes')
@@ -350,8 +324,8 @@ export default function GrantFormPage() {
             </div>
           </form>
 
-          {/* ── Pyetjet — create + edit mode ─────────── */}
-          <div className="rounded-2xl p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
+          {/* ── Pyetjet — vetëm edit mode ─────────── */}
+          {isEdit && <div className="rounded-2xl p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="font-semibold text-white">Pyetjet për aplikantët</h2>
@@ -448,10 +422,10 @@ export default function GrantFormPage() {
                   ))}
                 </div>
               )}
-          </div>
+          </div>}
 
-          {/* ── Kriteret e vlerësimit ── */}
-          <div className="rounded-2xl p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
+          {/* ── Kriteret e vlerësimit — vetëm edit mode ── */}
+          {isEdit && <div className="rounded-2xl p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="font-semibold text-white">Kriteret e vlerësimit</h2>
@@ -541,7 +515,18 @@ export default function GrantFormPage() {
                   ))}
                 </div>
               )}
+            </div>}
+
+          {/* ── Hint në create mode ── */}
+          {!isEdit && (
+            <div className="rounded-2xl px-6 py-4 flex items-center gap-3"
+              style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
+              <span className="text-lg">💡</span>
+              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                Pasi të krijohet granti si Draft, do të mundesh të shtosh <strong style={{ color: 'var(--text-secondary)' }}>pyetje</strong> dhe <strong style={{ color: 'var(--text-secondary)' }}>kritere vlerësimi</strong>.
+              </p>
             </div>
+          )}
 
         </div>
       </main>
