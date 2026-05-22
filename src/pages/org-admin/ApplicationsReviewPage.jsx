@@ -234,7 +234,7 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
                 {app.answers.map((a, i) => (
                   <div key={a.id} className="rounded-lg p-3"
                     style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                    <p className="text-xs mb-1.5 font-medium" style={{ color: 'var(--text-muted)' }}>Pyetja {i + 1}</p>
+                    <p className="text-xs mb-1.5 font-medium" style={{ color: 'var(--text-muted)' }}>{a.question_text || `Pyetja ${i + 1}`}</p>
                     <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{a.answer_text || '—'}</p>
                   </div>
                 ))}
@@ -308,6 +308,22 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
         {/* Footer */}
         <div className="px-6 py-4 flex-shrink-0" style={{ borderTop: '1px solid var(--border)' }}>
           {actErr && <p className="text-xs mb-3" style={{ color: 'var(--danger)' }}>{actErr}</p>}
+
+          {/* Kriteret e grantit — panel informues */}
+          {app.criteria?.length > 0 && (
+            <div className="mb-3 rounded-lg p-3"
+              style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+              <p className="text-xs font-medium text-white mb-2">📋 Kriteret e vlerësimit</p>
+              <div className="flex flex-wrap gap-1.5">
+                {app.criteria.map(c => (
+                  <span key={c.id} className="text-xs px-2 py-0.5 rounded-full"
+                    style={{ background: 'rgba(99,102,241,0.15)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.2)' }}>
+                    {c.name} · {Math.round(c.weight * 100)}%
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Score input — vetëm COMMISSIONER */}
           {canScore && (
