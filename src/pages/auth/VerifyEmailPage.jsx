@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import api from '../../api/axios'
 
@@ -8,8 +8,13 @@ export default function VerifyEmailPage() {
 
   const [status, setStatus] = useState('loading') // loading | success | error
   const [message, setMessage] = useState('')
+  const called = useRef(false)   // React 18 Strict Mode thirr useEffect dy herë — ky guard e ndalon
 
   useEffect(() => {
+    if (called.current) return   // mos dërgo kërkesën dy herë
+    called.current = true
+
+
     if (!token) {
       setStatus('error')
       setMessage('Link i pavlefshëm ose i munguar.')

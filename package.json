@@ -4,7 +4,6 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently --names \"BACK,FRONT\" --prefix-colors \"cyan,green\" \"cd C:\\\\Users\\\\Admin\\\\Documents\\\\GitHub\\\\GrantFlow-Backend && python -m uvicorn app.main:app --port 8000 --reload\" \"vite\"",
     "frontend": "vite",
     "build": "vite build",
     "lint": "eslint .",
