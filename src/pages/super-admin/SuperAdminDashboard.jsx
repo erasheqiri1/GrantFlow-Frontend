@@ -83,7 +83,7 @@ export default function SuperAdminDashboard() {
           <table className="w-full">
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                {['Organizata', 'Email', 'Statusi', 'Slug', 'Aprovuar', 'Veprime'].map(h => (
+                {['Organizata', 'Email', 'Statusi', 'Slug'].map(h => (
                   <th key={h} className="px-5 py-3 text-left text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{h}</th>
                 ))}
               </tr>
@@ -103,19 +103,12 @@ export default function SuperAdminDashboard() {
                       </span>
                     </td>
                     <td className="px-5 py-3.5 text-xs font-mono" style={{ color: 'var(--text-muted)' }}>{t.slug}</td>
-                    <td className="px-5 py-3.5 text-sm" style={{ color: 'var(--text-secondary)' }}>—</td>
-                    <td className="px-5 py-3.5">
-                      <button className="text-xs px-3 py-1.5 rounded-lg"
-                        style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
-                        Detajet
-                      </button>
-                    </td>
                   </tr>
                 )
               })}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-5 py-10 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
+                  <td colSpan={4} className="px-5 py-10 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
                     Nuk ka organizata ende.
                   </td>
                 </tr>
