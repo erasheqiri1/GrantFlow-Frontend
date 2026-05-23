@@ -62,15 +62,13 @@ export default function RegisterPage() {
     setLoading(true)
     try {
       if (role === 'applicant') {
-        const res = await api.post('/auth/register', {
+        await api.post('/auth/register', {
           first_name: form.first_name,
           last_name:  form.last_name,
           email:      form.email,
           password:   form.password,
         })
-        const { access_token, role: userRole } = res.data
-        login(access_token, { role: userRole })
-        navigate('/grants')
+        setSuccess('Ju kemi dërguar email konfirmimi. Kontrollo emailin tënd dhe kliko linkun për të vazhduar.')
       } else {
         await api.post('/auth/register-org', {
           first_name: form.first_name,
