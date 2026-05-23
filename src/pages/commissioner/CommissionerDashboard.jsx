@@ -7,8 +7,6 @@ import { useAuth } from '../../context/AuthContext'
 const NAV = [
   { to: '/commissioner',              icon: '🏠', label: 'Dashboard' },
   { to: '/commissioner/applications', icon: '📋', label: 'Aplikimet' },
-  { to: '/commissioner/profile',      icon: '👤', label: 'Profili' },
-  { to: '/notifications',             icon: '🔔', label: 'Njoftimet' },
 ]
 
 export default function CommissionerDashboard() {

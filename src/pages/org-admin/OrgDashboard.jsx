@@ -8,7 +8,6 @@ const NAV = [
   { to: '/org-admin',        icon: '🏠', label: 'Overview' },
   { to: '/org-admin/grants', icon: '📋', label: 'Grante' },
   { to: '/org-admin/team',   icon: '👥', label: 'Ekipi' },
-  { to: '/notifications',    icon: '🔔', label: 'Njoftimet' },
 ]
 
 function StatCard({ label, value, sub, color }) {

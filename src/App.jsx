@@ -28,7 +28,6 @@ import TeamPage from './pages/org-admin/TeamPage'
 // Commissioner pages
 import CommissionerDashboard from './pages/commissioner/CommissionerDashboard'
 import CommissionerApplicationsPage from './pages/commissioner/CommissionerApplicationsPage'
-import CommissionerProfilePage from './pages/commissioner/CommissionerProfilePage'
 
 // Super Admin pages
 import SuperAdminDashboard from './pages/super-admin/SuperAdminDashboard'
@@ -37,8 +36,6 @@ import UsersListPage from './pages/super-admin/UsersListPage'
 import AuditLogsPage from './pages/super-admin/AuditLogsPage'
 import AddSuperAdminPage from './pages/super-admin/AddSuperAdminPage'
 
-// Shared pages
-import NotificationsPage from './pages/NotificationsPage'
 
 // Layout
 import './styles/applicant-fixes.css'
@@ -78,7 +75,6 @@ export default function App() {
         <Route path="/my-applications"         element={<ProtectedRoute role="APPLICANT"><MyApplicationsPage /></ProtectedRoute>} />
         <Route path="/my-applications/:id"     element={<ProtectedRoute role="APPLICANT"><ApplicationDetailPage /></ProtectedRoute>} />
         <Route path="/profile"                 element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-        <Route path="/notifications"           element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
 
         {/* Org Admin */}
         <Route path="/org-admin"                    element={<ProtectedRoute role="ORG_ADMIN"><OrgDashboard /></ProtectedRoute>} />
@@ -91,7 +87,6 @@ export default function App() {
         {/* Commissioner */}
         <Route path="/commissioner"              element={<ProtectedRoute role="COMMISSIONER"><CommissionerDashboard /></ProtectedRoute>} />
         <Route path="/commissioner/applications" element={<ProtectedRoute role="COMMISSIONER"><CommissionerApplicationsPage /></ProtectedRoute>} />
-        <Route path="/commissioner/profile"      element={<ProtectedRoute role="COMMISSIONER"><CommissionerProfilePage /></ProtectedRoute>} />
 
         {/* Super Admin */}
         <Route path="/super-admin"            element={<ProtectedRoute role="SUPER_ADMIN"><SuperAdminDashboard /></ProtectedRoute>} />

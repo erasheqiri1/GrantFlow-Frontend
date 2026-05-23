@@ -198,12 +198,6 @@ export default function ProfilePage() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/notifications')}
-            className="relative w-10 h-10 flex items-center justify-center rounded-lg"
-            style={{ background: 'var(--bg-card)' }} aria-label="Notifications">
-            <span aria-hidden="true">🔔</span>
-          </button>
-
           <button onClick={() => navigate('/profile')}
             className="w-10 h-10 rounded-full flex items-center justify-center"
             style={{ background: 'var(--accent)', color: '#0f1117' }} aria-label="Profile">

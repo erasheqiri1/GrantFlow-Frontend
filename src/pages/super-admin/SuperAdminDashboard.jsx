@@ -8,7 +8,6 @@ const NAV = [
   { to: '/super-admin/users', icon: '👥', label: 'Lista e userave' },
   { to: '/super-admin/audit', icon: '📋', label: 'Audit logs' },
   { to: '/super-admin/add-admin', icon: '➕', label: 'Shto super_admin' },
-  { to: '/notifications', icon: '🔔', label: 'Njoftimet' },
 ]
 
 const STATUS_BADGE = {
