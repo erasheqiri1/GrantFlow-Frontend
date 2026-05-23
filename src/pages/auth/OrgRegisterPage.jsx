@@ -97,10 +97,12 @@ export default function OrgRegisterPage() {
             style={{ background: 'rgba(0,230,118,0.1)', border: '1px solid rgba(0,230,118,0.3)' }}>
             <span className="text-4xl">✅</span>
           </div>
-          <h2 className="text-2xl font-black text-white mb-3">Kërkesa u dërgua!</h2>
-          <p className="text-sm leading-relaxed mb-8" style={{ color: 'rgba(255,255,255,0.5)' }}>
-            Organizata juaj është regjistruar dhe pret aprovimin nga Super Admin.
-            Do të njoftoheni me email kur llogaria të aktivizohet.
+          <h2 className="text-2xl font-black text-white mb-3">Konfirmo emailin tënd!</h2>
+          <p className="text-sm leading-relaxed mb-2" style={{ color: 'rgba(255,255,255,0.5)' }}>
+            Ju kemi dërguar një email konfirmimi. Hape emailin dhe kliko linkun për të vazhduar.
+          </p>
+          <p className="text-xs leading-relaxed mb-8" style={{ color: 'rgba(255,255,255,0.3)' }}>
+            Pas konfirmimit, kërkesa do të shqyrtohet nga Super Admin dhe do të njoftoheni me email.
           </p>
           <Link to="/login"
             className="inline-block py-3.5 px-8 rounded-xl font-bold text-sm tracking-wide"
