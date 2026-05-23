@@ -90,7 +90,7 @@ export default function RegisterPage() {
           })
         }
 
-        setSuccess('Organizata u regjistrua me sukses! Super Admin do ta aprovojë llogarinë tuaj.')
+        setSuccess('Ju kemi dërguar email konfirmimi. Kontrollo emailin tënd dhe kliko linkun për të vazhduar.')
       }
     } catch (err) {
       setError(parseError(err))
@@ -354,11 +354,16 @@ export default function RegisterPage() {
               </button>
             </form>
           ) : (
-            <button onClick={() => navigate('/login')}
-              className="w-full py-3.5 rounded-xl font-bold text-sm tracking-wide"
-              style={{ background: '#00e676', color: '#0a0d14', boxShadow: '0 0 20px rgba(0,230,118,0.25)' }}>
-              Shko te kyçja →
-            </button>
+            <div className="text-center space-y-3">
+              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                Pas konfirmimit të emailit, kërkesa shqyrtohet nga Super Admin.
+              </p>
+              <button onClick={() => navigate('/login')}
+                className="w-full py-3.5 rounded-xl font-bold text-sm tracking-wide"
+                style={{ background: '#00e676', color: '#0a0d14', boxShadow: '0 0 20px rgba(0,230,118,0.25)' }}>
+                Shko te kyçja →
+              </button>
+            </div>
           )}
 
           {/* Divider */}
