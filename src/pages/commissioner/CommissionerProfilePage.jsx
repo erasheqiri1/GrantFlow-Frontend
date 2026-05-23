@@ -18,10 +18,6 @@ export default function CommissionerProfilePage() {
   const [error,    setError]    = useState('')
 
   const [form, setForm] = useState({ first_name: '', last_name: '', phone: '' })
-  const [pwForm, setPwForm] = useState({ current_password: '', new_password: '', confirm_password: '' })
-  const [pwError,   setPwError]   = useState('')
-  const [pwSuccess, setPwSuccess] = useState('')
-  const [savingPw,  setSavingPw]  = useState(false)
 
   useEffect(() => {
     api.get('/profile/me')
@@ -46,25 +42,6 @@ export default function CommissionerProfilePage() {
     } catch (err) {
       setError(err.response?.data?.detail || 'Gabim gjatë ruajtjes')
     } finally { setSaving(false) }
-  }
-
-  const handlePwSave = async e => {
-    e.preventDefault()
-    setPwError(''); setPwSuccess('')
-    if (pwForm.new_password !== pwForm.confirm_password) {
-      setPwError('Fjalëkalimet nuk përputhen'); return
-    }
-    setSavingPw(true)
-    try {
-      await api.post('/auth/change-password', {
-        current_password: pwForm.current_password,
-        new_password:     pwForm.new_password,
-      })
-      setPwSuccess('Fjalëkalimi u ndryshua.')
-      setPwForm({ current_password: '', new_password: '', confirm_password: '' })
-    } catch (err) {
-      setPwError(err.response?.data?.detail || 'Gabim gjatë ndryshimit')
-    } finally { setSavingPw(false) }
   }
 
   const inp  = 'w-full px-4 py-2.5 rounded-lg text-sm text-white outline-none transition'
@@ -146,41 +123,6 @@ export default function CommissionerProfilePage() {
             </div>
           </form>
 
-          {/* Ndrysho fjalëkalimin */}
-          <form onSubmit={handlePwSave}>
-            <div className="rounded-2xl p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
-              <h2 className="font-semibold text-white mb-4">Ndrysho fjalëkalimin</h2>
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Fjalëkalimi aktual</label>
-                  <input type="password" value={pwForm.current_password}
-                    onChange={e => setPwForm(p => ({ ...p, current_password: e.target.value }))}
-                    placeholder="••••••••" className={inp} style={inpS} onFocus={focus} onBlur={blur} />
-                </div>
-                <div>
-                  <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Fjalëkalimi i ri</label>
-                  <input type="password" value={pwForm.new_password}
-                    onChange={e => setPwForm(p => ({ ...p, new_password: e.target.value }))}
-                    placeholder="••••••••" className={inp} style={inpS} onFocus={focus} onBlur={blur} />
-                </div>
-                <div>
-                  <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Konfirmo fjalëkalimin e ri</label>
-                  <input type="password" value={pwForm.confirm_password}
-                    onChange={e => setPwForm(p => ({ ...p, confirm_password: e.target.value }))}
-                    placeholder="••••••••" className={inp} style={inpS} onFocus={focus} onBlur={blur} />
-                </div>
-
-                {pwError && <p className="text-xs" style={{ color: 'var(--danger)' }}>{pwError}</p>}
-                {pwSuccess && <p className="text-xs" style={{ color: '#4ade80' }}>{pwSuccess}</p>}
-
-                <button type="submit" disabled={savingPw}
-                  className="w-full py-2.5 rounded-xl text-sm font-semibold transition"
-                  style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
-                  {savingPw ? 'Duke ndryshuar...' : 'Ndrysho fjalëkalimin'}
-                </button>
-              </div>
-            </div>
-          </form>
 
         </div>
       </main>

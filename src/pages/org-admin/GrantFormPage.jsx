@@ -48,6 +48,12 @@ export default function GrantFormPage() {
   // Mund të editorohet vetëm granti DRAFT
   const canEdit = !isEdit || grantStatus === 'DRAFT'
 
+  // Pesha totale e kritereve (0 nëse nuk ka kriter) — duhet 100 para publikimit
+  const totalCriteriaWeight = criteria.reduce((sum, c) => {
+    return sum + (String(c.id).startsWith('local-') ? c.weight : Math.round(c.weight * 100))
+  }, 0)
+  const criteriaWeightOk = criteria.length === 0 || totalCriteriaWeight === 100
+
   const inp  = 'w-full px-4 py-2.5 rounded-lg text-sm text-white outline-none transition'
   const inpS = { background: 'var(--bg-card)', border: '1px solid var(--border)' }
   const focus = e => (e.target.style.borderColor = 'var(--accent)')
@@ -298,7 +304,19 @@ export default function GrantFormPage() {
                 </div>
               )}
 
-              <div className="flex gap-3 mt-5">
+              {isEdit && !criteriaWeightOk && (
+                <div className="mt-4 rounded-lg px-4 py-3 flex items-start gap-2.5"
+                  style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)' }}>
+                  <span className="font-bold flex-shrink-0" style={{ color: '#fbbf24' }}>!</span>
+                  <p className="text-xs leading-relaxed" style={{ color: '#fbbf24' }}>
+                    Nuk mund të publikohet — pesha totale e kritereve është{' '}
+                    <strong>{totalCriteriaWeight}%</strong>, duhet të jetë <strong>100%</strong>.
+                    Shto ose ndrysho kriteret në seksionin më poshtë.
+                  </p>
+                </div>
+              )}
+
+              <div className="flex gap-3 mt-3">
                 {canEdit ? (
                   <>
                     <button type="submit" disabled={loading}
@@ -308,8 +326,16 @@ export default function GrantFormPage() {
                     </button>
                     {isEdit && (
                       <button type="button" onClick={handlePublish}
+                        disabled={!criteriaWeightOk}
+                        title={!criteriaWeightOk ? `Pesha e kritereve duhet të jetë 100% (tani: ${totalCriteriaWeight}%)` : ''}
                         className="px-6 py-3 rounded-xl font-semibold text-sm transition"
-                        style={{ background: 'rgba(74,222,128,0.15)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.3)' }}>
+                        style={{
+                          background: criteriaWeightOk ? 'rgba(74,222,128,0.15)' : 'var(--bg-card)',
+                          color: criteriaWeightOk ? '#4ade80' : 'var(--text-muted)',
+                          border: `1px solid ${criteriaWeightOk ? 'rgba(74,222,128,0.3)' : 'var(--border)'}`,
+                          cursor: criteriaWeightOk ? 'pointer' : 'not-allowed',
+                          opacity: criteriaWeightOk ? 1 : 0.5,
+                        }}>
                         Publiko
                       </button>
                     )}
@@ -325,157 +351,229 @@ export default function GrantFormPage() {
           </form>
 
           {/* ── Pyetjet — vetëm edit mode ─────────── */}
-          {isEdit && <div className="rounded-2xl p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="font-semibold text-white">Pyetjet për aplikantët</h2>
-                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                    {canEdit ? 'Aplikantët do t\'i përgjigjen kur aplikojnë' : 'Pyetjet nuk mund të ndryshohen pasi granti është publikuar'}
-                  </p>
-                </div>
-                {canEdit && (
-                  <button onClick={() => setShowQForm(v => !v)}
-                    className="text-xs px-3 py-1.5 rounded-lg font-semibold transition"
-                    style={{ background: 'var(--accent-dim)', color: 'var(--accent)', border: '1px solid rgba(74,222,128,0.3)' }}>
-                    + Shto pyetje
-                  </button>
-                )}
-              </div>
-
-              {showQForm && (
-                <div className="rounded-xl p-4 mb-4 space-y-3"
-                  style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                  <div>
-                    <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Teksti i pyetjes</label>
-                    <input value={newQ.question_text}
-                      onChange={e => setNewQ(p => ({ ...p, question_text: e.target.value }))}
-                      placeholder="p.sh. Pse meritoni këtë grant?"
-                      className={inp} style={inpS} onFocus={focus} onBlur={blur} />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Tipi</label>
-                      <select value={newQ.question_type}
-                        onChange={e => setNewQ(p => ({ ...p, question_type: e.target.value }))}
-                        className={inp} style={inpS}>
-                        {QUESTION_TYPES.map(t => (
-                          <option key={t.value} value={t.value}>{t.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="flex items-end pb-1">
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" checked={newQ.is_required}
-                          onChange={e => setNewQ(p => ({ ...p, is_required: e.target.checked }))} />
-                        <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>E detyrueshme</span>
-                      </label>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={addQuestion}
-                      className="text-xs px-4 py-2 rounded-lg font-semibold"
-                      style={{ background: 'var(--accent)', color: '#0f1117' }}>
-                      Shto
-                    </button>
-                    <button onClick={() => setShowQForm(false)}
-                      className="text-xs px-4 py-2 rounded-lg"
-                      style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
-                      Anulo
-                    </button>
-                  </div>
-                </div>
+          {isEdit && (
+          <div className="rounded-2xl p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
+            <div className="flex items-center justify-between mb-1">
+              <h2 className="font-semibold text-white">Pyetjet për aplikantët</h2>
+              {canEdit && (
+                <button onClick={() => setShowQForm(v => !v)}
+                  className="text-xs px-3 py-1.5 rounded-lg font-semibold transition"
+                  style={{
+                    background: showQForm ? 'var(--bg-card)' : 'var(--accent-dim)',
+                    color: showQForm ? 'var(--text-muted)' : 'var(--accent)',
+                    border: `1px solid ${showQForm ? 'var(--border)' : 'rgba(74,222,128,0.3)'}`,
+                  }}>
+                  {showQForm ? '✕ Mbyll' : '+ Shto pyetje'}
+                </button>
               )}
+            </div>
+            <p className="text-xs mb-5" style={{ color: 'var(--text-muted)' }}>
+              {canEdit
+                ? 'Aplikantët do t\'i përgjigjen kur aplikojnë'
+                : 'Pyetjet nuk mund të ndryshohen pasi granti është publikuar'}
+            </p>
 
-              {fetchingQ ? (
-                <p className="text-xs py-4 text-center" style={{ color: 'var(--text-muted)' }}>Duke ngarkuar...</p>
-              ) : questions.length === 0 ? (
-                <p className="text-xs py-4 text-center" style={{ color: 'var(--text-muted)' }}>
-                  Nuk ka pyetje ende. Shto të parin me butonin sipër.
+            {showQForm && (
+              <div className="rounded-xl p-4 mb-4 space-y-4"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                <div>
+                  <label className="block text-xs mb-1.5 font-medium" style={{ color: 'var(--text-secondary)' }}>
+                    Teksti i pyetjes
+                  </label>
+                  <input value={newQ.question_text}
+                    onChange={e => setNewQ(p => ({ ...p, question_text: e.target.value }))}
+                    placeholder="p.sh. Pse meritoni këtë grant?"
+                    className={inp} style={inpS} onFocus={focus} onBlur={blur} />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs mb-1.5 font-medium" style={{ color: 'var(--text-secondary)' }}>Tipi</label>
+                    <select value={newQ.question_type}
+                      onChange={e => setNewQ(p => ({ ...p, question_type: e.target.value }))}
+                      className={inp} style={inpS}>
+                      {QUESTION_TYPES.map(t => (
+                        <option key={t.value} value={t.value}>{t.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex items-end pb-1">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" checked={newQ.is_required}
+                        onChange={e => setNewQ(p => ({ ...p, is_required: e.target.checked }))} />
+                      <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>E detyrueshme</span>
+                    </label>
+                  </div>
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <button onClick={addQuestion} disabled={!newQ.question_text.trim()}
+                    className="text-xs px-5 py-2 rounded-lg font-semibold transition"
+                    style={{ background: 'var(--accent)', color: '#0f1117', opacity: newQ.question_text.trim() ? 1 : 0.4 }}>
+                    Shto pyetje
+                  </button>
+                  <button onClick={() => setShowQForm(false)}
+                    className="text-xs px-4 py-2 rounded-lg transition"
+                    style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
+                    Anulo
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {fetchingQ ? (
+              <div className="space-y-2">
+                {[...Array(2)].map((_, i) => (
+                  <div key={i} className="h-14 rounded-lg animate-pulse" style={{ background: 'var(--bg-card)' }} />
+                ))}
+              </div>
+            ) : questions.length === 0 ? (
+              <div className="py-8 text-center rounded-xl" style={{ border: '1px dashed var(--border)' }}>
+                <p className="text-sm font-medium text-white mb-1">Nuk ka pyetje</p>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                  Shtoni pyetjet me butonin sipër
                 </p>
-              ) : (
-                <div className="space-y-2">
-                  {questions.map((q, i) => (
-                    <div key={q.id} className="flex items-start justify-between gap-3 px-4 py-3 rounded-lg"
-                      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                      <div className="flex items-start gap-3 flex-1 min-w-0">
-                        <span className="text-xs w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 font-semibold mt-0.5"
-                          style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}>
-                          {i + 1}
-                        </span>
-                        <div className="min-w-0">
-                          <p className="text-sm text-white">{q.question_text}</p>
-                          <div className="flex gap-2 mt-1">
-                            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                              {QUESTION_TYPES.find(t => t.value === q.question_type)?.label || q.question_type}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {questions.map((q, i) => (
+                  <div key={q.id} className="flex items-start justify-between gap-3 px-4 py-3 rounded-lg"
+                    style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                      <span className="text-xs w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 font-bold mt-0.5"
+                        style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}>
+                        {i + 1}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm text-white leading-snug">{q.question_text}</p>
+                        <div className="flex items-center gap-2 mt-1.5">
+                          <span className="text-xs px-1.5 py-0.5 rounded"
+                            style={{ background: 'var(--bg-secondary)', color: 'var(--text-muted)' }}>
+                            {QUESTION_TYPES.find(t => t.value === q.question_type)?.label || q.question_type}
+                          </span>
+                          {q.is_required && (
+                            <span className="text-xs px-1.5 py-0.5 rounded"
+                              style={{ background: 'rgba(248,113,113,0.12)', color: '#f87171' }}>
+                              e detyrueshme
                             </span>
-                            {q.is_required && (
-                              <span className="text-xs" style={{ color: '#f87171' }}>*e detyrueshme</span>
-                            )}
-                          </div>
+                          )}
                         </div>
                       </div>
-                      {canEdit && (
-                        <button onClick={() => deleteQuestion(q.id)}
-                          className="text-xs flex-shrink-0" style={{ color: 'var(--danger)' }}>✕</button>
-                      )}
                     </div>
-                  ))}
-                </div>
-              )}
-          </div>}
+                    {canEdit && (
+                      <button onClick={() => deleteQuestion(q.id)}
+                        className="w-6 h-6 flex items-center justify-center rounded text-xs transition flex-shrink-0"
+                        style={{ color: 'var(--text-muted)', background: 'var(--bg-secondary)' }}
+                        onMouseEnter={e => e.currentTarget.style.color = '#f87171'}
+                        onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}>
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          )}
 
           {/* ── Kriteret e vlerësimit — vetëm edit mode ── */}
-          {isEdit && <div className="rounded-2xl p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="font-semibold text-white">Kriteret e vlerësimit</h2>
-                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                    Mbi bazën e këtyre, komisionerët vlerësojnë aplikimet
-                  </p>
-                </div>
+          {isEdit && (() => {
+            const totalWeight = criteria.reduce((sum, c) => {
+              return sum + (String(c.id).startsWith('local-') ? c.weight : Math.round(c.weight * 100))
+            }, 0)
+            const used = totalWeight
+            const weightOk    = totalWeight === 100
+            const weightColor = totalWeight > 100 ? '#f87171' : totalWeight === 100 ? '#4ade80' : '#fbbf24'
+            const wouldExceed = used + newC.weight > 100
+            const canAdd      = !wouldExceed && newC.name.trim().length > 0
+
+            return (
+            <div className="rounded-2xl p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
+
+              {/* Header */}
+              <div className="flex items-center justify-between mb-1">
+                <h2 className="font-semibold text-white">Kriteret e vlerësimit</h2>
                 {canEdit && (
                   <button onClick={() => setShowCForm(v => !v)}
                     className="text-xs px-3 py-1.5 rounded-lg font-semibold transition"
-                    style={{ background: 'var(--accent-dim)', color: 'var(--accent)', border: '1px solid rgba(74,222,128,0.3)' }}>
-                    + Shto kriter
+                    style={{
+                      background: showCForm ? 'var(--bg-card)' : 'var(--accent-dim)',
+                      color: showCForm ? 'var(--text-muted)' : 'var(--accent)',
+                      border: `1px solid ${showCForm ? 'var(--border)' : 'rgba(74,222,128,0.3)'}`,
+                    }}>
+                    {showCForm ? '✕ Mbyll' : '+ Shto kriter'}
                   </button>
                 )}
               </div>
 
+              {/* Progress bar */}
+              <div className="mb-5">
+                <div className="flex items-center justify-between mb-1.5">
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Pesha totale e kritereve</p>
+                  <span className="text-xs font-semibold" style={{ color: weightColor }}>
+                    {totalWeight}%{' '}
+                    <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>
+                      {weightOk ? '✓ komplet' : totalWeight > 100 ? '↑ tejkalon' : `— mbetur ${100 - totalWeight}%`}
+                    </span>
+                  </span>
+                </div>
+                <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bg-card)' }}>
+                  <div className="h-full rounded-full transition-all duration-300"
+                    style={{ width: `${Math.min(totalWeight, 100)}%`, background: weightColor }} />
+                </div>
+              </div>
+
+              {/* Form shto kriter */}
               {showCForm && (
-                <div className="rounded-xl p-4 mb-4 space-y-3"
+                <div className="rounded-xl p-4 mb-4 space-y-4"
                   style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Emri i kriterit</label>
-                      <input value={newC.name}
-                        onChange={e => setNewC(p => ({ ...p, name: e.target.value }))}
-                        placeholder="p.sh. Nota mesatare"
-                        className={inp} style={inpS} onFocus={focus} onBlur={blur} />
-                    </div>
-                    <div>
-                      <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>
-                        Pesha — <span style={{ color: 'var(--accent)' }}>{newC.weight}%</span>
-                      </label>
-                      <input type="range" min="5" max="100" step="5"
-                        value={newC.weight}
-                        onChange={e => setNewC(p => ({ ...p, weight: parseInt(e.target.value) }))}
-                        className="w-full mt-2" />
-                    </div>
+
+                  <div>
+                    <label className="block text-xs mb-1.5 font-medium" style={{ color: 'var(--text-secondary)' }}>
+                      Emri i kriterit
+                    </label>
+                    <input value={newC.name}
+                      onChange={e => setNewC(p => ({ ...p, name: e.target.value }))}
+                      placeholder="p.sh. Nota mesatare, Motivimi, Plani i biznesit..."
+                      className={inp} style={inpS} onFocus={focus} onBlur={blur} />
                   </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Pesha</label>
+                      <span className="text-xs font-bold" style={{ color: wouldExceed ? '#f87171' : 'var(--accent)' }}>
+                        {newC.weight}%
+                        {criteria.length > 0 && (
+                          <span className="font-normal ml-1" style={{ color: 'var(--text-muted)' }}>
+                            / mbetur {Math.max(0, 100 - used)}%
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                    <input type="range" min="5" max="100" step="5"
+                      value={newC.weight}
+                      onChange={e => setNewC(p => ({ ...p, weight: parseInt(e.target.value) }))}
+                      className="w-full" />
+                    {wouldExceed && (
+                      <p className="text-xs mt-2 px-3 py-2 rounded-lg"
+                        style={{ background: 'rgba(248,113,113,0.1)', color: '#f87171', border: '1px solid rgba(248,113,113,0.2)' }}>
+                        ⚠ Do të kalojë 100% — mbeten vetëm {Math.max(0, 100 - used)}%
+                      </p>
+                    )}
+                  </div>
+
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" checked={newC.is_required}
                       onChange={e => setNewC(p => ({ ...p, is_required: e.target.checked }))} />
                     <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>Kriter i detyrueshëm</span>
                   </label>
-                  <div className="flex gap-2">
-                    <button onClick={addCriteria}
-                      className="text-xs px-4 py-2 rounded-lg font-semibold"
-                      style={{ background: 'var(--accent)', color: '#0f1117' }}>
-                      Shto
+
+                  <div className="flex gap-2 pt-1">
+                    <button onClick={addCriteria} disabled={!canAdd}
+                      className="text-xs px-5 py-2 rounded-lg font-semibold transition"
+                      style={{ background: 'var(--accent)', color: '#0f1117', opacity: canAdd ? 1 : 0.4 }}>
+                      Shto kriter
                     </button>
                     <button onClick={() => setShowCForm(false)}
-                      className="text-xs px-4 py-2 rounded-lg"
+                      className="text-xs px-4 py-2 rounded-lg transition"
                       style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
                       Anulo
                     </button>
@@ -483,39 +581,56 @@ export default function GrantFormPage() {
                 </div>
               )}
 
+              {/* Lista kritereve */}
               {fetchingQ ? (
-                <p className="text-xs py-4 text-center" style={{ color: 'var(--text-muted)' }}>Duke ngarkuar...</p>
-              ) : criteria.length === 0 ? (
-                <p className="text-xs py-4 text-center" style={{ color: 'var(--text-muted)' }}>
-                  Nuk ka kritere ende.
-                </p>
-              ) : (
                 <div className="space-y-2">
-                  {criteria.map(c => (
-                    <div key={c.id} className="flex items-center justify-between gap-3 px-4 py-3 rounded-lg"
-                      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                      <div className="flex items-center gap-3 flex-1">
-                        <span className="text-sm text-white font-medium">{c.name}</span>
-                        <span className="text-xs px-2 py-0.5 rounded-full"
-                          style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}>
-                          {String(c.id).startsWith('local-')
-                            ? `${c.weight}%`           /* create mode: ruhet si % */
-                            : `${Math.round(c.weight * 100)}%`  /* edit mode: API kthen 0-1 */
-                          }
-                        </span>
-                        {c.is_required && (
-                          <span className="text-xs" style={{ color: '#f87171' }}>*e detyrueshme</span>
-                        )}
-                      </div>
-                      {canEdit && (
-                        <button onClick={() => deleteCriteria(c.id)}
-                          className="text-xs flex-shrink-0" style={{ color: 'var(--danger)' }}>✕</button>
-                      )}
-                    </div>
+                  {[...Array(2)].map((_, i) => (
+                    <div key={i} className="h-14 rounded-lg animate-pulse" style={{ background: 'var(--bg-card)' }} />
                   ))}
                 </div>
+              ) : criteria.length === 0 ? (
+                <div className="py-8 text-center rounded-xl" style={{ border: '1px dashed var(--border)' }}>
+                  <p className="text-sm font-medium text-white mb-1">Nuk ka kritere</p>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                    Shtoni kriteret me butonin sipër
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {criteria.map(c => {
+                    const w = String(c.id).startsWith('local-') ? c.weight : Math.round(c.weight * 100)
+                    return (
+                    <div key={c.id} className="rounded-lg overflow-hidden"
+                      style={{ border: '1px solid var(--border)' }}>
+                      <div className="h-0.5" style={{ background: 'var(--bg-card)' }}>
+                        <div className="h-full transition-all duration-300"
+                          style={{ width: `${w}%`, background: weightColor }} />
+                      </div>
+                      <div className="flex items-center justify-between px-4 py-3"
+                        style={{ background: 'var(--bg-card)' }}>
+                        <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                          <span className="text-sm font-medium text-white truncate">{c.name}</span>
+                        </div>
+                        <div className="flex items-center gap-3 ml-3">
+                          <span className="text-sm font-bold flex-shrink-0" style={{ color: weightColor }}>{w}%</span>
+                          {canEdit && (
+                            <button onClick={() => deleteCriteria(c.id)}
+                              className="w-6 h-6 flex items-center justify-center rounded text-xs transition flex-shrink-0"
+                              style={{ color: 'var(--text-muted)', background: 'var(--bg-secondary)' }}
+                              onMouseEnter={e => e.currentTarget.style.color = '#f87171'}
+                              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}>
+                              ✕
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )})}
+                </div>
               )}
-            </div>}
+            </div>
+            )
+          })()}
 
           {/* ── Hint në create mode ── */}
           {!isEdit && (

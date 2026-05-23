@@ -173,6 +173,33 @@ export default function GrantDetailPage() {
           </div>
         )}
 
+        {/* Criteria */}
+        {grant.criteria?.length > 0 && (
+          <div className="rounded-2xl p-6 mb-4"
+            style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
+            <h2 className="font-semibold text-white mb-1">Kriteret e vlerësimit</h2>
+            <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
+              Aplikimi juaj do të vlerësohet bazuar në këto kritere
+            </p>
+            <div className="space-y-2.5">
+              {grant.criteria.map(c => (
+                <div key={c.id}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm text-white">{c.name}</span>
+                    <span className="text-sm font-bold" style={{ color: 'var(--accent)' }}>
+                      {c.weight}%
+                    </span>
+                  </div>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bg-card)' }}>
+                    <div className="h-full rounded-full"
+                      style={{ width: `${c.weight}%`, background: 'var(--accent)', opacity: 0.6 }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Apply button */}
         {existingApplication ? (
           <button
