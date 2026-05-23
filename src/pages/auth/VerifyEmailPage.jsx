@@ -19,7 +19,7 @@ export default function VerifyEmailPage() {
       setMessage('Link i pavlefshëm ose i munguar.')
       return
     }
-    api.get('/auth/verify-email', { params: { token } })
+    api.get(`/auth/verify-email?token=${token}`)
       .then(res => {
         setMessage(res.data.message)
         setStatus('success')

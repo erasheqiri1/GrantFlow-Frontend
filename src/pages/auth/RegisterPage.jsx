@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import api from '../../api/axios'
+import { useAuth } from '../../context/AuthContext'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [role, setRole] = useState('applicant')
   const [form, setForm] = useState({
     first_name: '', last_name: '', email: '', password: '', confirm_password: '',
@@ -60,13 +62,15 @@ export default function RegisterPage() {
     setLoading(true)
     try {
       if (role === 'applicant') {
-        await api.post('/auth/register', {
+        const res = await api.post('/auth/register', {
           first_name: form.first_name,
           last_name:  form.last_name,
           email:      form.email,
           password:   form.password,
         })
-        setSuccess('Llogaria u krijua! Kontrollo emailin tënd dhe kliko linkun për të aktivizuar llogarinë.')
+        const { access_token, role: userRole } = res.data
+        login(access_token, { role: userRole })
+        navigate('/grants')
       } else {
         await api.post('/auth/register-org', {
           first_name: form.first_name,
