@@ -1,14 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import Sidebar from '../../components/layout/Sidebar'
+import OrgHeader from '../../components/layout/OrgHeader'
 import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
-
-const NAV = [
-  { to: '/org-admin',        icon: '🏠', label: 'Overview' },
-  { to: '/org-admin/grants', icon: '📋', label: 'Grante' },
-  { to: '/org-admin/team',   icon: '👥', label: 'Ekipi' },
-]
 
 function StatCard({ label, value, sub, color }) {
   return (
@@ -43,25 +37,23 @@ export default function OrgDashboard() {
   const approved  = apps.filter(a => a.status === 'APPROVED').length
   const pending   = apps.filter(a => ['SUBMITTED', 'UNDER_REVIEW'].includes(a.status)).length
 
-  const firstName = user?.full_name?.split(' ')[0] || 'Admin'
-
   return (
-    <div className="flex min-h-screen" style={{ background: 'var(--bg-primary)' }}>
-      <Sidebar items={NAV} />
+    <div className="org-admin-shell min-h-screen">
+      <OrgHeader />
 
-      <main className="flex-1 p-6">
+      <main className="org-page-content">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-white">Mirë se erdhe, {firstName}</h1>
+            <h1 className="text-2xl font-bold text-white">Paneli i organizatës</h1>
             <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-              {user?.tenant_slug?.toUpperCase()} · ORG_ADMIN
+              Monitoro grantet, aplikimet dhe ekipin
             </p>
           </div>
           <Link to="/org-admin/grants/new"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition"
+            className="org-primary-button flex items-center justify-center rounded-xl text-sm font-semibold transition"
             style={{ background: 'var(--accent)', color: '#0f1117' }}>
-            + Grant i ri
+            Grant i ri
           </Link>
         </div>
 

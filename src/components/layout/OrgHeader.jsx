@@ -14,7 +14,7 @@ export default function OrgHeader() {
   const { logout } = useAuth()
 
   return (
-    <nav className="org-header sticky top-0 z-20 flex items-center justify-between px-8 py-4">
+    <nav className="org-header sticky top-0 z-20 flex items-center justify-between">
       <div className="flex items-center gap-8">
         <div className="text-lg font-black tracking-wider">
           <span className="text-white">GRANT</span><span style={{ color: '#00e676' }}>FLOW</span>
@@ -37,6 +37,13 @@ export default function OrgHeader() {
       </div>
 
       <div className="flex items-center gap-3">
+        <Link
+          to="/org-admin/grants/new"
+          className="rounded-xl font-black tracking-wide transition"
+          data-active={location.pathname === '/org-admin/grants/new' ? 'true' : 'false'}
+        >
+          Grant i ri
+        </Link>
         <button
           onClick={() => { logout(); navigate('/login') }}
           className="rounded-xl font-black tracking-wide transition"

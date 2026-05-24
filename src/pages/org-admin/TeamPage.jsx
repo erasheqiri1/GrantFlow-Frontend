@@ -1,13 +1,7 @@
 import { useState, useEffect } from 'react'
-import Sidebar from '../../components/layout/Sidebar'
+import OrgHeader from '../../components/layout/OrgHeader'
 import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
-
-const NAV = [
-  { to: '/org-admin',        icon: '🏠', label: 'Overview' },
-  { to: '/org-admin/grants', icon: '📋', label: 'Grante' },
-  { to: '/org-admin/team',   icon: '👥', label: 'Ekipi' },
-]
 
 const ROLE_LABELS = {
   ORG_ADMIN:    { label: 'Org Admin',   bg: 'rgba(251,191,36,0.15)',  color: '#fbbf24' },
@@ -88,11 +82,11 @@ export default function TeamPage() {
   const blur  = e => (e.target.style.borderColor = 'var(--border)')
 
   return (
-    <div className="flex min-h-screen" style={{ background: 'var(--bg-primary)' }}>
-      <Sidebar items={NAV} />
-      <main className="flex-1 p-6">
+    <div className="org-admin-shell min-h-screen">
+      <OrgHeader />
+      <main className="org-page-content">
 
-        <div className="mb-6">
+        <div className="org-section-hero mb-6">
           <h1 className="text-2xl font-bold text-white">Ekipi</h1>
           <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
             Menaxho anëtarët dhe dërgo ftesa

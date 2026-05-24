@@ -1,13 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import Sidebar from '../../components/layout/Sidebar'
+import OrgHeader from '../../components/layout/OrgHeader'
 import api from '../../api/axios'
-
-const NAV = [
-  { to: '/org-admin',        icon: '🏠', label: 'Overview' },
-  { to: '/org-admin/grants', icon: '📋', label: 'Grante' },
-  { to: '/org-admin/team',   icon: '👥', label: 'Ekipi' },
-]
 
 const STATUS_BADGE = {
   DRAFT:     { label: 'Draft',    bg: 'rgba(251,191,36,0.15)',  color: '#fbbf24' },
@@ -70,9 +64,9 @@ export default function GrantsManagePage() {
   const visible = filter ? grants.filter(g => g.status === filter) : grants
 
   return (
-    <div className="flex min-h-screen" style={{ background: 'var(--bg-primary)' }}>
-      <Sidebar items={NAV} />
-      <main className="flex-1 p-6">
+    <div className="org-admin-shell min-h-screen">
+      <OrgHeader />
+      <main className="org-page-content">
 
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -83,9 +77,9 @@ export default function GrantsManagePage() {
             </p>
           </div>
           <Link to="/org-admin/grants/new"
-            className="px-4 py-2.5 rounded-xl text-sm font-semibold"
+            className="org-primary-button flex items-center justify-center rounded-xl text-sm font-semibold"
             style={{ background: 'var(--accent)', color: '#0f1117' }}>
-            + Grant i ri
+            Grant i ri
           </Link>
         </div>
 

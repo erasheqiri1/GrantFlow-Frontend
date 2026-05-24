@@ -98,7 +98,7 @@ export default function RegisterPage() {
   }
 
   /* ── Shared input helpers ── */
-  const inputBase = "w-full pl-11 pr-4 py-3.5 rounded-xl text-sm text-white outline-none transition-all duration-200"
+  const inputBase = "auth-input w-full pl-11 pr-4 py-3.5 rounded-xl text-sm text-white outline-none transition-all duration-200"
   const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }
   const onFocus = e => { e.target.style.borderColor = 'rgba(0,230,118,0.5)'; e.target.style.background = 'rgba(0,230,118,0.03)' }
   const onBlur  = e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.background = 'rgba(255,255,255,0.05)' }
@@ -121,11 +121,11 @@ export default function RegisterPage() {
   )
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4" style={{ background: '#0a0d14' }}>
-      <div className="w-full max-w-lg">
+    <div className="auth-page min-h-screen flex items-center justify-center py-12 px-4" style={{ background: '#0a0d14' }}>
+      <div className="auth-register-wrap w-full max-w-lg">
 
         {/* Logo */}
-        <div className="flex items-center justify-center gap-3 mb-8">
+        <div className="auth-logo flex items-center justify-center gap-3 mb-8">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center"
             style={{ background: 'rgba(0,230,118,0.15)', border: '1px solid rgba(0,230,118,0.3)' }}>
             <span className="text-lg font-black" style={{ color: '#00e676' }}>G</span>
@@ -136,30 +136,31 @@ export default function RegisterPage() {
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl p-8"
+        <div className="auth-card rounded-2xl p-8"
           style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
 
-          <div className="mb-6 text-center">
-            <h1 className="text-2xl font-black text-white mb-2">Krijo llogarinë 🚀</h1>
+          <div className="auth-card-heading mb-6 text-center">
+            <h1 className="text-2xl font-black text-white mb-2">Krijo llogarinë</h1>
             <p className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>
               Zgjidhni llojin e llogarisë për të filluar
             </p>
           </div>
 
           {/* Role tabs */}
-          <div className="grid grid-cols-2 gap-3 mb-6">
+          <div className="auth-role-tabs grid grid-cols-2 gap-3 mb-6">
             {[
-              { key: 'applicant', icon: '👤', label: 'Aplikant',   sub: 'Apliko në grante' },
-              { key: 'org',       icon: '🏛', label: 'Organizatë', sub: 'Publiko grante'   },
+              { key: 'applicant', icon: '', label: 'Aplikant',   sub: 'Apliko në grante' },
+              { key: 'org',       icon: '', label: 'Organizatë', sub: 'Publiko grante'   },
             ].map(({ key, icon, label, sub }) => (
               <button key={key} type="button"
                 onClick={() => { setRole(key); setError(''); setSuccess('') }}
-                className="flex items-center gap-3 p-4 rounded-xl transition-all duration-200 text-left"
+                className="auth-role-tab flex items-center gap-3 p-4 rounded-xl transition-all duration-200 text-left"
+                data-active={role === key}
                 style={{
                   background: role === key ? 'rgba(0,230,118,0.08)' : 'rgba(255,255,255,0.03)',
                   border: `1px solid ${role === key ? 'rgba(0,230,118,0.4)' : 'rgba(255,255,255,0.08)'}`,
                 }}>
-                <span className="text-xl flex-shrink-0">{icon}</span>
+                {icon && <span className="text-xl flex-shrink-0">{icon}</span>}
                 <div>
                   <div className="text-sm font-bold"
                     style={{ color: role === key ? '#00e676' : 'white' }}>{label}</div>
@@ -186,7 +187,7 @@ export default function RegisterPage() {
           )}
 
           {!success ? (
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="auth-form space-y-5">
 
               {/* Emri + Mbiemri */}
               <div className="grid grid-cols-2 gap-3">
@@ -336,7 +337,7 @@ export default function RegisterPage() {
 
               {/* Submit */}
               <button type="submit" disabled={loading}
-                className="w-full py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all duration-200 mt-2"
+                className="auth-submit w-full py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all duration-200 mt-2"
                 style={{
                   background: loading ? 'rgba(0,230,118,0.4)' : '#00e676',
                   color: '#0a0d14',

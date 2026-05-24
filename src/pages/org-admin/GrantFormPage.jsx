@@ -1,13 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import api from '../../api/axios'
-import Sidebar from '../../components/layout/Sidebar'
-
-const NAV = [
-  { to: '/org-admin',        icon: '🏠', label: 'Overview' },
-  { to: '/org-admin/grants', icon: '📋', label: 'Grante' },
-  { to: '/org-admin/team',   icon: '👥', label: 'Ekipi' },
-]
+import OrgHeader from '../../components/layout/OrgHeader'
 
 const APPLICANT_TYPE_LABELS = {
   ANY:          'Të gjithë',
@@ -183,11 +177,11 @@ export default function GrantFormPage() {
   }
 
   return (
-    <div className="flex min-h-screen" style={{ background: 'var(--bg-primary)' }}>
-      <Sidebar items={NAV} />
-      <main className="flex-1 p-6">
+    <div className="org-admin-shell min-h-screen">
+      <OrgHeader />
+      <main className="org-page-content">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="org-form-hero flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-white">
               {isEdit ? 'Ndrysho grant' : 'Grant i ri'}

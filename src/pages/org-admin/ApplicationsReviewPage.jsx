@@ -1,13 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import Sidebar from '../../components/layout/Sidebar'
+import OrgHeader from '../../components/layout/OrgHeader'
 import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
-
-const NAV = [
-  { to: '/org-admin',        icon: '🏠', label: 'Overview' },
-  { to: '/org-admin/grants', icon: '📋', label: 'Grante' },
-  { to: '/org-admin/team',   icon: '👥', label: 'Ekipi' },
-]
 
 const STATUS_BADGE = {
   SUBMITTED:    { label: 'Dorëzuar',    bg: 'rgba(96,165,250,0.15)',  color: '#60a5fa' },
@@ -472,9 +466,9 @@ export default function ApplicationsReviewPage() {
   useEffect(() => { fetchApps() }, [fetchApps])
 
   return (
-    <div className="flex min-h-screen" style={{ background: 'var(--bg-primary)' }}>
-      <Sidebar items={NAV} />
-      <main className="flex-1 p-6">
+    <div className="org-admin-shell min-h-screen">
+      <OrgHeader />
+      <main className="org-page-content">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-white">Aplikimet</h1>
