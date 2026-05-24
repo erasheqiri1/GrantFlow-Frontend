@@ -4,7 +4,6 @@ import { useAuth } from '../../context/AuthContext'
 const COMMISSIONER_NAV = [
   { to: '/commissioner', label: 'Dashboard' },
   { to: '/commissioner/applications', label: 'Aplikimet' },
-  { to: '/commissioner/profile', label: 'Profili' },
 ]
 
 export default function CommissionerHeader() {
