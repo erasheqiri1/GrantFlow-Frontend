@@ -73,15 +73,18 @@ export default function UsersListPage() {
         </div>
 
         <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
-          <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid var(--border)' }}>
-            <span className="font-semibold text-white">{users.length} përdorues gjithsej</span>
-            <input
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="🔍  Kërko sipas emrit ose email..."
-              className="px-3 py-1.5 rounded-lg text-xs text-white outline-none w-64"
-              style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
-            />
+          <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-white">{users.length} përdorues gjithsej</span>
+            <div className="super-search">
+              <input
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Kërko sipas emrit ose email..."
+                className="text-xs text-white outline-none"
+              />
+            </div>
+            </div>
           </div>
 
           {loading ? (

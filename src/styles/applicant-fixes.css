@@ -166,6 +166,91 @@
   background: transparent !important;
 }
 
+.applicant-shell .grant-search-button[aria-expanded="true"] {
+  color: #07101a;
+  background: var(--accent) !important;
+  box-shadow: 0 0 22px rgba(0, 230, 118, 0.22) !important;
+}
+
+.applicant-shell .grant-filter-panel {
+  width: min(100%, 760px);
+  margin: .85rem 0 1.35rem;
+  padding: 1.1rem;
+  border: 1px solid rgba(0, 230, 118, 0.24);
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(13, 27, 39, 0.9), rgba(5, 12, 20, 0.92));
+  box-shadow: 0 20px 52px rgba(0, 0, 0, 0.36), 0 0 30px rgba(0, 230, 118, 0.08);
+  backdrop-filter: blur(18px);
+}
+
+.applicant-shell .grant-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.15rem;
+}
+
+.applicant-shell .grant-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: .42rem;
+}
+
+.applicant-shell .grant-filter-field span {
+  color: rgba(0, 230, 118, 0.78);
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .13em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.applicant-shell .grant-filter-field input,
+.applicant-shell .grant-filter-field select {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 12px !important;
+  padding: .62rem .78rem;
+  font-weight: 650;
+  color-scheme: dark;
+}
+
+.applicant-shell .grant-filter-field input:focus,
+.applicant-shell .grant-filter-field select:focus {
+  outline: none;
+  border-color: rgba(0, 230, 118, 0.55) !important;
+  box-shadow: 0 0 0 4px rgba(0, 230, 118, 0.08) !important;
+}
+
+.applicant-shell .grant-filter-actions {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-top: 1rem;
+}
+
+.applicant-shell .grant-filter-submit,
+.applicant-shell .grant-filter-clear {
+  min-height: 38px;
+  border-radius: 999px;
+  font-size: .92rem;
+  font-weight: 900;
+}
+
+.applicant-shell .grant-filter-submit {
+  flex: 1;
+  background: var(--accent);
+  color: #04100b;
+  box-shadow: 0 0 24px rgba(0, 230, 118, 0.18);
+}
+
+.applicant-shell .grant-filter-clear {
+  min-width: 104px;
+  border: 1px solid rgba(0, 230, 118, 0.28);
+  color: rgba(226, 232, 240, 0.7);
+  background: rgba(5, 14, 22, 0.58);
+}
+
 .applicant-shell .application-status-button {
   min-height: 38px;
   min-width: 82px;
@@ -1145,6 +1230,75 @@
   border: 1px solid rgba(0, 230, 118, .28);
 }
 
+.super-search {
+  position: relative;
+  width: min(100%, 300px);
+  flex-shrink: 0;
+}
+
+.super-search::before {
+  content: '';
+  position: absolute;
+  left: .9rem;
+  top: 50%;
+  width: .72rem;
+  height: .72rem;
+  border: 2px solid rgba(0, 230, 118, .72);
+  border-radius: 999px;
+  transform: translateY(-55%);
+  pointer-events: none;
+}
+
+.super-search::after {
+  content: '';
+  position: absolute;
+  left: 1.48rem;
+  top: 50%;
+  width: .42rem;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(0, 230, 118, .72);
+  transform: translateY(110%) rotate(45deg);
+  transform-origin: left center;
+  pointer-events: none;
+}
+
+.super-search input {
+  width: 100%;
+  min-height: 34px !important;
+  padding: .45rem .85rem .45rem 2.3rem !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(0, 230, 118, .22) !important;
+  background: rgba(2, 9, 15, .64) !important;
+  color: #fff !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .035);
+}
+
+.super-search input::placeholder {
+  color: rgba(148, 163, 184, .7);
+}
+
+.super-search input:focus {
+  border-color: rgba(0, 230, 118, .56) !important;
+  box-shadow: 0 0 0 4px rgba(0, 230, 118, .07), 0 0 22px rgba(0, 230, 118, .12) !important;
+}
+
+.org-page-content .grid.grid-cols-4 + .rounded-2xl {
+  margin-top: 2.35rem !important;
+}
+
+.org-page-content .rounded-2xl > div:first-child:has(.super-search) {
+  min-height: 58px;
+  padding-top: .75rem !important;
+  padding-bottom: .75rem !important;
+  display: flex;
+  align-items: center;
+}
+
+.org-page-content .rounded-2xl > div:first-child:has(.super-search) > div {
+  width: 100%;
+}
+
 .org-admin-shell .fixed.inset-0.z-50 > .max-w-lg {
   width: min(100% - 2rem, 760px) !important;
   max-width: 760px !important;
@@ -1369,6 +1523,15 @@
 
   .applicant-shell .grant-search-wrap {
     max-width: 100% !important;
+  }
+
+  .applicant-shell .grant-filter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .applicant-shell .grant-filter-actions {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .applicant-page h1,

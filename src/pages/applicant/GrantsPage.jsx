@@ -3,12 +3,23 @@ import { Link, useNavigate } from 'react-router-dom'
 import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
 
+const EMPTY_FILTERS = {
+  title: '',
+  applicant_type: '',
+  deadline_from: '',
+  deadline_to: '',
+  budget_min: '',
+  budget_max: '',
+  sort: '',
+}
+
 export default function GrantsPage() {
   const { logout } = useAuth()
   const navigate = useNavigate()
   const [grants, setGrants] = useState([])
   const [loading, setLoading] = useState(true)
-  const [filters, setFilters] = useState({ title: '' })
+  const [filters, setFilters] = useState(EMPTY_FILTERS)
+  const [showFilters, setShowFilters] = useState(false)
   const [appliedGrantIds, setAppliedGrantIds] = useState(new Set())
 
   const filtersRef = useRef(filters)
@@ -21,6 +32,12 @@ export default function GrantsPage() {
     try {
       const params = {}
       if (f.title) params.title = f.title
+      if (f.applicant_type) params.applicant_type = f.applicant_type
+      if (f.deadline_from) params.deadline_from = f.deadline_from
+      if (f.deadline_to) params.deadline_to = f.deadline_to
+      if (f.budget_min) params.budget_min = f.budget_min
+      if (f.budget_max) params.budget_max = f.budget_max
+      if (f.sort) params.sort = f.sort
       const res = await api.get('/grants', { params })
       if (myId === latestFetchId.current) setGrants(res.data)
     } catch (err) {
@@ -40,9 +57,16 @@ export default function GrantsPage() {
       .catch(() => {})
   }, [])
 
-  const updateFilters = (nextFilters) => {
+  const updateFilters = (patch) => {
+    const nextFilters = { ...filtersRef.current, ...patch }
     setFilters(nextFilters)
     filtersRef.current = nextFilters
+  }
+
+  const clearFilters = () => {
+    setFilters(EMPTY_FILTERS)
+    filtersRef.current = EMPTY_FILTERS
+    fetchGrants(EMPTY_FILTERS)
   }
 
   return (
@@ -103,8 +127,9 @@ export default function GrantsPage() {
               style={{ background: 'rgba(5,14,22,0.78)', border: '2px solid rgba(0,230,118,0.34)' }}
             />
             <button
-              onClick={() => fetchGrants(filtersRef.current)}
-              title="Kërko"
+              onClick={() => setShowFilters(value => !value)}
+              title="Filtrat"
+              aria-expanded={showFilters}
               className="absolute right-2.5 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-xl transition grant-search-button">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
@@ -113,6 +138,65 @@ export default function GrantsPage() {
             </button>
           </div>
         </div>
+
+        {showFilters && (
+          <div className="grant-filter-panel">
+            <div className="grant-filter-grid">
+              <label className="grant-filter-field">
+                <span>Kategoria</span>
+                <select value={filters.applicant_type} onChange={e => updateFilters({ applicant_type: e.target.value })}>
+                  <option value="">Të gjitha</option>
+                  <option value="ANY">Any</option>
+                  <option value="STUDENT">Student</option>
+                  <option value="BUSINESS">Biznes</option>
+                  <option value="ORGANIZATION">Organizatë</option>
+                  <option value="INDIVIDUAL">Individual</option>
+                </select>
+              </label>
+
+              <label className="grant-filter-field">
+                <span>Rendit sipas</span>
+                <select value={filters.sort} onChange={e => updateFilters({ sort: e.target.value })}>
+                  <option value="">Rendit: Default</option>
+                  <option value="deadline_asc">Afati më i afërt</option>
+                  <option value="deadline_desc">Afati më i largët</option>
+                  <option value="budget_desc">Buxheti më i madh</option>
+                  <option value="budget_asc">Buxheti më i vogël</option>
+                  <option value="title_asc">Titulli A-Z</option>
+                </select>
+              </label>
+
+              <label className="grant-filter-field">
+                <span>Afati nga</span>
+                <input type="date" value={filters.deadline_from} onChange={e => updateFilters({ deadline_from: e.target.value })} />
+              </label>
+
+              <label className="grant-filter-field">
+                <span>Afati deri</span>
+                <input type="date" value={filters.deadline_to} onChange={e => updateFilters({ deadline_to: e.target.value })} />
+              </label>
+
+              <label className="grant-filter-field">
+                <span>Buxheti min (€)</span>
+                <input type="number" min="0" placeholder="0" value={filters.budget_min} onChange={e => updateFilters({ budget_min: e.target.value })} />
+              </label>
+
+              <label className="grant-filter-field">
+                <span>Buxheti max (€)</span>
+                <input type="number" min="0" placeholder="Pa limit" value={filters.budget_max} onChange={e => updateFilters({ budget_max: e.target.value })} />
+              </label>
+            </div>
+
+            <div className="grant-filter-actions">
+              <button type="button" className="grant-filter-submit" onClick={() => fetchGrants(filtersRef.current)}>
+                Kërko
+              </button>
+              <button type="button" className="grant-filter-clear" onClick={clearFilters}>
+                Pastro
+              </button>
+            </div>
+          </div>
+        )}
 
         {!loading && (
           <p className="text-xs mb-7 font-semibold uppercase tracking-widest" style={{ color: 'rgba(0,230,118,0.58)' }}>

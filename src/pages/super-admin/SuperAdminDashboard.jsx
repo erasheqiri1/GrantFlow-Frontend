@@ -72,12 +72,14 @@ export default function SuperAdminDashboard() {
           <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
             <div className="flex items-center justify-between">
               <h2 className="font-semibold text-white">Organizatat</h2>
-              <input
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="🔍  Kërko..."
-                className="px-3 py-1.5 rounded-lg text-xs text-white outline-none"
-                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }} />
+              <div className="super-search">
+                <input
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder="Kërko..."
+                  className="text-xs text-white outline-none"
+                />
+              </div>
             </div>
           </div>
           <table className="w-full">
