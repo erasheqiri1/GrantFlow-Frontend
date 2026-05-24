@@ -27,10 +27,27 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const { login } = useAuth()
   const [form, setForm] = useState({ email: '', password: '', tenant_slug: '' })
+  const [platformStats, setPlatformStats] = useState({
+    total_tenants: 0,
+    total_applications: 0,
+    total_grants: 0,
+  })
   const [showPass, setShowPass] = useState(false)
   const [showStaffLogin, setShowStaffLogin] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    api.get('/tenants/public-stats', { noAuth: true, skipAuthRedirect: true })
+      .then(res => {
+        setPlatformStats({
+          total_tenants: Number(res.data?.total_tenants || 0),
+          total_applications: Number(res.data?.total_applications || 0),
+          total_grants: Number(res.data?.total_grants || 0),
+        })
+      })
+      .catch(() => {})
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -66,6 +83,12 @@ export default function LoginPage() {
     outline: 'none',
     transition: 'border-color 0.2s',
   }
+
+  const stats = [
+    { end: platformStats.total_tenants, label: 'Organizata' },
+    { end: platformStats.total_applications, label: 'Aplikime' },
+    { end: platformStats.total_grants, label: 'Grante' },
+  ]
 
   return (
     <div className="min-h-screen flex relative overflow-hidden" style={{ background: '#0a0d14' }}>
@@ -126,11 +149,7 @@ export default function LoginPage() {
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-4">
-            {[
-              { end: 500, suffix: '+',  label: 'Organizata' },
-              { end: 12,  suffix: 'K+', label: 'Aplikime'   },
-              { end: 98,  suffix: '%',  label: 'Kënaqësi'   },
-            ].map(s => (
+            {stats.map(s => (
               <div key={s.label} className="rounded-xl p-4"
                 style={{
                   background: 'rgba(255,255,255,0.04)',
@@ -138,7 +157,7 @@ export default function LoginPage() {
                   backdropFilter: 'blur(8px)',
                 }}>
                 <div className="text-2xl font-black" style={{ color: '#00e676' }}>
-                  <CountUp end={s.end} suffix={s.suffix} duration={1800} />
+                  <CountUp end={s.end} duration={1800} />
                 </div>
                 <div className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{s.label}</div>
               </div>

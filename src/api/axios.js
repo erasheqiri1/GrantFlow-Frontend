@@ -7,7 +7,7 @@ const api = axios.create({
 // Shto token + no-cache automatikisht çdo request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
-  if (token) {
+  if (token && !config.noAuth) {
     config.headers.Authorization = `Bearer ${token}`
   }
   // Parandalon browser cache për GET requests
@@ -21,7 +21,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401) {
+    if (err.response?.status === 401 && !err.config?.skipAuthRedirect) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
       window.location.href = '/login'
