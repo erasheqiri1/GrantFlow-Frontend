@@ -1507,6 +1507,135 @@
   font-weight: 800 !important;
 }
 
+.application-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, .72);
+  backdrop-filter: blur(12px);
+}
+
+.application-modal-card {
+  width: min(100%, 720px);
+  max-height: min(86vh, 820px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(13, 27, 39, .96), rgba(5, 12, 20, .98));
+  border: 1px solid rgba(0, 230, 118, .26);
+  box-shadow:
+    0 34px 110px rgba(0, 0, 0, .62),
+    0 0 34px rgba(0, 230, 118, .09);
+}
+
+.application-modal-card > div:first-child {
+  padding: 1.35rem 1.55rem !important;
+  border-bottom: 1px solid rgba(0, 230, 118, .18) !important;
+  background: rgba(7, 18, 29, .48);
+}
+
+.application-modal-card h2 {
+  font-size: 1.22rem !important;
+  font-weight: 950 !important;
+  line-height: 1.15 !important;
+  color: #fff !important;
+}
+
+.application-modal-card h2 + p {
+  margin-top: .35rem !important;
+  color: rgba(148, 163, 184, .78) !important;
+  font-size: .82rem !important;
+  line-height: 1.4 !important;
+}
+
+.application-modal-card > div:first-child button {
+  width: 2.25rem !important;
+  height: 2.25rem !important;
+  border-radius: 12px !important;
+  color: rgba(226, 232, 240, .65) !important;
+  background: rgba(10, 22, 35, .82) !important;
+  border: 1px solid rgba(0, 230, 118, .22) !important;
+}
+
+.application-modal-card .overflow-y-auto {
+  padding: 1.35rem 1.55rem !important;
+  display: grid;
+  gap: .75rem;
+}
+
+.application-modal-card .overflow-y-auto > div {
+  min-height: 42px;
+  padding: .72rem 0 !important;
+}
+
+.application-modal-card .overflow-y-auto > div.flex {
+  gap: 1.25rem;
+}
+
+.application-modal-card .overflow-y-auto span:first-child,
+.application-modal-card .overflow-y-auto p:first-child {
+  color: rgba(0, 230, 118, .76) !important;
+  font-size: .72rem !important;
+  font-weight: 900 !important;
+  letter-spacing: .11em !important;
+  line-height: 1.25 !important;
+  text-transform: uppercase;
+}
+
+.application-modal-card .overflow-y-auto span:last-child,
+.application-modal-card .overflow-y-auto p:not(:first-child) {
+  color: rgba(226, 232, 240, .84) !important;
+  font-size: .92rem !important;
+  line-height: 1.55 !important;
+}
+
+.application-modal-card .overflow-y-auto .rounded-lg {
+  border-radius: 14px !important;
+  background: rgba(5, 14, 22, .64) !important;
+  border-color: rgba(0, 230, 118, .18) !important;
+}
+
+.application-modal-card > div:last-child {
+  padding: 1.2rem 1.55rem !important;
+  border-top: 1px solid rgba(0, 230, 118, .18) !important;
+  background: rgba(4, 11, 18, .58);
+  display: flex;
+  flex-direction: column;
+  gap: .85rem;
+}
+
+.application-modal-card > div:last-child button {
+  min-height: 42px !important;
+  border-radius: 14px !important;
+  font-size: .9rem !important;
+  font-weight: 900 !important;
+}
+
+.application-modal-card > div:last-child > button {
+  order: 10;
+}
+
+.application-modal-card > div:last-child button:not(:disabled):hover,
+.application-modal-card > div:first-child button:hover {
+  border-color: rgba(0, 230, 118, .42) !important;
+  box-shadow: 0 0 22px rgba(0, 230, 118, .11) !important;
+}
+
+.application-modal-card input,
+.application-modal-card select,
+.application-modal-card textarea {
+  min-height: 42px;
+  border-radius: 14px !important;
+  background: rgba(2, 9, 15, .72) !important;
+  border: 1px solid rgba(0, 230, 118, .24) !important;
+}
+
 @media (max-width: 760px) {
   .applicant-page nav,
   .applicant-shell nav {

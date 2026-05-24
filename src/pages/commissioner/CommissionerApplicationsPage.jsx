@@ -122,11 +122,9 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
   const canScore   = isReviewer && ['SUBMITTED', 'UNDER_REVIEW'].includes(app.status)
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
-      style={{ background: 'rgba(0,0,0,0.65)' }}
+    <div className="application-modal-overlay"
       onClick={e => { if (e.target === e.currentTarget) onClose() }}>
-      <div className="w-full max-w-xl rounded-2xl overflow-hidden"
-        style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+      <div className="application-modal-card">
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 flex-shrink-0"
@@ -220,7 +218,7 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
           {/* ── AI Scoring ── */}
           <div className="py-3">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-white">🤖 Vlerësimi AI</p>
+              <p className="text-xs font-medium text-white">Vlerësimi AI</p>
               {aiLoading ? (
                 <span className="text-xs animate-pulse" style={{ color: '#60a5fa' }}>⏳ Duke vlerësuar...</span>
               ) : aiScore ? (
@@ -296,7 +294,7 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
           {app.criteria?.length > 0 && (
             <div className="mb-3 rounded-lg p-3"
               style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-              <p className="text-xs font-medium text-white mb-2">📋 Kriteret e vlerësimit</p>
+              <p className="text-xs font-medium text-white mb-2">Kriteret e vlerësimit</p>
               <div className="flex flex-wrap gap-1.5">
                 {app.criteria.map(c => (
                   <span key={c.id} className="text-xs px-2 py-0.5 rounded-full"
@@ -311,7 +309,7 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
           {canScore ? (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-medium text-white">✍️ Pikët e mia (0 – 100)</p>
+                <p className="text-xs font-medium text-white">Pikët e mia (0 – 100)</p>
                 {reviewed && (
                   <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
                     style={{ background: 'rgba(168,85,247,0.15)', color: '#a855f7' }}>
