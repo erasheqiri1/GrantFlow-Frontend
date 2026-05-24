@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import Sidebar from '../../components/layout/Sidebar'
+import SuperAdminHeader from '../../components/layout/SuperAdminHeader'
 import api from '../../api/axios'
 
 const NAV = [
@@ -33,10 +33,10 @@ export default function AddSuperAdminPage() {
   }
 
   return (
-    <div className="flex min-h-screen" style={{ background: 'var(--bg-primary)' }}>
-      <Sidebar items={NAV} />
-      <main className="flex-1 p-6">
-        <div className="mb-6">
+    <div className="org-admin-shell min-h-screen">
+      <SuperAdminHeader />
+      <main className="org-page-content">
+        <div className="org-section-hero mb-6">
           <h1 className="text-2xl font-bold text-white">Shto Super Admin</h1>
           <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
             Dërgo ftesë me email — personi vendos vetë fjalëkalimin
@@ -47,8 +47,7 @@ export default function AddSuperAdminPage() {
           <div className="rounded-2xl p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
 
             {/* Hapat */}
-            <div className="flex items-start gap-3 mb-6 p-3 rounded-xl"
-              style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+            <div className="super-admin-steps flex items-start gap-3 mb-6">
               <div className="space-y-2 text-xs w-full" style={{ color: 'var(--text-secondary)' }}>
                 {[
                   ['1', 'Fut email-in e personit'],

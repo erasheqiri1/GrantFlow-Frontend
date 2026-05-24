@@ -53,7 +53,7 @@ export default function AcceptInvitePage() {
 
   if (!token) {
     return (
-      <div className="min-h-screen flex items-center justify-center"
+      <div className="auth-page min-h-screen flex items-center justify-center"
         style={{ background: 'var(--bg-primary)' }}>
         <div className="text-center">
           <p className="text-4xl mb-3">⚠️</p>
@@ -67,12 +67,12 @@ export default function AcceptInvitePage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-10"
+    <div className="auth-page invite-activate-page min-h-screen flex items-center justify-center py-10"
       style={{ background: 'var(--bg-primary)' }}>
-      <div className="w-full max-w-md px-4">
+      <div className="invite-activate-wrap w-full px-4">
 
         {/* Logo */}
-        <div className="flex flex-col items-center mb-6">
+        <div className="invite-activate-logo flex flex-col items-center mb-6">
           <div className="w-12 h-12 rounded-full flex items-center justify-center mb-2"
             style={{ background: 'var(--accent-dim)', border: '2px solid var(--accent)' }}>
             <span className="text-xl font-black" style={{ color: 'var(--accent)' }}>G</span>
@@ -83,7 +83,7 @@ export default function AcceptInvitePage() {
           </div>
         </div>
 
-        <div className="rounded-2xl p-8"
+        <div className="invite-activate-card rounded-2xl p-8"
           style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
           <h1 className="text-xl font-bold text-white text-center mb-1">Aktivizo llogarinë</h1>
           <p className="text-center text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
@@ -97,7 +97,7 @@ export default function AcceptInvitePage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="invite-activate-form space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Emri *</label>

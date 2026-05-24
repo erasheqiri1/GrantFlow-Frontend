@@ -28,6 +28,7 @@ import TeamPage from './pages/org-admin/TeamPage'
 // Commissioner pages
 import CommissionerDashboard from './pages/commissioner/CommissionerDashboard'
 import CommissionerApplicationsPage from './pages/commissioner/CommissionerApplicationsPage'
+import CommissionerProfilePage from './pages/commissioner/CommissionerProfilePage'
 
 // Super Admin pages
 import SuperAdminDashboard from './pages/super-admin/SuperAdminDashboard'
@@ -87,6 +88,7 @@ export default function App() {
         {/* Commissioner */}
         <Route path="/commissioner"              element={<ProtectedRoute role="COMMISSIONER"><CommissionerDashboard /></ProtectedRoute>} />
         <Route path="/commissioner/applications" element={<ProtectedRoute role="COMMISSIONER"><CommissionerApplicationsPage /></ProtectedRoute>} />
+        <Route path="/commissioner/profile"      element={<ProtectedRoute role="COMMISSIONER"><CommissionerProfilePage /></ProtectedRoute>} />
 
         {/* Super Admin */}
         <Route path="/super-admin"            element={<ProtectedRoute role="SUPER_ADMIN"><SuperAdminDashboard /></ProtectedRoute>} />

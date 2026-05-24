@@ -1,13 +1,7 @@
 import { useState, useEffect } from 'react'
-import Sidebar from '../../components/layout/Sidebar'
+import CommissionerHeader from '../../components/layout/CommissionerHeader'
 import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
-
-const NAV = [
-  { to: '/commissioner',              icon: '🏠', label: 'Dashboard' },
-  { to: '/commissioner/applications', icon: '📋', label: 'Aplikimet' },
-  { to: '/commissioner/profile',      icon: '👤', label: 'Profili' },
-]
 
 export default function CommissionerProfilePage() {
   const { user } = useAuth()
@@ -50,10 +44,10 @@ export default function CommissionerProfilePage() {
   const blur  = e => (e.target.style.borderColor = 'var(--border)')
 
   return (
-    <div className="flex min-h-screen" style={{ background: 'var(--bg-primary)' }}>
-      <Sidebar items={NAV} />
-      <main className="flex-1 p-6">
-        <div className="mb-6">
+    <div className="org-admin-shell min-h-screen">
+      <CommissionerHeader />
+      <main className="org-page-content">
+        <div className="org-section-hero mb-6">
           <h1 className="text-2xl font-bold text-white">Profili im</h1>
           <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
             {user?.tenant_slug?.toUpperCase()} · KOMISIONER

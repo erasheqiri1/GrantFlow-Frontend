@@ -1,18 +1,12 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import Sidebar from '../../components/layout/Sidebar'
+import CommissionerHeader from '../../components/layout/CommissionerHeader'
 import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
-
-const NAV = [
-  { to: '/commissioner',              icon: '🏠', label: 'Dashboard' },
-  { to: '/commissioner/applications', icon: '📋', label: 'Aplikimet' },
-]
 
 export default function CommissionerDashboard() {
   const { user } = useAuth()
   const [apps,      setApps]      = useState([])
-  const [firstName, setFirstName] = useState('')
   const [loading,   setLoading]   = useState(true)
 
   useEffect(() => {
@@ -23,8 +17,6 @@ export default function CommissionerDashboard() {
       api.get('/profile/me').catch(() => ({ data: null })),
     ]).then(([aRes, pRes]) => {
       setApps(Array.isArray(aRes.data) ? aRes.data : aRes.data?.items ?? [])
-      const p = pRes.data
-      if (p) setFirstName(p.first_name || p.email?.split('@')[0] || '')
     }).finally(() => setLoading(false))
   }, [])
 
@@ -43,17 +35,23 @@ export default function CommissionerDashboard() {
   ]
 
   return (
-    <div className="flex min-h-screen" style={{ background: 'var(--bg-primary)' }}>
-      <Sidebar items={NAV} />
-      <main className="flex-1 p-6">
+    <div className="org-admin-shell min-h-screen">
+      <CommissionerHeader />
+      <main className="org-page-content commissioner-dashboard-content">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-white">
-            Mirë se erdhe{firstName ? `, ${firstName}` : ''}
+            Paneli i komisionerit
           </h1>
           <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-            {user?.tenant_slug?.toUpperCase()} · KOMISIONER
+            Shqyrto aplikimet dhe dorëzo vlerësimet
           </p>
         </div>
+
+        {!loading && total === 0 && (
+          <p className="commissioner-empty-note text-sm" style={{ color: 'var(--text-muted)' }}>
+            Nuk ke aplikime të caktuara akoma.
+          </p>
+        )}
 
         <div className="grid grid-cols-5 gap-4 mb-8">
           {stats.map(s => (
@@ -81,12 +79,6 @@ export default function CommissionerDashboard() {
               Shiko aplikimet →
             </Link>
           </div>
-        )}
-
-        {!loading && total === 0 && (
-          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-            Nuk ke aplikime të caktuara akoma.
-          </p>
         )}
       </main>
     </div>

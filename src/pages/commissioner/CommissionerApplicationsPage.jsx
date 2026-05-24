@@ -1,12 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import Sidebar from '../../components/layout/Sidebar'
+import CommissionerHeader from '../../components/layout/CommissionerHeader'
 import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
-
-const NAV = [
-  { to: '/commissioner',              icon: '🏠', label: 'Dashboard' },
-  { to: '/commissioner/applications', icon: '📋', label: 'Aplikimet' },
-]
 
 const STATUS_BADGE = {
   SUBMITTED:    { label: 'Dorëzuar',    bg: 'rgba(96,165,250,0.15)',  color: '#60a5fa' },
@@ -389,9 +384,9 @@ export default function CommissionerApplicationsPage() {
   useEffect(() => { fetchApps() }, [fetchApps])
 
   return (
-    <div className="flex min-h-screen" style={{ background: 'var(--bg-primary)' }}>
-      <Sidebar items={NAV} />
-      <main className="flex-1 p-6">
+    <div className="org-admin-shell min-h-screen">
+      <CommissionerHeader />
+      <main className="org-page-content">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-white">Aplikimet</h1>

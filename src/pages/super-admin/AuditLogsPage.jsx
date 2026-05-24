@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import Sidebar from '../../components/layout/Sidebar'
+import SuperAdminHeader from '../../components/layout/SuperAdminHeader'
 import api from '../../api/axios'
 
 const NAV = [
@@ -87,9 +87,9 @@ export default function AuditLogsPage() {
   }
 
   return (
-    <div className="flex min-h-screen" style={{ background: 'var(--bg-primary)' }}>
-      <Sidebar items={NAV} />
-      <main className="flex-1 p-6">
+    <div className="org-admin-shell min-h-screen">
+      <SuperAdminHeader />
+      <main className="org-page-content">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-white">Audit Logs</h1>
           <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
