@@ -220,20 +220,14 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-medium text-white">Vlerësimi AI</p>
               {aiLoading ? (
-                <span className="text-xs animate-pulse" style={{ color: '#60a5fa' }}>⏳ Duke vlerësuar...</span>
-              ) : aiScore ? (
-                <button onClick={handleScore}
-                  className="text-xs px-2 py-1 rounded-lg"
-                  style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
-                  🔄 Rivlerëso
-                </button>
-              ) : (
+                <span className="text-xs animate-pulse" style={{ color: '#60a5fa' }}>Duke vlerësuar...</span>
+              ) : !aiScore ? (
                 <button onClick={handleScore}
                   className="text-xs px-3 py-1 rounded-lg font-medium"
                   style={{ background: 'rgba(96,165,250,0.15)', color: '#60a5fa', border: '1px solid rgba(96,165,250,0.3)' }}>
                   Vlerëso me AI
                 </button>
-              )}
+              ) : null}
             </div>
 
             {aiError && (

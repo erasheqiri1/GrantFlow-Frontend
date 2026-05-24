@@ -103,23 +103,6 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
     } finally { setActing(false) }
   }
 
-  const handleRivlereso = async () => {
-    setAiLoading(true); setAiError('')
-    try {
-      await api.post(`/applications/${app.id}/score`)
-      pollRef.current = setInterval(async () => {
-        try {
-          const sr = await api.get(`/applications/${app.id}/score`)
-          if (sr.data?.ai_score != null) {
-            setAiScore(sr.data); setAiLoading(false); clearInterval(pollRef.current)
-          }
-        } catch { }
-      }, 3000)
-    } catch (err) {
-      setAiError(err.response?.data?.detail || 'Gabim'); setAiLoading(false)
-    }
-  }
-
   const handleAssign = async () => {
     if (!assignId) return
     setAssigning(true)
@@ -257,11 +240,9 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
           <div className="py-3">
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-medium text-white">Vlerësimi AI</p>
-              {aiLoading
-                ? <span className="text-xs animate-pulse" style={{ color: '#60a5fa' }}>⏳ Duke vlerësuar...</span>
-                : aiScore
-                  ? <button onClick={handleRivlereso} className="text-xs px-2 py-1 rounded-lg" style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}>🔄 Rivlerëso</button>
-                  : null}
+              {aiLoading && (
+                <span className="text-xs animate-pulse" style={{ color: '#60a5fa' }}>Duke vlerësuar...</span>
+              )}
             </div>
             {aiError && <p className="text-xs mb-2" style={{ color: 'var(--danger)' }}>{aiError}</p>}
             {aiScore ? (
