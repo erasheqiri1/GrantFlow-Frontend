@@ -18,7 +18,7 @@ export default function ForgotPasswordPage() {
     e.preventDefault()
     setError(''); setLoading(true)
     try {
-      await api.post('/auth/forgot-password', { email })
+      await api.post('/auth/forgot-password', { email }, { skipAuthRedirect: true })
       setSent(true)
     } catch (err) {
       setError(err.response?.data?.detail || 'Ndodhi një gabim. Provo përsëri.')
@@ -77,10 +77,11 @@ export default function ForgotPasswordPage() {
               </div>
 
               {error && (
-                <p className="text-xs px-3 py-2 rounded-lg"
+                <div className="flex items-start gap-2 rounded-lg px-3 py-2.5 text-xs"
                   style={{ background: 'rgba(248,113,113,0.1)', color: '#f87171', border: '1px solid rgba(248,113,113,0.2)' }}>
-                  {error}
-                </p>
+                  <span className="flex-shrink-0 mt-0.5">⚠</span>
+                  <span>{error}</span>
+                </div>
               )}
 
               <button type="submit" disabled={loading}

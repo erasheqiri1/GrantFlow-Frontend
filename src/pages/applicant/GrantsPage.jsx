@@ -146,7 +146,7 @@ export default function GrantsPage() {
                 <span>Kategoria</span>
                 <select value={filters.applicant_type} onChange={e => updateFilters({ applicant_type: e.target.value })}>
                   <option value="">Të gjitha</option>
-                  <option value="ANY">Any</option>
+                  <option value="ANY">Çdo lloj</option>
                   <option value="STUDENT">Student</option>
                   <option value="BUSINESS">Biznes</option>
                   <option value="ORGANIZATION">Organizatë</option>

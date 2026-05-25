@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext'
 
 const STATUS_BADGE = {
   SUBMITTED:    { label: 'Dorëzuar',    bg: 'rgba(96,165,250,0.15)',  color: '#60a5fa' },
-  UNDER_REVIEW: { label: 'Vlerësuar', bg: 'rgba(168,85,247,0.15)', color: '#a855f7' },
+  UNDER_REVIEW: { label: 'Vlerësuar',   bg: 'rgba(168,85,247,0.15)', color: '#a855f7' },
   APPROVED:     { label: 'Aprovuar',    bg: 'rgba(74,222,128,0.15)',  color: '#4ade80' },
   REJECTED:     { label: 'Refuzuar',    bg: 'rgba(248,113,113,0.15)', color: '#f87171' },
 }
@@ -21,8 +21,6 @@ const STATUS_LABELS = {
 function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
   const { user }                    = useAuth()
   const [app, setApp]               = useState(initialApp)
-  const [rejectMode, setRejectMode] = useState(false)
-  const [reason, setReason]         = useState('')
   const [acting, setActing]         = useState(false)
   const [actErr, setActErr]         = useState('')
   const [commissioners, setCommissioners] = useState([])
@@ -115,29 +113,6 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
     } catch (err) {
       setActErr(err.response?.data?.detail || 'Gabim gjatë ricaktimit')
     } finally { setAssigning(false) }
-  }
-
-  const handleApprove = async () => {
-    setActing(true); setActErr('')
-    try {
-      const res = await api.patch(`/applications/${app.id}/approve`)
-      setApp(res.data)
-      onDecision()
-    } catch (err) {
-      setActErr(err.response?.data?.detail || 'Gabim gjatë aprovimit')
-    } finally { setActing(false) }
-  }
-
-  const handleReject = async () => {
-    setActing(true); setActErr('')
-    try {
-      const res = await api.patch(`/applications/${app.id}/reject`, { reason })
-      setApp(res.data)
-      setRejectMode(false)
-      onDecision()
-    } catch (err) {
-      setActErr(err.response?.data?.detail || 'Gabim gjatë refuzimit')
-    } finally { setActing(false) }
   }
 
   return (

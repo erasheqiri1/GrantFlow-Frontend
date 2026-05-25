@@ -4,13 +4,14 @@ import OrgHeader from '../../components/layout/OrgHeader'
 import api from '../../api/axios'
 
 const STATUS_BADGE = {
-  DRAFT:     { label: 'Draft',    bg: 'rgba(251,191,36,0.15)',  color: '#fbbf24' },
-  PUBLISHED: { label: 'Hapur',   bg: 'rgba(74,222,128,0.15)', color: '#4ade80' },
-  CLOSED:    { label: 'Mbyllur', bg: 'rgba(107,114,128,0.15)', color: '#9ca3af' },
+  DRAFT:     { label: 'Draft',       bg: 'rgba(251,191,36,0.15)',  color: '#fbbf24' },
+  PUBLISHED: { label: 'Hapur',      bg: 'rgba(74,222,128,0.15)',  color: '#4ade80' },
+  CLOSED:    { label: 'Mbyllur',    bg: 'rgba(107,114,128,0.15)', color: '#9ca3af' },
+  FINALIZED: { label: 'Finalizuar', bg: 'rgba(96,165,250,0.15)',  color: '#60a5fa' },
 }
 
-const STATUS_FILTERS = ['', 'DRAFT', 'PUBLISHED', 'CLOSED']
-const STATUS_LABELS  = { '': 'Të gjitha', DRAFT: 'Draft', PUBLISHED: 'Hapur', CLOSED: 'Mbyllur' }
+const STATUS_FILTERS = ['', 'DRAFT', 'PUBLISHED', 'CLOSED', 'FINALIZED']
+const STATUS_LABELS  = { '': 'Të gjitha', DRAFT: 'Draft', PUBLISHED: 'Hapur', CLOSED: 'Mbyllur', FINALIZED: 'Finalizuar' }
 
 export default function GrantsManagePage() {
   const [grants,    setGrants]    = useState([])
@@ -43,15 +44,6 @@ export default function GrantsManagePage() {
   const handlePublish = async (id) => {
     if (!confirm('Publiko këtë grant?')) return
     try { await api.patch(`/grants/${id}/publish`) } catch (e) { alert(e.response?.data?.detail || 'Gabim') }
-    fetchAll()
-  }
-
-  const handleFinalize = async (id) => {
-    if (!confirm('Finalizo: aplikimet do të aprovohen/refuzohen automatikisht sipas pikëve. Nuk kthehet!')) return
-    try {
-      const res = await api.post(`/grants/${id}/finalize`)
-      alert(`✓ ${res.data.approved} aprovuar · ${res.data.rejected} refuzuar nga ${res.data.total}`)
-    } catch (e) { alert(e.response?.data?.detail || 'Gabim gjatë finalizimit') }
     fetchAll()
   }
 
@@ -202,7 +194,7 @@ export default function GrantsManagePage() {
                           </>
                         )}
 
-                        {(g.status === 'PUBLISHED' || g.status === 'CLOSED') && (
+                        {(g.status === 'PUBLISHED' || g.status === 'CLOSED' || g.status === 'FINALIZED') && (
                           <Link to={`/org-admin/grants/${g.id}/edit`}
                             className="text-xs px-3 py-1.5 rounded-lg"
                             style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
@@ -210,12 +202,11 @@ export default function GrantsManagePage() {
                           </Link>
                         )}
 
-                        {g.status === 'CLOSED' && (
-                          <button onClick={() => handleFinalize(g.id)}
-                            className="text-xs px-3 py-1.5 rounded-lg font-semibold"
-                            style={{ background: 'rgba(96,165,250,0.15)', color: '#60a5fa', border: '1px solid rgba(96,165,250,0.3)' }}>
-                            🏆 Finalize
-                          </button>
+                        {g.status === 'FINALIZED' && (
+                          <span className="text-xs px-3 py-1.5 rounded-lg"
+                            style={{ background: 'rgba(96,165,250,0.08)', color: '#60a5fa', border: '1px solid rgba(96,165,250,0.2)' }}>
+                            🏆 Finalizuar automatikisht
+                          </span>
                         )}
                       </div>
                     </td>

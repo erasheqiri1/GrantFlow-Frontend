@@ -59,6 +59,18 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
     } finally { setActing(false) }
   }
 
+  // Kur hapet modali: ndrysho statusin në UNDER_REVIEW menjëherë
+  useEffect(() => {
+    if (initialApp.status === 'SUBMITTED') {
+      api.patch(`/applications/${initialApp.id}/start-review`)
+        .then(() => {
+          setApp(prev => ({ ...prev, status: 'UNDER_REVIEW' }))
+          onScored()  // rifresko tabelën
+        })
+        .catch(() => {})
+    }
+  }, [initialApp.id])
+
   // Kur hapet modali: nëse ka score ekzistues → shfaqe, nëse jo → nis automatikisht
   useEffect(() => {
     const run = async () => {

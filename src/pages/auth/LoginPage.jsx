@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
 
@@ -25,6 +25,7 @@ function CountUp({ end, suffix = '', duration = 2000 }) {
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { login } = useAuth()
   const [form, setForm] = useState({ email: '', password: '', tenant_slug: '' })
   const [platformStats, setPlatformStats] = useState({
@@ -36,6 +37,7 @@ export default function LoginPage() {
   const [showStaffLogin, setShowStaffLogin] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const isPending = searchParams.get('pending') === '1'
 
   useEffect(() => {
     api.get('/tenants/public-stats', { noAuth: true, skipAuthRedirect: true })
@@ -56,7 +58,7 @@ export default function LoginPage() {
     try {
       const payload = { email: form.email, password: form.password }
       if (form.tenant_slug) payload.tenant_slug = form.tenant_slug
-      const res = await api.post('/auth/login', payload)
+      const res = await api.post('/auth/login', payload, { skipAuthRedirect: true })
       const { access_token, role, user_id, tenant_slug } = res.data
       login(access_token, { role, user_id, tenant_slug })
       navigate('/')
@@ -204,6 +206,15 @@ export default function LoginPage() {
 
           {/* Spacer */}
           <div className="flex-1" />
+
+          {/* Alert: organizata pret aprovim */}
+          {isPending && !error && (
+            <div className="flex items-start gap-2 rounded-lg px-3 py-2.5 mb-6 text-xs"
+              style={{ background: 'rgba(234,179,8,0.1)', color: '#facc15', border: '1px solid rgba(234,179,8,0.25)' }}>
+              <span className="flex-shrink-0 mt-0.5">⏳</span>
+              <span>Email u konfirmua! Organizata juaj pret aprovimin nga Super Admin. Do të njoftoheni me email kur të aprovohet.</span>
+            </div>
+          )}
 
           {/* Error */}
           {error && (

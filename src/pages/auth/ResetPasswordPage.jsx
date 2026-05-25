@@ -31,7 +31,7 @@ export default function ResetPasswordPage() {
     if (password.length < 8)  { setError('Minimumi 8 karaktere'); return }
     setLoading(true)
     try {
-      await api.post('/auth/reset-password', { token, new_password: password })
+      await api.post('/auth/reset-password', { token, new_password: password }, { skipAuthRedirect: true })
       setDone(true)
       setTimeout(() => navigate('/login'), 3000)
     } catch (err) {
@@ -118,10 +118,11 @@ export default function ResetPasswordPage() {
               </div>
 
               {error && (
-                <p className="text-xs px-3 py-2 rounded-lg"
+                <div className="flex items-start gap-2 rounded-lg px-3 py-2.5 text-xs"
                   style={{ background: 'rgba(248,113,113,0.1)', color: '#f87171', border: '1px solid rgba(248,113,113,0.2)' }}>
-                  {error}
-                </p>
+                  <span className="flex-shrink-0 mt-0.5">⚠</span>
+                  <span>{error}</span>
+                </div>
               )}
 
               <button type="submit" disabled={loading || !token}

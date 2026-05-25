@@ -1,19 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
+import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import api from '../../api/axios'
 
 export default function VerifyEmailPage() {
   const [params]  = useSearchParams()
   const token     = params.get('token')
+  const navigate  = useNavigate()
 
-  const [status, setStatus] = useState('loading') // loading | success | error
+  const [status, setStatus] = useState('loading') // loading | success | org_pending | error
   const [message, setMessage] = useState('')
   const called = useRef(false)   // React 18 Strict Mode thirr useEffect dy herë — ky guard e ndalon
 
   useEffect(() => {
     if (called.current) return   // mos dërgo kërkesën dy herë
     called.current = true
-
 
     if (!token) {
       setStatus('error')
@@ -22,8 +22,14 @@ export default function VerifyEmailPage() {
     }
     api.get(`/auth/verify-email?token=${token}`)
       .then(res => {
-        setMessage(res.data.message)
-        setStatus('success')
+        const msg = res.data.message || ''
+        // ORG_ADMIN → shfaq faqen e pritjes (jo ridrejtim automatik)
+        if (msg.toLowerCase().includes('prisni aprovimin') || msg.toLowerCase().includes('administratori')) {
+          setStatus('org_pending')
+        } else {
+          setMessage(msg)
+          setStatus('success')
+        }
       })
       .catch(err => {
         setMessage(err.response?.data?.detail || 'Gabim gjatë konfirmimit të emailit.')
@@ -54,6 +60,26 @@ export default function VerifyEmailPage() {
             <div className="w-12 h-12 border-2 border-t-transparent rounded-full animate-spin mx-auto mb-4"
               style={{ borderColor: '#00e676', borderTopColor: 'transparent' }} />
             <p className="text-white font-semibold">Duke konfirmuar emailin...</p>
+          </div>
+        )}
+
+        {/* ORG_ADMIN — pret aprovim */}
+        {status === 'org_pending' && (
+          <div className="rounded-2xl p-10"
+            style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6"
+              style={{ background: 'rgba(234,179,8,0.1)', border: '1px solid rgba(234,179,8,0.3)' }}>
+              <span className="text-4xl">⏳</span>
+            </div>
+            <h2 className="text-2xl font-black text-white mb-3">Email u konfirmua!</h2>
+            <p className="text-sm leading-relaxed mb-8" style={{ color: 'rgba(255,255,255,0.5)' }}>
+              Organizata juaj është regjistruar me sukses. Prisni aprovimin nga Super Admin — do të njoftoheni me email sapo të aprovohet.
+            </p>
+            <Link to="/login?pending=1"
+              className="inline-block py-3.5 px-8 rounded-xl font-bold text-sm tracking-wide"
+              style={{ background: 'rgba(234,179,8,0.15)', color: '#facc15', border: '1px solid rgba(234,179,8,0.3)' }}>
+              Kthehu te faqja kryesore →
+            </Link>
           </div>
         )}
 
