@@ -5,23 +5,22 @@
   position: relative;
   min-height: 100vh;
   overflow-x: hidden;
-  background:
-    linear-gradient(rgba(0, 230, 118, 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 230, 118, 0.055) 1px, transparent 1px),
-    radial-gradient(circle at 50% -10%, rgba(0, 230, 118, 0.08), transparent 34rem),
-    linear-gradient(135deg, #070b12 0%, #08111b 46%, #05070d 100%) !important;
-  background-size: 56px 56px, 56px 56px, auto, auto !important;
+  /* Vetëm background solid — grid-i i lëvizur shkaktonte repaint në çdo scroll frame */
+  background: linear-gradient(135deg, #070b12 0%, #08111b 46%, #05070d 100%) !important;
 }
 
 .applicant-page::before,
 .applicant-shell::before {
   content: '';
-  position: fixed;
+  position: fixed;      /* fixed = nuk ripiktorohet gjatë scrollit */
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 20rem),
+    linear-gradient(rgba(0, 230, 118, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 230, 118, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 20rem),
     radial-gradient(circle at 50% 0%, rgba(0, 230, 118, 0.08), transparent 44rem);
+  background-size: 56px 56px, 56px 56px, auto, auto;
   z-index: 0;
 }
 
@@ -33,12 +32,13 @@
 
 .applicant-page nav,
 .applicant-shell nav {
-  background: rgba(5, 10, 17, 0.84) !important;
+  background: rgba(5, 10, 17, 0.92) !important;
   border-bottom: 2px solid rgba(0, 230, 118, 0.24) !important;
-  backdrop-filter: blur(18px);
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.28);
   min-height: 64px;
   padding: .75rem 1.5rem !important;
+  will-change: transform;   /* promovon nav-in në layer GPU të veçantë */
 }
 
 .applicant-page nav > div,
@@ -318,11 +318,11 @@
 }
 
 .profile-card-shell {
-  background: linear-gradient(180deg, rgba(13, 27, 39, 0.82), rgba(5, 12, 20, 0.82));
+  background: linear-gradient(180deg, rgba(13, 27, 39, 0.96), rgba(5, 12, 20, 0.96));
   border: 1px solid rgba(0, 230, 118, 0.22);
   border-radius: 20px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), 0 0 30px rgba(0, 230, 118, 0.08);
-  backdrop-filter: blur(16px);
+  /* backdrop-filter hequr — ishte i shtrenjtë pa efekt vizual të dukshëm */
 }
 
 .profile-view-content {
@@ -813,12 +813,7 @@
   position: relative;
   min-height: 100vh;
   overflow-x: hidden;
-  background:
-    linear-gradient(rgba(0, 230, 118, 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 230, 118, 0.055) 1px, transparent 1px),
-    radial-gradient(circle at 48% 0%, rgba(0, 230, 118, 0.095), transparent 34rem),
-    linear-gradient(135deg, #070b12 0%, #08111b 46%, #05070d 100%) !important;
-  background-size: 56px 56px, 56px 56px, auto, auto !important;
+  background: linear-gradient(135deg, #070b12 0%, #08111b 46%, #05070d 100%) !important;
 }
 
 .org-admin-shell::before {
@@ -827,8 +822,11 @@
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 20rem),
-    radial-gradient(circle at 50% 0%, rgba(0, 230, 118, 0.08), transparent 44rem);
+    linear-gradient(rgba(0, 230, 118, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 230, 118, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 20rem),
+    radial-gradient(circle at 48% 0%, rgba(0, 230, 118, 0.09), transparent 34rem);
+  background-size: 56px 56px, 56px 56px, auto, auto;
   z-index: 0;
 }
 
@@ -840,10 +838,11 @@
 .org-header {
   min-height: 64px;
   padding: .75rem 1.5rem !important;
-  background: rgba(5, 10, 17, 0.84) !important;
+  background: rgba(5, 10, 17, 0.92) !important;
   border-bottom: 2px solid rgba(0, 230, 118, 0.24) !important;
-  backdrop-filter: blur(18px);
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.28);
+  will-change: transform;
 }
 
 .org-header > div {
@@ -949,9 +948,8 @@
 .org-page-content .grid > .rounded-2xl,
 .org-page-content .grid.grid-cols-4 > .rounded-xl,
 .org-page-content .grid.grid-cols-4 > .rounded-2xl {
-  background: linear-gradient(180deg, rgba(13, 27, 39, 0.82), rgba(5, 12, 20, 0.82)) !important;
+  background: linear-gradient(180deg, rgba(13, 27, 39, 0.96), rgba(5, 12, 20, 0.96)) !important;
   border: 1px solid rgba(0, 230, 118, 0.22) !important;
-  backdrop-filter: blur(16px);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.26), 0 0 26px rgba(0, 230, 118, 0.055);
 }
 
@@ -1440,6 +1438,8 @@
 }
 
 .org-admin-shell .fixed.inset-0.z-50 {
+  position: fixed !important;
+  inset: 0 !important;
   align-items: center !important;
   background:
     linear-gradient(rgba(0, 230, 118, 0.035) 1px, transparent 1px),

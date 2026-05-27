@@ -21,7 +21,7 @@ const APPLICANT_TYPES = [
 const TYPE_LABEL = Object.fromEntries(APPLICANT_TYPES.map(t => [t.value, t.label]))
 
 const EMPTY_FORM = {
-  first_name: '', last_name: '', phone: '', address: '', applicant_type: '', description: '',
+  first_name: '', last_name: '', phone: '', address: '', applicant_type: '', description: '', personal_id: '',
   university: '', faculty: '', study_program: '', study_level: '', study_year: '',
   business_name: '', business_type: '', activity_field: '', num_employees: '', founded_year: '',
   org_name: '', org_type: '', org_field: '', num_staff: '', org_founded_year: '', reg_number: '',
@@ -37,6 +37,7 @@ function fromApi(p = {}) {
     address: p.address || '',
     applicant_type: p.applicant_type || '',
     description: p.description || '',
+    personal_id: p.personal_id || '',
     university: p.university || '',
     faculty: p.faculty || '',
     study_program: p.study_program || '',
@@ -119,6 +120,7 @@ export default function ProfilePage() {
         address: form.address || undefined,
         applicant_type: form.applicant_type || undefined,
         description: form.description || undefined,
+        personal_id: form.personal_id || undefined,
       }
 
       if (form.applicant_type === 'STUDENT') {
@@ -179,6 +181,7 @@ export default function ProfilePage() {
 
   const rows = profile ? [
     { label: 'Kategoria', value: TYPE_LABEL[profile.applicant_type] },
+    { label: 'Nr. Personal', value: profile.personal_id },
     { label: 'Telefoni', value: profile.phone },
     { label: 'Adresa', value: profile.address },
     ...(profile.applicant_type === 'STUDENT' ? [
@@ -297,6 +300,19 @@ export default function ProfilePage() {
                   <input value={form.last_name} onChange={set('last_name')} placeholder="Mbiemri" />
                 </Field>
               </div>
+              <Field label="Numri personal *">
+                <input
+                  value={form.personal_id}
+                  onChange={set('personal_id')}
+                  placeholder="p.sh. 1234567890"
+                  maxLength={20}
+                />
+                {!form.personal_id && (
+                  <p style={{ color: 'rgba(248,113,113,0.75)', fontSize: '0.72rem', marginTop: '0.3rem' }}>
+                    ⚠ I detyrueshëm për të aplikuar për grante
+                  </p>
+                )}
+              </Field>
               <Field label="Telefoni">
                 <input value={form.phone} onChange={set('phone')} placeholder="+383 44 000 000" />
               </Field>

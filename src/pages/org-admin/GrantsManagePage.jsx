@@ -202,12 +202,6 @@ export default function GrantsManagePage() {
                           </Link>
                         )}
 
-                        {g.status === 'FINALIZED' && (
-                          <span className="text-xs px-3 py-1.5 rounded-lg"
-                            style={{ background: 'rgba(96,165,250,0.08)', color: '#60a5fa', border: '1px solid rgba(96,165,250,0.2)' }}>
-                            🏆 Finalizuar automatikisht
-                          </span>
-                        )}
                       </div>
                     </td>
                   </tr>

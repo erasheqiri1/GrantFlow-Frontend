@@ -51,6 +51,10 @@ export default function ApplyPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!docFile) {
+      setError('Dokument mbështetës është i detyrueshëm. Ju lutemi ngarkoni një dokument identifikimi.')
+      return
+    }
     if (!declaration) {
       setError('Duhet të konfirmosh deklaratën para se të aplikosh.')
       return
@@ -93,6 +97,10 @@ export default function ApplyPage() {
       }
       if (detail === 'PROFILE_INCOMPLETE') {
         navigate('/profile')
+        return
+      }
+      if (detail === 'PROFILE_MISSING_PERSONAL_ID') {
+        setError('Numri personal mungon në profilin tënd. Shko te Profili dhe plotëso numrin personal para se të aplikosh.')
         return
       }
       if (detail?.startsWith('APPLICANT_TYPE_MISMATCH')) {
@@ -205,15 +213,15 @@ export default function ApplyPage() {
             style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
             <div className="flex items-start justify-between mb-1">
               <label className="text-sm font-semibold text-white">
-                Dokument mbështetës
+                Dokument identifikimi <span style={{ color: 'var(--danger)' }}>*</span>
               </label>
               <span className="text-xs px-2 py-0.5 rounded-full"
-                style={{ background: 'var(--bg-card)', color: 'var(--text-muted)' }}>
-                Opsional
+                style={{ background: 'rgba(248,113,113,0.1)', color: 'var(--danger)', border: '1px solid rgba(248,113,113,0.2)' }}>
+                I detyrueshëm
               </span>
             </div>
             <p className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
-              Ngarko dokument që vërteton të dhënat e profilit (p.sh. letër studentore, certifikatë biznesi, NIPT).
+              Ngarko dokument që vërteton identitetin tënd (p.sh. letërnjoftim, letër studentore, certifikatë biznesi, NIPT).
               Formatet e lejuara: PDF, JPG, PNG, DOC, DOCX — max 5 MB.
             </p>
 
@@ -296,15 +304,15 @@ export default function ApplyPage() {
 
           <button
             type="submit"
-            disabled={submitting || !declaration}
+            disabled={submitting || !declaration || !docFile}
             className="w-full py-3 rounded-xl font-semibold text-sm transition"
             style={{
-              background: (!declaration || submitting) ? 'var(--bg-card)' : 'var(--accent)',
-              color: (!declaration || submitting) ? 'var(--text-muted)' : '#0f1117',
-              border: (!declaration || submitting) ? '1px solid var(--border)' : 'none',
-              cursor: (!declaration || submitting) ? 'not-allowed' : 'pointer',
+              background: (!declaration || !docFile || submitting) ? 'var(--bg-card)' : 'var(--accent)',
+              color: (!declaration || !docFile || submitting) ? 'var(--text-muted)' : '#0f1117',
+              border: (!declaration || !docFile || submitting) ? '1px solid var(--border)' : 'none',
+              cursor: (!declaration || !docFile || submitting) ? 'not-allowed' : 'pointer',
             }}>
-            {submitting ? 'Duke dërguar...' : !declaration ? 'Konfirmo deklaratën për të vazhduar' : 'Dërgo aplikimin'}
+            {submitting ? 'Duke dërguar...' : !docFile ? 'Ngarko dokumentin për të vazhduar' : !declaration ? 'Konfirmo deklaratën për të vazhduar' : 'Dërgo aplikimin'}
           </button>
         </form>
       </div>

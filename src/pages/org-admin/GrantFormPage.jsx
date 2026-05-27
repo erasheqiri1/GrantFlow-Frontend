@@ -83,9 +83,25 @@ export default function GrantFormPage() {
   }, [id])
 
   const handleSave = async e => {
-    e.preventDefault()
+    if (e && e.preventDefault) e.preventDefault()
     setError('')
     setSuccess('')
+
+    // Validim: buxheti total nuk mund të jetë më i vogël se shuma e çmimit
+    const gv = form.grant_value ? parseFloat(form.grant_value) : null
+    const bud = form.budget     ? parseFloat(form.budget)      : null
+    const maxApp = form.max_applicants ? parseInt(form.max_applicants) : null
+    if (gv && bud) {
+      if (bud < gv) {
+        setError('Buxheti total nuk mund të jetë më i vogël se shuma e çmimit për fitues.')
+        return
+      }
+      if (maxApp && bud < gv * maxApp) {
+        setError(`Buxheti total (${bud}€) nuk mjafton për ${maxApp} fitues × ${gv}€ = ${gv * maxApp}€.`)
+        return
+      }
+    }
+
     setLoading(true)
     try {
       const payload = {
@@ -103,7 +119,18 @@ export default function GrantFormPage() {
         setSuccess('Granti u ruajt.')
       } else {
         const res = await api.post('/grants', payload)
-        navigate(`/org-admin/grants/${res.data.id}/edit`)
+        const gid = res.data.id
+        // Dërgo pyetjet lokale nëse ka
+        if (questions.length > 0) {
+          const qPayload = questions.map(({ question_text, question_type, is_required }) => ({ question_text, question_type, is_required }))
+          await api.post(`/grants/${gid}/questions`, qPayload).catch(() => {})
+        }
+        // Dërgo kriteret lokale nëse ka
+        if (criteria.length > 0) {
+          const cPayload = criteria.map(({ name, weight, is_required }) => ({ name, weight: parseFloat(weight) / 100, is_required }))
+          await api.post(`/grants/${gid}/criteria`, cPayload).catch(() => {})
+        }
+        navigate(`/org-admin/grants/${gid}/edit`)
       }
     } catch (err) {
       setError(err.response?.data?.detail || 'Gabim gjatë ruajtjes')
@@ -187,7 +214,7 @@ export default function GrantFormPage() {
               {isEdit ? 'Ndrysho grant' : 'Grant i ri'}
             </h1>
             <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-              {isEdit ? 'Ndrysho detajet, shto pyetje dhe kritere' : 'Plotëso informacionin bazë dhe shto pyetje — do të ruhet si Draft'}
+              {isEdit ? 'Ndrysho detajet, pyetjet dhe kriteret' : 'Plotëso detajet, shto pyetje dhe kritere, pastaj publiko'}
             </p>
           </div>
           <Link to="/org-admin/grants" className="text-sm px-4 py-2 rounded-lg"
@@ -199,38 +226,45 @@ export default function GrantFormPage() {
         <div className="max-w-3xl space-y-5">
 
           {/* ── Informata bazë ─────────────────────────── */}
-          <form onSubmit={handleSave}>
-            <div className="rounded-2xl p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
-              <h2 className="font-semibold text-white mb-4">Informata bazë</h2>
-              <div className="space-y-4">
+          <div className="rounded-2xl p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
+            <h2 className="font-semibold text-white mb-4">Informata bazë</h2>
+            <div className="space-y-4">
 
                 <div>
                   <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Titulli *</label>
                   <input required value={form.title} onChange={set('title')}
+                    disabled={!canEdit}
                     placeholder="p.sh. Grant për studentë të shkëlqyer"
-                    className={inp} style={inpS} onFocus={focus} onBlur={blur} />
+                    className={inp} style={{ ...inpS, opacity: canEdit ? 1 : 0.6, cursor: canEdit ? 'text' : 'not-allowed' }}
+                    onFocus={canEdit ? focus : undefined} onBlur={canEdit ? blur : undefined} />
                 </div>
 
                 <div>
                   <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Përshkrimi</label>
                   <textarea rows={3} value={form.description} onChange={set('description')}
+                    disabled={!canEdit}
                     placeholder="Përshkruaj qëllimin e grantit..."
-                    className={`${inp} resize-none`} style={inpS} onFocus={focus} onBlur={blur} />
+                    className={`${inp} resize-none`} style={{ ...inpS, opacity: canEdit ? 1 : 0.6, cursor: canEdit ? 'text' : 'not-allowed' }}
+                    onFocus={canEdit ? focus : undefined} onBlur={canEdit ? blur : undefined} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Shuma e çmimit (€)</label>
                     <input type="number" min="0" value={form.grant_value} onChange={set('grant_value')}
+                      disabled={!canEdit}
                       placeholder="p.sh. 1000"
-                      className={inp} style={inpS} onFocus={focus} onBlur={blur} />
+                      className={inp} style={{ ...inpS, opacity: canEdit ? 1 : 0.6, cursor: canEdit ? 'text' : 'not-allowed' }}
+                      onFocus={canEdit ? focus : undefined} onBlur={canEdit ? blur : undefined} />
                     <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Çmimi për çdo fitues</p>
                   </div>
                   <div>
                     <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Buxheti total (€)</label>
                     <input type="number" min="0" value={form.budget} onChange={set('budget')}
+                      disabled={!canEdit}
                       placeholder="p.sh. 10000"
-                      className={inp} style={inpS} onFocus={focus} onBlur={blur} />
+                      className={inp} style={{ ...inpS, opacity: canEdit ? 1 : 0.6, cursor: canEdit ? 'text' : 'not-allowed' }}
+                      onFocus={canEdit ? focus : undefined} onBlur={canEdit ? blur : undefined} />
                     <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Fondi i përgjithshëm</p>
                   </div>
                 </div>
@@ -238,28 +272,38 @@ export default function GrantFormPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Afati i fundit</label>
-                    <input type="date" value={form.deadline} onChange={set('deadline')}
-                      className={inp} style={inpS} onFocus={focus} onBlur={blur} />
+                    <div className="relative">
+                      <input type="date" value={form.deadline} onChange={set('deadline')}
+                        disabled={!canEdit}
+                        className={inp} style={{ ...inpS, opacity: canEdit ? 1 : 0.6, cursor: canEdit ? 'pointer' : 'not-allowed', colorScheme: 'dark' }}
+                        onFocus={canEdit ? focus : undefined} onBlur={canEdit ? blur : undefined}
+                        onClick={e => canEdit && e.target.showPicker?.()}
+                      />
+                    </div>
                   </div>
                   <div>
                     <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Nr. max fituesve</label>
                     <input type="number" min="1" value={form.max_applicants} onChange={set('max_applicants')}
+                      disabled={!canEdit}
                       placeholder="p.sh. 5"
-                      className={inp} style={inpS} onFocus={focus} onBlur={blur} />
+                      className={inp} style={{ ...inpS, opacity: canEdit ? 1 : 0.6, cursor: canEdit ? 'text' : 'not-allowed' }}
+                      onFocus={canEdit ? focus : undefined} onBlur={canEdit ? blur : undefined} />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Lloji i aplikantit</label>
-                  <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+                  <div className="grid grid-cols-3 gap-2 sm:grid-cols-5" style={{ opacity: canEdit ? 1 : 0.6 }}>
                     {Object.entries(APPLICANT_TYPE_LABELS).map(([val, label]) => (
                       <button key={val} type="button"
-                        onClick={() => setForm(p => ({ ...p, applicant_type: val }))}
+                        disabled={!canEdit}
+                        onClick={() => canEdit && setForm(p => ({ ...p, applicant_type: val }))}
                         className="py-2 px-3 rounded-xl text-xs font-medium transition text-center"
                         style={{
                           background: form.applicant_type === val ? 'var(--accent-dim)' : 'var(--bg-card)',
                           border: `1px solid ${form.applicant_type === val ? 'var(--accent)' : 'var(--border)'}`,
                           color: form.applicant_type === val ? 'var(--accent)' : 'var(--text-secondary)',
+                          cursor: canEdit ? 'pointer' : 'not-allowed',
                         }}>
                         {label}
                       </button>
@@ -275,8 +319,9 @@ export default function GrantFormPage() {
                   </label>
                   <input type="range" min="0" max="100" step="5"
                     value={form.ai_weight}
-                    onChange={e => setForm(p => ({ ...p, ai_weight: parseInt(e.target.value) }))}
-                    className="w-full" />
+                    disabled={!canEdit}
+                    onChange={e => canEdit && setForm(p => ({ ...p, ai_weight: parseInt(e.target.value) }))}
+                    className="w-full" style={{ opacity: canEdit ? 1 : 0.6, cursor: canEdit ? 'pointer' : 'not-allowed' }} />
                   <div className="flex justify-between text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
                     <span>0% AI — vetëm kritere</span>
                     <span>100% AI — vetëm AI</span>
@@ -285,67 +330,10 @@ export default function GrantFormPage() {
 
               </div>
 
-              {error && (
-                <div className="mt-4 rounded-lg px-4 py-3 text-sm"
-                  style={{ background: 'rgba(248,113,113,0.1)', color: 'var(--danger)', border: '1px solid rgba(248,113,113,0.2)' }}>
-                  {error}
-                </div>
-              )}
-              {success && (
-                <div className="mt-4 rounded-lg px-4 py-3 text-sm"
-                  style={{ background: 'rgba(74,222,128,0.1)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.2)' }}>
-                  {success}
-                </div>
-              )}
+          </div>
 
-              {isEdit && !criteriaWeightOk && (
-                <div className="mt-4 rounded-lg px-4 py-3 flex items-start gap-2.5"
-                  style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)' }}>
-                  <span className="font-bold flex-shrink-0" style={{ color: '#fbbf24' }}>!</span>
-                  <p className="text-xs leading-relaxed" style={{ color: '#fbbf24' }}>
-                    Nuk mund të publikohet — pesha totale e kritereve është{' '}
-                    <strong>{totalCriteriaWeight}%</strong>, duhet të jetë <strong>100%</strong>.
-                    Shto ose ndrysho kriteret në seksionin më poshtë.
-                  </p>
-                </div>
-              )}
-
-              <div className="flex gap-3 mt-3">
-                {canEdit ? (
-                  <>
-                    <button type="submit" disabled={loading}
-                      className="flex-1 py-3 rounded-xl font-semibold text-sm transition"
-                      style={{ background: 'var(--accent)', color: '#0f1117' }}>
-                      {loading ? 'Duke ruajtur...' : isEdit ? 'Ruaj ndryshimet' : 'Krijo si Draft →'}
-                    </button>
-                    {isEdit && (
-                      <button type="button" onClick={handlePublish}
-                        disabled={!criteriaWeightOk}
-                        title={!criteriaWeightOk ? `Pesha e kritereve duhet të jetë 100% (tani: ${totalCriteriaWeight}%)` : ''}
-                        className="px-6 py-3 rounded-xl font-semibold text-sm transition"
-                        style={{
-                          background: criteriaWeightOk ? 'rgba(74,222,128,0.15)' : 'var(--bg-card)',
-                          color: criteriaWeightOk ? '#4ade80' : 'var(--text-muted)',
-                          border: `1px solid ${criteriaWeightOk ? 'rgba(74,222,128,0.3)' : 'var(--border)'}`,
-                          cursor: criteriaWeightOk ? 'pointer' : 'not-allowed',
-                          opacity: criteriaWeightOk ? 1 : 0.5,
-                        }}>
-                        Publiko
-                      </button>
-                    )}
-                  </>
-                ) : (
-                  <div className="flex-1 py-3 rounded-xl text-sm text-center"
-                    style={{ background: 'var(--bg-card)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
-                    Granti është <strong>{grantStatus}</strong> — nuk mund të ndryshohet
-                  </div>
-                )}
-              </div>
-            </div>
-          </form>
-
-          {/* ── Pyetjet — vetëm edit mode ─────────── */}
-          {isEdit && (
+          {/* ── Pyetjet ─────────── */}
+          {(
           <div className="rounded-2xl p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
             <div className="flex items-center justify-between mb-1">
               <h2 className="font-semibold text-white">Pyetjet për aplikantët</h2>
@@ -468,8 +456,8 @@ export default function GrantFormPage() {
           </div>
           )}
 
-          {/* ── Kriteret e vlerësimit — vetëm edit mode ── */}
-          {isEdit && (() => {
+          {/* ── Kriteret e vlerësimit ── */}
+          {(() => {
             const totalWeight = criteria.reduce((sum, c) => {
               return sum + (String(c.id).startsWith('local-') ? c.weight : Math.round(c.weight * 100))
             }, 0)
@@ -554,12 +542,6 @@ export default function GrantFormPage() {
                     )}
                   </div>
 
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={newC.is_required}
-                      onChange={e => setNewC(p => ({ ...p, is_required: e.target.checked }))} />
-                    <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>Kriter i detyrueshëm</span>
-                  </label>
-
                   <div className="flex gap-2 pt-1">
                     <button onClick={addCriteria} disabled={!canAdd}
                       className="text-xs px-5 py-2 rounded-lg font-semibold transition"
@@ -626,16 +608,64 @@ export default function GrantFormPage() {
             )
           })()}
 
-          {/* ── Hint në create mode ── */}
-          {!isEdit && (
-            <div className="rounded-2xl px-6 py-4 flex items-center gap-3"
-              style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
-              <span className="text-lg">💡</span>
-              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                Pasi të krijohet granti si Draft, do të mundesh të shtosh <strong style={{ color: 'var(--text-secondary)' }}>pyetje</strong> dhe <strong style={{ color: 'var(--text-secondary)' }}>kritere vlerësimi</strong>.
+
+          {/* ── Veprimet ── */}
+          {error && (
+            <div className="rounded-lg px-4 py-3 text-sm"
+              style={{ background: 'rgba(248,113,113,0.1)', color: 'var(--danger)', border: '1px solid rgba(248,113,113,0.2)' }}>
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="rounded-lg px-4 py-3 text-sm"
+              style={{ background: 'rgba(74,222,128,0.1)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.2)' }}>
+              {success}
+            </div>
+          )}
+
+          {isEdit && !criteriaWeightOk && (
+            <div className="rounded-lg px-4 py-3 flex items-start gap-2.5"
+              style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)' }}>
+              <span className="font-bold flex-shrink-0" style={{ color: '#fbbf24' }}>!</span>
+              <p className="text-xs leading-relaxed" style={{ color: '#fbbf24' }}>
+                Nuk mund të publikohet — pesha totale e kritereve është{' '}
+                <strong>{totalCriteriaWeight}%</strong>, duhet të jetë <strong>100%</strong>.
+                Shto ose ndrysho kriteret në seksionin më poshtë.
               </p>
             </div>
           )}
+
+          <div className="flex gap-3 pb-8">
+            {canEdit ? (
+              <>
+                <button type="button" onClick={handleSave} disabled={loading}
+                  className="flex-1 py-3 rounded-xl font-semibold text-sm transition"
+                  style={{ background: 'var(--accent)', color: '#0f1117' }}>
+                  {loading ? 'Duke ruajtur...' : isEdit ? 'Ruaj ndryshimet' : 'Krijo grantin →'}
+                </button>
+                {isEdit && (
+                  <button type="button" onClick={handlePublish}
+                    disabled={!criteriaWeightOk}
+                    title={!criteriaWeightOk ? `Pesha e kritereve duhet të jetë 100% (tani: ${totalCriteriaWeight}%)` : ''}
+                    className="px-6 py-3 rounded-xl font-semibold text-sm transition"
+                    style={{
+                      background: criteriaWeightOk ? 'rgba(74,222,128,0.15)' : 'var(--bg-card)',
+                      color: criteriaWeightOk ? '#4ade80' : 'var(--text-muted)',
+                      border: `1px solid ${criteriaWeightOk ? 'rgba(74,222,128,0.3)' : 'var(--border)'}`,
+                      cursor: criteriaWeightOk ? 'pointer' : 'not-allowed',
+                      opacity: criteriaWeightOk ? 1 : 0.5,
+                    }}>
+                    Publiko
+                  </button>
+                )}
+              </>
+            ) : (
+              <div className="flex-1 py-3 rounded-xl text-sm text-center"
+                style={{ background: 'var(--bg-card)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
+                Granti është <strong>{grantStatus}</strong> — nuk mund të ndryshohet
+              </div>
+            )}
+          </div>
 
         </div>
       </main>

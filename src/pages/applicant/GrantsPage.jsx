@@ -8,8 +8,6 @@ const EMPTY_FILTERS = {
   applicant_type: '',
   deadline_from: '',
   deadline_to: '',
-  budget_min: '',
-  budget_max: '',
   sort: '',
 }
 
@@ -35,8 +33,6 @@ export default function GrantsPage() {
       if (f.applicant_type) params.applicant_type = f.applicant_type
       if (f.deadline_from) params.deadline_from = f.deadline_from
       if (f.deadline_to) params.deadline_to = f.deadline_to
-      if (f.budget_min) params.budget_min = f.budget_min
-      if (f.budget_max) params.budget_max = f.budget_max
       if (f.sort) params.sort = f.sort
       const res = await api.get('/grants', { params })
       if (myId === latestFetchId.current) setGrants(res.data)
@@ -167,24 +163,10 @@ export default function GrantsPage() {
               </label>
 
               <label className="grant-filter-field">
-                <span>Afati nga</span>
-                <input type="date" value={filters.deadline_from} onChange={e => updateFilters({ deadline_from: e.target.value })} />
-              </label>
-
-              <label className="grant-filter-field">
                 <span>Afati deri</span>
                 <input type="date" value={filters.deadline_to} onChange={e => updateFilters({ deadline_to: e.target.value })} />
               </label>
 
-              <label className="grant-filter-field">
-                <span>Buxheti min (€)</span>
-                <input type="number" min="0" placeholder="0" value={filters.budget_min} onChange={e => updateFilters({ budget_min: e.target.value })} />
-              </label>
-
-              <label className="grant-filter-field">
-                <span>Buxheti max (€)</span>
-                <input type="number" min="0" placeholder="Pa limit" value={filters.budget_max} onChange={e => updateFilters({ budget_max: e.target.value })} />
-              </label>
             </div>
 
             <div className="grant-filter-actions">
@@ -224,9 +206,8 @@ export default function GrantsPage() {
                 style={{
                   padding: '28px 24px',
                   minHeight: 260,
-                  background: 'rgba(255,255,255,0.03)',
+                  background: 'rgba(13,27,39,0.95)',
                   border: '1px solid rgba(0,230,118,0.15)',
-                  backdropFilter: 'blur(8px)',
                   boxShadow: '0 4px 24px rgba(0,0,0,0.3)',
                 }}>
                 <div className="flex items-center justify-between mb-6">

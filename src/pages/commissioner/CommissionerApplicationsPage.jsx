@@ -13,7 +13,7 @@ const STATUS_BADGE = {
 const STATUS_LABELS = {
   '':             'Të gjitha',
   'SUBMITTED':    'Dorëzuar',
-  'UNDER_REVIEW': 'Në shqyrtim',
+  'UNDER_REVIEW': 'Vlerësuar',
 }
 
 function AppModal({ app: initialApp, onClose, onDecision, onScored }) {

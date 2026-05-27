@@ -25,11 +25,20 @@ export default function OrgRegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+
+    if (!form.nipt.trim()) {
+      setError('NIPT është i detyrueshëm.')
+      return
+    }
+    if (!docFile) {
+      setError('Dokumenti i regjistrimit është i detyrueshëm.')
+      return
+    }
     if (form.password !== form.confirm_password) {
       setError('Fjalëkalimet nuk përputhen')
       return
     }
-    if (docFile && docFile.size > 10 * 1024 * 1024) {
+    if (docFile.size > 10 * 1024 * 1024) {
       setError('Dokumenti nuk mund të jetë më i madh se 10 MB')
       return
     }
@@ -37,6 +46,7 @@ export default function OrgRegisterPage() {
       setError('Logoja nuk mund të jetë më e madhe se 2 MB')
       return
     }
+
     setLoading(true)
     try {
       await api.post('/auth/register-org', {
@@ -46,8 +56,16 @@ export default function OrgRegisterPage() {
         password:   form.password,
         first_name: form.admin_first_name,
         last_name:  form.admin_last_name,
-        nipt:       form.nipt || undefined,
+        nipt:       form.nipt,
       })
+
+      // Ngarko dokumentin e regjistrimit (i detyrueshëm)
+      const fd = new FormData()
+      fd.append('file', docFile)
+      await api.post(`/auth/register-org/upload-doc?org_slug=${form.slug}`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+
       setSuccess(true)
     } catch (err) {
       setError(err.response?.data?.detail || 'Gabim gjatë regjistrimit')
@@ -188,7 +206,7 @@ export default function OrgRegisterPage() {
                 </div>
               </div>
               <div>
-                <FieldLabel>NIPT</FieldLabel>
+                <FieldLabel>NIPT *</FieldLabel>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base"
                     style={{ color: 'rgba(255,255,255,0.2)' }}>🪪</span>
@@ -281,19 +299,25 @@ export default function OrgRegisterPage() {
             <SectionDivider label="Dokumentet" />
 
             <div>
-              <FieldLabel>Dokument regjistrimi (opsional)</FieldLabel>
+              <FieldLabel>Dokument verifikimi * <span style={{ color: 'rgba(255,100,100,0.8)', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(certifikatë biznesi, ekstrakt, etj.)</span></FieldLabel>
               <div className="rounded-xl px-4 py-3"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <input type="file" accept=".pdf"
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  border: docFile ? '1px solid rgba(0,230,118,0.4)' : '1px solid rgba(248,113,113,0.3)',
+                }}>
+                <input type="file" accept=".pdf,.jpg,.jpeg,.png"
                   onChange={e => setDocFile(e.target.files[0] || null)}
                   className="w-full text-sm" style={{ color: 'rgba(255,255,255,0.4)' }} />
               </div>
-              {docFile && (
+              {docFile ? (
                 <p className="text-xs mt-1.5 flex items-center gap-1.5" style={{ color: '#00e676' }}>
-                  <span>✓</span> {docFile.name}
+                  <span>✓</span> {docFile.name} ({(docFile.size / 1024).toFixed(0)} KB)
+                </p>
+              ) : (
+                <p className="text-xs mt-1" style={{ color: 'rgba(248,113,113,0.7)' }}>
+                  ⚠ I detyrueshëm — PDF, JPG, PNG · max 10 MB
                 </p>
               )}
-              <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.25)' }}>PDF · max 10 MB</p>
             </div>
 
             <div>
@@ -313,20 +337,20 @@ export default function OrgRegisterPage() {
             </div>
 
             {/* Submit */}
-            <button type="submit" disabled={loading}
+            <button type="submit" disabled={loading || !docFile}
               className="w-full py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all duration-200 mt-2"
               style={{
-                background: loading ? 'rgba(0,230,118,0.4)' : '#00e676',
-                color: '#0a0d14',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                boxShadow: loading ? 'none' : '0 0 20px rgba(0,230,118,0.25)',
+                background: (loading || !docFile) ? 'rgba(255,255,255,0.07)' : '#00e676',
+                color: (loading || !docFile) ? 'rgba(255,255,255,0.3)' : '#0a0d14',
+                cursor: (loading || !docFile) ? 'not-allowed' : 'pointer',
+                boxShadow: (loading || !docFile) ? 'none' : '0 0 20px rgba(0,230,118,0.25)',
               }}>
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <span className="inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                   Duke dërguar...
                 </span>
-              ) : 'Dërgo kërkesën →'}
+              ) : !docFile ? 'Ngarko dokumentin për të vazhduar' : 'Dërgo kërkesën →'}
             </button>
           </form>
 
