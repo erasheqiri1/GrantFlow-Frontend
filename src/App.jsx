@@ -35,6 +35,7 @@ import PendingOrgsPage from './pages/super-admin/PendingOrgsPage'
 import UsersListPage from './pages/super-admin/UsersListPage'
 import AuditLogsPage from './pages/super-admin/AuditLogsPage'
 import AddSuperAdminPage from './pages/super-admin/AddSuperAdminPage'
+import ManagePermissionsPage from './pages/super-admin/ManagePermissionsPage'
 
 
 // Layout
@@ -93,7 +94,8 @@ export default function App() {
         <Route path="/super-admin/pending"    element={<ProtectedRoute role="SUPER_ADMIN"><PendingOrgsPage /></ProtectedRoute>} />
         <Route path="/super-admin/users"      element={<ProtectedRoute role="SUPER_ADMIN"><UsersListPage /></ProtectedRoute>} />
         <Route path="/super-admin/audit"      element={<ProtectedRoute role="SUPER_ADMIN"><AuditLogsPage /></ProtectedRoute>} />
-        <Route path="/super-admin/add-admin"  element={<ProtectedRoute role="SUPER_ADMIN"><AddSuperAdminPage /></ProtectedRoute>} />
+        <Route path="/super-admin/add-admin"       element={<ProtectedRoute role="SUPER_ADMIN"><AddSuperAdminPage /></ProtectedRoute>} />
+        <Route path="/super-admin/permissions"    element={<ProtectedRoute role="SUPER_ADMIN"><ManagePermissionsPage /></ProtectedRoute>} />
 
         {/* 404 */}
         <Route path="*" element={<Navigate to="/" replace />} />

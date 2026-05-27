@@ -6,6 +6,7 @@ const SUPER_NAV = [
   { to: '/super-admin/pending', label: 'Aprovime' },
   { to: '/super-admin/users', label: 'Userat' },
   { to: '/super-admin/audit', label: 'Audit' },
+  { to: '/super-admin/permissions', label: 'Lejet' },
   { to: '/super-admin/add-admin', label: 'Shto admin' },
 ]
 
