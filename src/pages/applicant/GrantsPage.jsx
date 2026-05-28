@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
 import Pagination from '../../components/Pagination'
+import ChatWidget from '../../components/ChatWidget'
 
 const EMPTY_FILTERS = {
   title: '',
@@ -294,6 +295,8 @@ export default function GrantsPage() {
 
         <Pagination page={page} total={total} size={PAGE_SIZE} onChange={handlePageChange} />
       </div>
+
+      <ChatWidget />
     </div>
   )
 }
