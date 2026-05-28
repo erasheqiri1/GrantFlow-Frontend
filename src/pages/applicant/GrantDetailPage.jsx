@@ -36,7 +36,7 @@ export default function GrantDetailPage() {
         const g = grantRes.data
         setGrant(g)
 
-        const applied = appsRes.data.find(
+        const applied = (appsRes.data?.items || appsRes.data || []).find(
           app => String(app.grant_id || app.grant?.id) === String(id)
         )
         setExistingApplication(applied || null)

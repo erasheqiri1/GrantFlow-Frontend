@@ -32,14 +32,6 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
   const [aiError, setAiError]       = useState('')
   const pollRef                     = useRef(null)
 
-  // Nëse ka commissioner_score ekzistues, mbushi inputin
-  useEffect(() => {
-    if (aiScore?.commissioner_score != null) {
-      setCommScore(String(aiScore.commissioner_score))
-      setScoreSubmitted(true)
-    }
-  }, [aiScore])
-
   const handleCommissionerScore = async () => {
     const val = parseFloat(commScore)
     if (isNaN(val) || val < 0 || val > 100) {
@@ -60,43 +52,53 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
     } finally { setActing(false) }
   }
 
-  // Kur hapet modali: ndrysho statusin në UNDER_REVIEW menjëherë
-  useEffect(() => {
-    if (initialApp.status === 'SUBMITTED') {
-      api.patch(`/applications/${initialApp.id}/start-review`)
-        .then(() => {
-          setApp(prev => ({ ...prev, status: 'UNDER_REVIEW' }))
-          onScored()  // rifresko tabelën
-        })
-        .catch(() => {})
-    }
-  }, [initialApp.id])
-
   // Kur hapet modali: nëse ka score ekzistues → shfaqe, nëse jo → nis automatikisht
   useEffect(() => {
+    const startPolling = async () => {
+      setAiLoading(true)
+      try {
+        await api.post(`/applications/${initialApp.id}/score`)
+        pollRef.current = setInterval(async () => {
+          try {
+            const sr = await api.get(`/applications/${initialApp.id}/score`)
+            if (sr.data?.ai_score != null) {
+              setAiScore(sr.data)
+              setAiLoading(false)
+              clearInterval(pollRef.current)
+            } else if (sr.data?.model_used === 'unavailable') {
+              setAiScore(sr.data)
+              setAiLoading(false)
+              setAiError('Shërbimi AI është i padisponueshëm. Ri-provo scoring-un kur shërbimi të jetë aktiv.')
+              clearInterval(pollRef.current)
+            }
+          } catch { /* ende 404 — vazhdo polling */ }
+        }, 3000)
+      } catch (err) {
+        setAiError(err.response?.data?.detail || 'Gabim gjatë vlerësimit AI')
+        setAiLoading(false)
+      }
+    }
+
     const run = async () => {
       try {
         const existing = await api.get(`/applications/${initialApp.id}/score`)
-        setAiScore(existing.data)
-      } catch {
-        // 404 — nuk ka score, nis automatikisht
-        setAiLoading(true)
-        try {
-          await api.post(`/applications/${initialApp.id}/score`)
-          pollRef.current = setInterval(async () => {
-            try {
-              const sr = await api.get(`/applications/${initialApp.id}/score`)
-              if (sr.data?.ai_score != null) {
-                setAiScore(sr.data)
-                setAiLoading(false)
-                clearInterval(pollRef.current)
-              }
-            } catch { /* ende 404 — vazhdo polling */ }
-          }, 3000)
-        } catch (err) {
-          setAiError(err.response?.data?.detail || 'Gabim gjatë vlerësimit AI')
-          setAiLoading(false)
+
+        // Nëse AI ishte i padisponueshëm herën e fundit — ritento tani
+        if (existing.data?.model_used === 'unavailable') {
+          setAiScore(null)
+          setAiError('')
+          await startPolling()
+          return
         }
+
+        setAiScore(existing.data)
+        if (existing.data?.commissioner_score != null) {
+          setCommScore(String(existing.data.commissioner_score))
+          setScoreSubmitted(true)
+        }
+      } catch {
+        // 404 — nuk ka score fare, nis herën e parë
+        await startPolling()
       }
     }
     run()
@@ -121,6 +123,11 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
             setAiScore(sr.data)
             setAiLoading(false)
             clearInterval(pollRef.current)
+          } else if (sr.data?.model_used === 'unavailable') {
+            setAiScore(sr.data)
+            setAiLoading(false)
+            setAiError('Shërbimi AI është i padisponueshëm. Ri-provo scoring-un kur shërbimi të jetë aktiv.')
+            clearInterval(pollRef.current)
           }
         } catch { /* 404 still — keep polling */ }
       }, 3000)
@@ -130,9 +137,10 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
     }
   }
 
-  const sb        = STATUS_BADGE[app.status] || STATUS_BADGE.SUBMITTED
-  const isReviewer = ['COMMISSIONER', 'ORG_ADMIN'].includes(user?.role)
-  const canScore   = isReviewer && ['SUBMITTED', 'UNDER_REVIEW'].includes(app.status)
+  const sb            = STATUS_BADGE[app.status] || STATUS_BADGE.SUBMITTED
+  const isReviewer    = ['COMMISSIONER', 'ORG_ADMIN'].includes(user?.role)
+  const aiUnavailable = aiScore?.model_used === 'unavailable' || (aiScore !== null && aiScore?.ai_score == null)
+  const canScore      = isReviewer && ['SUBMITTED', 'UNDER_REVIEW'].includes(app.status) && !aiUnavailable
 
   return (
     <div className="application-modal-overlay"
@@ -243,11 +251,16 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
               ) : null}
             </div>
 
-            {aiError && (
-              <p className="text-xs mb-2" style={{ color: 'var(--danger)' }}>{aiError}</p>
-            )}
+            {aiError && <p className="text-xs mb-2" style={{ color: 'var(--danger)' }}>{aiError}</p>}
 
-            {aiScore ? (
+            {aiScore?.model_used === 'unavailable' ? (
+              <div className="rounded-lg p-3" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}>
+                <p className="text-xs font-semibold" style={{ color: '#f87171' }}>⚠ Shërbimi AI i padisponueshëm</p>
+                <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                  Vlerësimi i komisionerit është bllokuar deri sa AI të jetë aktiv. Provo sërish scoring-un kur shërbimi të jetë aktiv.
+                </p>
+              </div>
+            ) : aiScore ? (
               <div className="rounded-lg p-3 space-y-2"
                 style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
                 {/* Score number + progress bar */}
