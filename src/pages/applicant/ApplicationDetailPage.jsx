@@ -77,7 +77,7 @@ export default function ApplicationDetailPage() {
             ← Aplikimet e mia
           </button>
         </div>
-        <button onClick={() => { logout(); navigate('/login') }}
+        <button onClick={async () => { await logout(); navigate('/login') }}
           className="text-sm" style={{ color: 'var(--text-muted)' }}>
           Dil
         </button>

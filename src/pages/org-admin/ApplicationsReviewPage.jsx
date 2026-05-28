@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import OrgHeader from '../../components/layout/OrgHeader'
-import Pagination from '../../components/layout/Pagination'
+import Pagination from '../../components/Pagination'
 import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
 
@@ -409,13 +409,11 @@ export default function ApplicationsReviewPage() {
   const [status,  setStatus]  = useState('')
   const [selected, setSelected] = useState(null)
 
-  const totalPages = Math.ceil(total / PAGE_SIZE)
-
-  const fetchApps = useCallback((currentPage = page) => {
+  const fetchApps = useCallback((p = page) => {
     setLoading(true)
     const searchParams = new URLSearchParams(window.location.search)
     const grantId = searchParams.get('grant_id')
-    const params = { page: currentPage, size: PAGE_SIZE }
+    const params = { page: p, size: PAGE_SIZE }
     if (status) params.status = status
     if (grantId) params.grant_id = grantId
     api.get('/applications', { params })
@@ -425,7 +423,7 @@ export default function ApplicationsReviewPage() {
       })
       .catch(() => {})
       .finally(() => setLoading(false))
-  }, [status])
+  }, [status, page])
 
   useEffect(() => { setPage(1); fetchApps(1) }, [status])
 
@@ -448,7 +446,7 @@ export default function ApplicationsReviewPage() {
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             {Object.entries(STATUS_LABELS).map(([s, label]) => (
-              <button key={s} onClick={() => setStatus(s)}
+              <button key={s} onClick={() => { setStatus(s); setPage(1) }}
                 className="text-xs px-3 py-1.5 rounded-lg font-medium transition"
                 style={{
                   background: status === s ? 'var(--accent-dim)' : 'var(--bg-card)',
@@ -532,7 +530,8 @@ export default function ApplicationsReviewPage() {
           </table>
         </div>
 
-        <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
+        <Pagination page={page} total={total} size={PAGE_SIZE}
+          onChange={p => { setPage(p); fetchApps(p) }} />
       </main>
 
       {selected && (

@@ -1,38 +1,26 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import SuperAdminHeader from '../../components/layout/SuperAdminHeader'
-import Pagination from '../../components/layout/Pagination'
+import Pagination from '../../components/Pagination'
 import api from '../../api/axios'
 
-const NAV = [
-  { to: '/super-admin',            icon: '🏠', label: 'Overview' },
-  { to: '/super-admin/pending',    icon: '⏳', label: 'Pret aprovim' },
-  { to: '/super-admin/users',      icon: '👥', label: 'Lista e userave' },
-  { to: '/super-admin/audit',      icon: '📋', label: 'Audit logs' },
-  { to: '/super-admin/add-admin',  icon: '➕', label: 'Shto super_admin' },
-]
-
 const ACTION_LABEL = {
-  // Grante
   CREATE_GRANT:        'Krijoi grantin',
   PUBLISH_GRANT:       'Publikoi grantin',
   CLOSE_GRANT:         'Mbylli grantin',
   UPDATE_GRANT:        'Ndryshoi grantin',
   DELETE_GRANT:        'Fshiu grantin',
-  // Aplikime
   SUBMIT_APPLICATION:  'Dorëzoi aplikimin',
   APPROVE_APPLICATION: 'Aprovoi aplikimin',
   REJECT_APPLICATION:  'Refuzoi aplikimin',
-  // Organizata
   APPROVE_TENANT:      'Aprovoi organizatën',
   REJECT_TENANT:       'Refuzoi organizatën',
-  // Përdorues
   ACTIVATE_USER:       'Aktivizoi përdoruesin',
   DEACTIVATE_USER:     'Deaktivizoi përdoruesin',
   CREATE_SUPER_ADMIN:  'Krijoi super admin',
   INVITE_SUPER_ADMIN:  'Dërgoi ftesë super admin',
-  // Team
   INVITE_USER:         'Ftoi anëtar ekipi',
   REMOVE_MEMBER:       'Largoi anëtarin',
+  START_REVIEW:        'Nisi shqyrtimin',
 }
 
 const PAGE_SIZE = 20
@@ -44,26 +32,18 @@ export default function AuditLogsPage() {
   const [search,  setSearch]  = useState('')
   const [loading, setLoading] = useState(true)
 
-  const totalPages = Math.ceil(total / PAGE_SIZE)
-
-  const fetchLogs = (currentPage = page) => {
+  const loadLogs = useCallback((p = page) => {
     setLoading(true)
-    api.get('/audit-logs', { params: { page: currentPage, size: PAGE_SIZE } })
+    api.get('/audit-logs', { params: { page: p, size: PAGE_SIZE } })
       .then(r => {
         setLogs(r.data?.items ?? (Array.isArray(r.data) ? r.data : []))
         setTotal(r.data?.total ?? 0)
       })
       .catch(() => {})
       .finally(() => setLoading(false))
-  }
+  }, [page])
 
-  useEffect(() => { fetchLogs(1) }, [])
-
-  const handlePageChange = (newPage) => {
-    setPage(newPage)
-    fetchLogs(newPage)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+  useEffect(() => { loadLogs() }, [loadLogs])
 
   const filtered = logs.filter(l =>
     l.user_email?.toLowerCase().includes(search.toLowerCase()) ||
@@ -101,7 +81,6 @@ export default function AuditLogsPage() {
          'INVITE_SUPER_ADMIN', 'INVITE_USER', 'REMOVE_MEMBER'].includes(l.action)) {
       return d.email || d.invited_email || base('user')
     }
-    // fallback i përgjithshëm
     return l.tenant_name || (l.entity && short ? `${l.entity} · ${short}` : l.entity) || '—'
   }
 
@@ -119,15 +98,15 @@ export default function AuditLogsPage() {
         <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
           <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-white">{total} regjistrime</span>
-            <div className="super-search">
-              <input
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Kërko përdorues, veprim, entitet..."
-                className="text-xs text-white outline-none"
-              />
-            </div>
+              <span className="font-semibold text-white">{total} regjistrime gjithsej</span>
+              <div className="super-search">
+                <input
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder="Kërko përdorues, veprim, entitet..."
+                  className="text-xs text-white outline-none"
+                />
+              </div>
             </div>
           </div>
 
@@ -166,7 +145,6 @@ export default function AuditLogsPage() {
                     <td className="px-5 py-3.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
                       {formatEntity(l)}
                     </td>
-
                   </tr>
                 ))}
                 {filtered.length === 0 && (
@@ -182,7 +160,8 @@ export default function AuditLogsPage() {
           )}
         </div>
 
-        <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
+        <Pagination page={page} total={total} size={PAGE_SIZE}
+          onChange={p => { setPage(p); loadLogs(p) }} />
       </main>
     </div>
   )

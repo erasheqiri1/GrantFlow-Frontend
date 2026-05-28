@@ -37,7 +37,7 @@ export default function CommissionerHeader() {
       </div>
 
       <button
-        onClick={() => { logout(); navigate('/login') }}
+        onClick={async () => { await logout(); navigate('/login') }}
         className="rounded-xl font-black tracking-wide transition"
       >
         Dil

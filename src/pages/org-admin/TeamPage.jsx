@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import OrgHeader from '../../components/layout/OrgHeader'
-import Pagination from '../../components/layout/Pagination'
+import Pagination from '../../components/Pagination'
 import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
 
@@ -23,8 +23,6 @@ export default function TeamPage() {
   const [page,    setPage]    = useState(1)
   const [loading, setLoading] = useState(true)
 
-  const totalPages    = Math.ceil(members.length / PAGE_SIZE)
-  const visibleMembers = members.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
   const [invite, setInvite]     = useState({ email: '', role: 'COMMISSIONER' })
   const [inviting, setInviting]       = useState(false)
   const [inviteLink, setInviteLink]   = useState('')   // linku i plotë i ftesës
@@ -225,7 +223,7 @@ export default function TeamPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {visibleMembers.map(m => {
+                  {members.map(m => {
                     const rs = ROLE_LABELS[m.role] || { label: m.role, bg: 'var(--bg-card)', color: 'var(--text-muted)' }
                     const isMe = m.id === currentUser?.user_id
                     return (
@@ -268,7 +266,7 @@ export default function TeamPage() {
             )}
           </div>
 
-          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+          <Pagination page={page} total={members.length} size={PAGE_SIZE} onChange={setPage} />
         </div>
       </main>
     </div>

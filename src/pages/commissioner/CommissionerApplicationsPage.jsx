@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import CommissionerHeader from '../../components/layout/CommissionerHeader'
+import Pagination from '../../components/Pagination'
 import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
 
@@ -367,23 +368,30 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
   )
 }
 
+const PAGE_SIZE = 10
+
 export default function CommissionerApplicationsPage() {
   const { user }                = useAuth()
   const [apps, setApps]         = useState([])
   const [loading, setLoading]   = useState(true)
   const [status, setStatus]     = useState('')
   const [selected, setSelected] = useState(null)
+  const [page, setPage]         = useState(1)
+  const [total, setTotal]       = useState(0)
 
-  const fetchApps = useCallback(() => {
+  const fetchApps = useCallback((p = page) => {
     setLoading(true)
-    const params = {}
+    const params = { page: p, size: PAGE_SIZE }
     if (user?.user_id) params.assigned_to = user.user_id
     if (status) params.status = status
     api.get('/applications', { params })
-      .then(r => setApps(Array.isArray(r.data) ? r.data : r.data.items ?? []))
+      .then(r => {
+        setApps(r.data?.items ?? (Array.isArray(r.data) ? r.data : []))
+        setTotal(r.data?.total ?? 0)
+      })
       .catch(() => {})
       .finally(() => setLoading(false))
-  }, [status])
+  }, [status, page])
 
   useEffect(() => { fetchApps() }, [fetchApps])
 
@@ -400,7 +408,7 @@ export default function CommissionerApplicationsPage() {
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             {Object.entries(STATUS_LABELS).map(([s, label]) => (
-              <button key={s} onClick={() => setStatus(s)}
+              <button key={s} onClick={() => { setStatus(s); setPage(1) }}
                 className="text-xs px-3 py-1.5 rounded-lg font-medium transition"
                 style={{
                   background: status === s ? 'var(--accent-dim)' : 'var(--bg-card)',
@@ -483,6 +491,9 @@ export default function CommissionerApplicationsPage() {
             </tbody>
           </table>
         </div>
+
+        <Pagination page={page} total={total} size={PAGE_SIZE}
+          onChange={p => { setPage(p); fetchApps(p) }} />
       </main>
 
       {selected && (

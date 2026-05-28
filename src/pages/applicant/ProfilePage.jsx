@@ -243,7 +243,7 @@ export default function ProfilePage() {
               <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-3.866 0-7 3.134-7 7h2c0-2.757 2.243-5 5-5s5 2.243 5 5h2c0-3.866-3.134-7-7-7z" />
             </svg>
           </button>
-          <button onClick={() => { logout(); navigate('/login') }} className="rounded-xl font-black tracking-wide transition">Dil</button>
+          <button onClick={async () => { await logout(); navigate('/login') }} className="rounded-xl font-black tracking-wide transition">Dil</button>
         </div>
       </nav>
 

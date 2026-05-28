@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
-import Pagination from '../../components/layout/Pagination'
+import Pagination from '../../components/Pagination'
 
 const EMPTY_FILTERS = {
   title: '',
@@ -25,15 +25,14 @@ export default function GrantsPage() {
   const [appliedGrantIds, setAppliedGrantIds] = useState(new Set())
 
   const filtersRef = useRef(filters)
+  const pageRef = useRef(1)
   const latestFetchId = useRef(0)
-
-  const totalPages = Math.ceil(total / PAGE_SIZE)
 
   const fetchGrants = async (overrideFilters, overridePage) => {
     const myId = ++latestFetchId.current
     setLoading(true)
     const f = overrideFilters ?? filtersRef.current
-    const p = overridePage ?? page
+    const p = overridePage ?? pageRef.current
     try {
       const params = { page: p, size: PAGE_SIZE }
       if (f.title) params.title = f.title
@@ -42,15 +41,15 @@ export default function GrantsPage() {
       if (f.deadline_to) params.deadline_to = f.deadline_to
       if (f.sort) {
         const parts = f.sort.split('_')
-        const dir = parts[parts.length - 1]           // asc | desc
-        const by  = parts.slice(0, -1).join('_')      // created_at | deadline | budget | title
+        const dir = parts[parts.length - 1]
+        const by  = parts.slice(0, -1).join('_')
         params.sortBy  = by === 'created' ? 'created_at' : by
         params.sortDir = dir
       }
       const res = await api.get('/grants', { params })
       if (myId === latestFetchId.current) {
-        setGrants(res.data.items)
-        setTotal(res.data.total)
+        setGrants(res.data?.items ?? (Array.isArray(res.data) ? res.data : []))
+        setTotal(res.data?.total ?? 0)
       }
     } catch (err) {
       console.error(err)
@@ -63,8 +62,8 @@ export default function GrantsPage() {
     fetchGrants()
     api.get('/applications/my')
       .then(res => {
-        const list = res.data?.items ?? (Array.isArray(res.data) ? res.data : [])
-        const ids = new Set(list.map(app => String(app.grant_id || app.grant?.id)).filter(Boolean))
+        const items = res.data?.items ?? res.data ?? []
+        const ids = new Set(items.map(app => String(app.grant_id || app.grant?.id)).filter(Boolean))
         setAppliedGrantIds(ids)
       })
       .catch(() => {})
@@ -80,11 +79,13 @@ export default function GrantsPage() {
     setFilters(EMPTY_FILTERS)
     filtersRef.current = EMPTY_FILTERS
     setPage(1)
+    pageRef.current = 1
     fetchGrants(EMPTY_FILTERS, 1)
   }
 
   const handlePageChange = (newPage) => {
     setPage(newPage)
+    pageRef.current = newPage
     fetchGrants(filtersRef.current, newPage)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -114,7 +115,7 @@ export default function GrantsPage() {
             </svg>
             Profili
           </button>
-          <button onClick={() => { logout(); navigate('/login') }}
+          <button onClick={async () => { await logout(); navigate('/login') }}
             className="rounded-xl font-black tracking-wide transition">
             Dil
           </button>
@@ -142,7 +143,7 @@ export default function GrantsPage() {
               placeholder="Kërko grant..."
               value={filters.title}
               onChange={e => updateFilters({ title: e.target.value })}
-              onKeyDown={e => { if (e.key === 'Enter') { setPage(1); fetchGrants(filtersRef.current, 1) } }}
+              onKeyDown={e => { if (e.key === 'Enter') { setPage(1); pageRef.current = 1; fetchGrants(filtersRef.current, 1) } }}
               className="w-full pl-5 pr-14 py-3 text-sm text-white outline-none rounded-2xl grant-search-input"
               style={{ background: 'rgba(5,14,22,0.78)', border: '2px solid rgba(0,230,118,0.34)' }}
             />
@@ -190,11 +191,11 @@ export default function GrantsPage() {
                 <span>Afati deri</span>
                 <input type="date" value={filters.deadline_to} onChange={e => updateFilters({ deadline_to: e.target.value })} />
               </label>
-
             </div>
 
             <div className="grant-filter-actions">
-              <button type="button" className="grant-filter-submit" onClick={() => { setPage(1); fetchGrants(filtersRef.current, 1) }}>
+              <button type="button" className="grant-filter-submit"
+                onClick={() => { setPage(1); pageRef.current = 1; fetchGrants(filtersRef.current, 1) }}>
                 Kërko
               </button>
               <button type="button" className="grant-filter-clear" onClick={clearFilters}>
@@ -291,7 +292,7 @@ export default function GrantsPage() {
           </div>
         )}
 
-        <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
+        <Pagination page={page} total={total} size={PAGE_SIZE} onChange={handlePageChange} />
       </div>
     </div>
   )

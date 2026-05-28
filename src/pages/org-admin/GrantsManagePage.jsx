@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import OrgHeader from '../../components/layout/OrgHeader'
-import Pagination from '../../components/layout/Pagination'
+import Pagination from '../../components/Pagination'
 import api from '../../api/axios'
 
 const STATUS_BADGE = {
@@ -18,61 +18,53 @@ const PAGE_SIZE = 10
 
 export default function GrantsManagePage() {
   const [grants,    setGrants]    = useState([])
-  const [total,     setTotal]     = useState(0)
-  const [page,      setPage]      = useState(1)
   const [appCounts, setAppCounts] = useState({})
   const [loading,   setLoading]   = useState(true)
   const [filter,    setFilter]    = useState('')
+  const [page,      setPage]      = useState(1)
+  const [total,     setTotal]     = useState(0)
 
-  const totalPages = Math.ceil(total / PAGE_SIZE)
-
-  const fetchAll = useCallback(async (statusFilter = filter, currentPage = page) => {
+  const fetchAll = useCallback(async (p = page, f = filter) => {
     setLoading(true)
     try {
-      const params = { page: currentPage, size: PAGE_SIZE }
-      if (statusFilter) params.status = statusFilter
+      const gParams = { page: p, size: PAGE_SIZE }
+      if (f) gParams.status = f
 
       const [gRes, aRes] = await Promise.all([
-        api.get('/grants', { params }),
-        api.get('/applications').catch(() => ({ data: { items: [] } })),
+        api.get('/grants', { params: gParams }),
+        api.get('/applications', { params: { size: 500 } }).catch(() => ({ data: [] })),
       ])
-      const gs   = gRes.data?.items ?? []
-      const apps = Array.isArray(aRes.data) ? aRes.data : aRes.data?.items ?? []
+      const gs   = gRes.data?.items ?? (Array.isArray(gRes.data) ? gRes.data : [])
+      const apps = aRes.data?.items ?? (Array.isArray(aRes.data) ? aRes.data : [])
 
       const counts = {}
       apps.forEach(a => { counts[a.grant_id] = (counts[a.grant_id] || 0) + 1 })
 
       setGrants(gs)
-      setTotal(gRes.data?.total ?? 0)
+      setTotal(gRes.data?.total ?? gs.length)
       setAppCounts(counts)
     } catch {}
     finally { setLoading(false) }
-  }, [])
+  }, [page, filter])
 
-  useEffect(() => { fetchAll(filter, page) }, [fetchAll])
-
-  const handleFilterChange = (s) => {
-    setFilter(s)
-    setPage(1)
-    fetchAll(s, 1)
-  }
+  useEffect(() => { fetchAll(page, filter) }, [fetchAll])
 
   const handlePageChange = (newPage) => {
     setPage(newPage)
-    fetchAll(filter, newPage)
+    fetchAll(newPage, filter)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handlePublish = async (id) => {
     if (!confirm('Publiko këtë grant?')) return
     try { await api.patch(`/grants/${id}/publish`) } catch (e) { alert(e.response?.data?.detail || 'Gabim') }
-    fetchAll()
+    fetchAll(page, filter)
   }
 
   const handleDelete = async (id) => {
     if (!confirm('Fshi këtë grant? Ky veprim nuk kthehet.')) return
     try { await api.delete(`/grants/${id}`) } catch (e) { alert(e.response?.data?.detail || 'Gabim') }
-    fetchAll(filter, page)
+    fetchAll(page, filter)
   }
 
   return (
@@ -98,7 +90,7 @@ export default function GrantsManagePage() {
         {/* Filter tabs */}
         <div className="flex gap-2 mb-4">
           {STATUS_FILTERS.map(s => (
-            <button key={s} onClick={() => handleFilterChange(s)}
+            <button key={s} onClick={() => { setFilter(s); setPage(1); fetchAll(1, s) }}
               className="text-xs px-3 py-1.5 rounded-lg font-medium transition"
               style={{
                 background: filter === s ? 'var(--accent-dim)' : 'var(--bg-card)',
@@ -221,7 +213,6 @@ export default function GrantsManagePage() {
                             👁 Shiko
                           </Link>
                         )}
-
                       </div>
                     </td>
                   </tr>
@@ -231,7 +222,7 @@ export default function GrantsManagePage() {
           </table>
         </div>
 
-        <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
+        <Pagination page={page} total={total} size={PAGE_SIZE} onChange={handlePageChange} />
       </main>
     </div>
   )

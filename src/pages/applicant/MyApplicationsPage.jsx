@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
-import Pagination from '../../components/layout/Pagination'
+import Pagination from '../../components/Pagination'
 
 const STATUS_INFO = {
   DRAFT:        { label: 'Draft', bg: 'rgba(107,114,128,0.15)', color: '#9ca3af' },
@@ -25,7 +25,7 @@ function grantName(app) {
   return app.grant_title || app.grant?.title || (app.grant_id ? `Grant #${app.grant_id}` : 'Aplikim')
 }
 
-const PAGE_SIZE = 8
+const PAGE_SIZE = 20
 
 export default function MyApplicationsPage() {
   const { logout } = useAuth()
@@ -35,29 +35,22 @@ export default function MyApplicationsPage() {
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
   const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
 
-  useEffect(() => {
-    api.get('/applications/my')
-      .then(res => setApplications(res.data?.items ?? (Array.isArray(res.data) ? res.data : [])))
+  const fetchApps = (p = 1, s = status) => {
+    setLoading(true)
+    api.get('/applications/my', { params: { page: p, size: PAGE_SIZE, ...(s && { status: s }) } })
+      .then(res => {
+        setApplications(res.data?.items ?? res.data ?? [])
+        setTotal(res.data?.total ?? 0)
+      })
       .finally(() => setLoading(false))
-  }, [])
+  }
 
-  const filtered = applications
-    .filter(app => !status || app.status === status)
+  useEffect(() => { fetchApps(1) }, [])
+
+  const visible = applications
     .filter(app => !search || grantName(app).toLowerCase().includes(search.toLowerCase()))
-
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
-  const visible    = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-
-  const handleFilterChange = (newStatus) => {
-    setStatus(newStatus)
-    setPage(1)
-  }
-
-  const handleSearch = (val) => {
-    setSearch(val)
-    setPage(1)
-  }
 
   return (
     <div className="min-h-screen applicant-shell" style={{ background: '#0a0d14' }}>
@@ -84,7 +77,7 @@ export default function MyApplicationsPage() {
             </svg>
             Profili
           </button>
-          <button onClick={() => { logout(); navigate('/login') }}
+          <button onClick={async () => { await logout(); navigate('/login') }}
             className="rounded-xl font-black tracking-wide transition">
             Dil
           </button>
@@ -112,7 +105,7 @@ export default function MyApplicationsPage() {
                 type="text"
                 placeholder="Kërko sipas grantit..."
                 value={search}
-                onChange={e => handleSearch(e.target.value)}
+                onChange={e => setSearch(e.target.value)}
                 className="w-full pl-5 pr-5 py-3 text-sm text-white outline-none rounded-2xl grant-search-input"
                 style={{ background: 'rgba(5,14,22,0.78)', border: '2px solid rgba(0,230,118,0.34)' }}
               />
@@ -122,7 +115,7 @@ export default function MyApplicationsPage() {
           {FILTERS.map(key => (
             <button
               key={key}
-              onClick={() => handleFilterChange(key)}
+              onClick={() => { setStatus(key); setPage(1); fetchApps(1, key) }}
               className="application-status-button text-xs rounded-lg font-semibold transition"
               data-active={status === key ? 'true' : 'false'}
             >
@@ -133,7 +126,7 @@ export default function MyApplicationsPage() {
 
         {!loading && (
           <p className="text-xs mb-7 font-semibold uppercase tracking-widest" style={{ color: 'rgba(0,230,118,0.58)' }}>
-            {filtered.length} aplikime të gjetura
+            {total} aplikime të gjetura
           </p>
         )}
 
@@ -209,7 +202,8 @@ export default function MyApplicationsPage() {
           </div>
         )}
 
-        <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+        <Pagination page={page} total={total} size={PAGE_SIZE}
+          onChange={p => { setPage(p); fetchApps(p, status) }} />
       </div>
     </div>
   )

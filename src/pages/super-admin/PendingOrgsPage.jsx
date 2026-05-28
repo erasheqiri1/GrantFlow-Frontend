@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import SuperAdminHeader from '../../components/layout/SuperAdminHeader'
-import Pagination from '../../components/layout/Pagination'
+import Pagination from '../../components/Pagination'
 import api from '../../api/axios'
 
 const NAV = [
@@ -168,32 +168,34 @@ function OrgCard({ org, onView }) {
   )
 }
 
-/* ─── Faqja kryesore ─── */
-const PAGE_SIZE = 9
+const PAGE_SIZE = 20
 
+/* ─── Faqja kryesore ─── */
 export default function PendingOrgsPage() {
   const [orgs,     setOrgs]     = useState([])
-  const [page,     setPage]     = useState(1)
   const [loading,  setLoading]  = useState(true)
   const [actionId, setActionId] = useState(null)
   const [selected, setSelected] = useState(null)
+  const [page,     setPage]     = useState(1)
+  const [total,    setTotal]    = useState(0)
 
-  const totalPages  = Math.ceil(orgs.length / PAGE_SIZE)
-  const visibleOrgs = orgs.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-
-  const load = () => {
+  const load = useCallback((p = page) => {
     setLoading(true)
-    api.get('/tenants', { params: { status: 'PENDING', size: 200 } })
-      .then(r => setOrgs(r.data.items ?? r.data))
+    api.get('/tenants', { params: { status: 'PENDING', page: p, size: PAGE_SIZE } })
+      .then(r => {
+        setOrgs(r.data?.items ?? r.data ?? [])
+        setTotal(r.data?.total ?? 0)
+      })
       .catch(() => {})
       .finally(() => setLoading(false))
-  }
+  }, [page])
 
   useEffect(() => {
     load()
-    window.addEventListener('focus', load)
-    return () => window.removeEventListener('focus', load)
-  }, [])
+    const onFocus = () => load()
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
+  }, [load])
 
   const approve = async (id) => {
     setActionId(id)
@@ -238,7 +240,7 @@ export default function PendingOrgsPage() {
         {/* Counter */}
         <div className="mb-5">
           <span className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>
-            {orgs.length} {orgs.length === 1 ? 'kërkesë' : 'kërkesa'}
+            {total} {total === 1 ? 'kërkesë' : 'kërkesa'}
           </span>
         </div>
 
@@ -255,15 +257,15 @@ export default function PendingOrgsPage() {
             </p>
           </div>
         ) : (
-          <>
-            <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}>
-              {visibleOrgs.map(org => (
-                <OrgCard key={org.id} org={org} onView={setSelected} />
-              ))}
-            </div>
-            <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
-          </>
+          <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}>
+            {orgs.map(org => (
+              <OrgCard key={org.id} org={org} onView={setSelected} />
+            ))}
+          </div>
         )}
+
+        <Pagination page={page} total={total} size={PAGE_SIZE}
+          onChange={p => { setPage(p); load(p) }} />
       </main>
 
       {/* Modal */}

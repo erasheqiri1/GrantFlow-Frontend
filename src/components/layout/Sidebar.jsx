@@ -53,7 +53,7 @@ export default function Sidebar({ items }) {
 
       {/* Logout */}
       <div className="px-3 pb-5">
-        <button onClick={() => { logout(); navigate('/login') }}
+        <button onClick={async () => { await logout(); navigate('/login') }}
           className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium transition"
           style={{ color: 'var(--text-muted)' }}>
           <span>🚪</span> Dil

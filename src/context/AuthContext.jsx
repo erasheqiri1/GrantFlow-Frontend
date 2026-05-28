@@ -1,10 +1,14 @@
 import { createContext, useContext, useState } from 'react'
+import api from '../api/axios'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem('token') || null)
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || 'null'))
+  const [user, setUser] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('user') || 'null') }
+    catch { localStorage.removeItem('user'); return null }
+  })
 
   const login = (newToken, newUser) => {
     localStorage.setItem('token', newToken)
@@ -13,7 +17,8 @@ export function AuthProvider({ children }) {
     setUser(newUser)
   }
 
-  const logout = () => {
+  const logout = async () => {
+    try { await api.post('/auth/logout') } catch { /* vazhdo edhe nëse dështon */ }
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     setToken(null)
