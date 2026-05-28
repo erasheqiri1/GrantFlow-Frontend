@@ -41,6 +41,7 @@ import ManagePermissionsPage from './pages/super-admin/ManagePermissionsPage'
 // Layout
 import './styles/applicant-fixes.css'
 import ProtectedRoute from './components/layout/ProtectedRoute'
+import NotFound from './pages/NotFound'
 
 function RoleRedirect() {
   const { user } = useAuth()
@@ -98,7 +99,7 @@ export default function App() {
         <Route path="/super-admin/permissions"    element={<ProtectedRoute role="SUPER_ADMIN"><ManagePermissionsPage /></ProtectedRoute>} />
 
         {/* 404 */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   )
