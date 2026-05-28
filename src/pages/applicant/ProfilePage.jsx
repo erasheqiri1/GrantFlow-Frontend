@@ -21,7 +21,7 @@ const APPLICANT_TYPES = [
 const TYPE_LABEL = Object.fromEntries(APPLICANT_TYPES.map(t => [t.value, t.label]))
 
 const EMPTY_FORM = {
-  first_name: '', last_name: '', phone: '', address: '', applicant_type: '', description: '', personal_id: '',
+  first_name: '', last_name: '', phone: '', address: '', iban: '', applicant_type: '', description: '', personal_id: '',
   university: '', faculty: '', study_program: '', study_level: '', study_year: '',
   business_name: '', business_type: '', activity_field: '', num_employees: '', founded_year: '',
   org_name: '', org_type: '', org_field: '', num_staff: '', org_founded_year: '', reg_number: '',
@@ -35,6 +35,7 @@ function fromApi(p = {}) {
     last_name: p.last_name || '',
     phone: p.phone || '',
     address: p.address || '',
+    iban: p.iban || '',
     applicant_type: p.applicant_type || '',
     description: p.description || '',
     personal_id: p.personal_id || '',
@@ -118,6 +119,7 @@ export default function ProfilePage() {
         last_name: form.last_name || undefined,
         phone: form.phone || undefined,
         address: form.address || undefined,
+        iban: form.iban || undefined,
         applicant_type: form.applicant_type || undefined,
         description: form.description || undefined,
         personal_id: form.personal_id || undefined,
@@ -184,6 +186,7 @@ export default function ProfilePage() {
     { label: 'Nr. Personal', value: profile.personal_id },
     { label: 'Telefoni', value: profile.phone },
     { label: 'Adresa', value: profile.address },
+    { label: 'IBAN', value: profile.iban },
     ...(profile.applicant_type === 'STUDENT' ? [
       { label: 'Universiteti', value: profile.university },
       { label: 'Fakulteti', value: profile.faculty },
@@ -318,6 +321,15 @@ export default function ProfilePage() {
               </Field>
               <Field label="Adresa">
                 <input value={form.address} onChange={set('address')} placeholder="Qyteti, Shteti" />
+              </Field>
+              <Field label="IBAN (për pagesën e grantit)">
+                <input
+                  value={form.iban}
+                  onChange={e => set('iban')({ target: { value: e.target.value.replace(/\s/g, '').toUpperCase() } })}
+                  placeholder="XK05121201234567890"
+                  maxLength={34}
+                  style={{ fontFamily: 'monospace', letterSpacing: '0.05em' }}
+                />
               </Field>
             </section>
 

@@ -19,6 +19,129 @@ const STATUS_LABELS = {
   'REJECTED':     'Refuzuar',
 }
 
+/* ──────────────────────────── Payment Modal ──────────────────────────── */
+function PaymentModal({ app, payment, onClose, onSuccess }) {
+  const [note,    setNote]    = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error,   setError]   = useState('')
+
+  const handleConfirm = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      await api.patch(`/payments/application/${app.id}/mark-paid`, {
+        note: note.trim() || null,
+      })
+      onSuccess()
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Gabim gjatë shënimit të pagesës')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fmt = (v) =>
+    v != null ? `€${Number(v).toLocaleString('sq-AL', { minimumFractionDigits: 2 })}` : '—'
+
+  return (
+    <div
+      className="application-modal-overlay"
+      onClick={e => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <div
+        className="application-modal-card"
+        style={{ maxWidth: 440, minHeight: 'unset' }}
+      >
+        {/* Header */}
+        <div
+          className="flex items-center justify-between px-6 py-4 flex-shrink-0"
+          style={{ borderBottom: '1px solid var(--border)' }}
+        >
+          <div>
+            <h2 className="text-base font-bold text-white">Konfirmo pagesën</h2>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+              Transferi bankar u bë — shëno si të kryer
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-7 h-7 flex items-center justify-center rounded-lg text-sm"
+            style={{ background: 'var(--bg-card)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}
+          >✕</button>
+        </div>
+
+        {/* Body */}
+        <div className="px-6 py-5 space-y-1">
+          {[
+            ['Marrësi',  app.user_name || app.user_email || '—'],
+            ['Email',    app.user_email || '—'],
+            ['IBAN',     payment?.applicant_iban || '—'],
+            ['Granti',   app.grant_title || '—'],
+            ['Shuma',    fmt(payment?.amount)],
+          ].map(([lbl, val]) => (
+            <div
+              key={lbl}
+              className="flex items-center justify-between py-2.5"
+              style={{ borderBottom: '1px solid var(--border)' }}
+            >
+              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{lbl}</span>
+              <span
+                className="text-sm font-semibold"
+                style={{
+                color: lbl === 'Shuma' ? '#4ade80' : 'var(--text-secondary)',
+                fontFamily: lbl === 'IBAN' ? 'monospace' : undefined,
+                letterSpacing: lbl === 'IBAN' ? '0.05em' : undefined,
+              }}
+              >{val}</span>
+            </div>
+          ))}
+
+          <div className="pt-4 space-y-3">
+            <div>
+              <label className="text-xs block mb-1.5 font-medium" style={{ color: 'var(--text-muted)' }}>
+                Shënim (opsional)
+              </label>
+              <input
+                value={note}
+                onChange={e => setNote(e.target.value)}
+                placeholder="Shënim shtesë..."
+                className="w-full px-3 py-2 rounded-lg text-sm text-white outline-none"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 flex-shrink-0" style={{ borderTop: '1px solid var(--border)' }}>
+          {error && (
+            <p className="text-xs mb-3" style={{ color: 'var(--danger)' }}>{error}</p>
+          )}
+          <div className="flex gap-3">
+            <button
+              onClick={onClose}
+              disabled={loading}
+              className="flex-1 py-2.5 rounded-lg text-sm font-semibold"
+              style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
+            >
+              Anulo
+            </button>
+            <button
+              onClick={handleConfirm}
+              disabled={loading}
+              className="flex-1 py-2.5 rounded-lg text-sm font-bold"
+              style={{ background: 'rgba(74,222,128,0.15)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.4)' }}
+            >
+              {loading ? 'Duke ruajtur...' : 'Konfirmo pagesën'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ──────────────────────────── Application Modal ──────────────────────────── */
 function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
   const { user }                    = useAuth()
   const [app, setApp]               = useState(initialApp)
@@ -399,15 +522,65 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
   )
 }
 
+/* ──────────────────────────── Payment cell ──────────────────────────── */
+function PaymentCell({ app, payment, onOpenModal }) {
+  if (app.status !== 'APPROVED') return <span style={{ color: 'var(--text-muted)' }}>—</span>
+
+  // payment=null  → pagesa nuk ekziston ende (grant jo i finalizuar)
+  // payment=undefined → loading
+  if (payment === undefined) {
+    return <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Duke ngarkuar...</span>
+  }
+  if (payment === null) {
+    return <span style={{ color: 'var(--text-muted)' }}>—</span>
+  }
+
+  if (payment.status === 'PAID') {
+    const amount = payment.amount != null
+      ? `€${Number(payment.amount).toLocaleString('sq-AL', { minimumFractionDigits: 2 })}`
+      : ''
+    return (
+      <span
+        className="text-xs font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1"
+        style={{ background: 'rgba(74,222,128,0.12)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.25)' }}
+      >
+        ✓ Paguar {amount}
+      </span>
+    )
+  }
+
+  // PENDING
+  return (
+    <button
+      onClick={e => { e.stopPropagation(); onOpenModal() }}
+      className="text-xs px-3 py-1.5 rounded-lg font-semibold transition"
+      style={{
+        background: 'rgba(251,191,36,0.12)',
+        color: '#fbbf24',
+        border: '1px solid rgba(251,191,36,0.3)',
+      }}
+    >
+      Dërgo pagesën
+    </button>
+  )
+}
+
 const PAGE_SIZE = 10
 
 export default function ApplicationsReviewPage() {
+  const { user }    = useAuth()
+  const isOrgAdmin  = user?.role === 'ORG_ADMIN'
+
   const [apps,    setApps]    = useState([])
   const [total,   setTotal]   = useState(0)
   const [page,    setPage]    = useState(1)
   const [loading, setLoading] = useState(true)
   const [status,  setStatus]  = useState('')
   const [selected, setSelected] = useState(null)
+
+  // Payments: { [application_id]: payment | null }
+  const [payments,      setPayments]      = useState({})
+  const [paymentModal,  setPaymentModal]  = useState(null)  // app object
 
   const fetchApps = useCallback((p = page) => {
     setLoading(true)
@@ -418,12 +591,29 @@ export default function ApplicationsReviewPage() {
     if (grantId) params.grant_id = grantId
     api.get('/applications', { params })
       .then(r => {
-        setApps(r.data?.items ?? (Array.isArray(r.data) ? r.data : []))
+        const items = r.data?.items ?? (Array.isArray(r.data) ? r.data : [])
+        setApps(items)
         setTotal(r.data?.total ?? 0)
+        // Fetch payments for all APPROVED apps (ORG_ADMIN only)
+        if (isOrgAdmin) fetchPaymentsForApps(items)
       })
       .catch(() => {})
       .finally(() => setLoading(false))
-  }, [status, page])
+  }, [status, page, isOrgAdmin])
+
+  const fetchPaymentsForApps = (items) => {
+    const approved = items.filter(a => a.status === 'APPROVED')
+    if (approved.length === 0) return
+    // Bulk fetch — ORG_ADMIN ka grants:update, nuk ka applications:read_own
+    api.get('/payments', { params: { size: 100 } })
+      .then(r => {
+        const list = r.data?.items ?? []
+        const map = {}
+        list.forEach(p => { map[p.application_id] = p })
+        setPayments(map)
+      })
+      .catch(() => {})
+  }
 
   useEffect(() => { setPage(1); fetchApps(1) }, [status])
 
@@ -431,6 +621,14 @@ export default function ApplicationsReviewPage() {
     setPage(newPage)
     fetchApps(newPage)
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handlePaymentSuccess = (app) => {
+    setPaymentModal(null)
+    // Refetch this payment
+    api.get(`/payments/application/${app.id}`)
+      .then(r => setPayments(prev => ({ ...prev, [app.id]: r.data })))
+      .catch(() => {})
   }
 
   return (
@@ -463,16 +661,19 @@ export default function ApplicationsReviewPage() {
           <table className="w-full">
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                {['Aplikanti', 'Granti', 'Statusi', 'Dorëzuar', ''].map(h => (
-                  <th key={h} className="px-5 py-3 text-left text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{h}</th>
-                ))}
+                {['Aplikanti', 'Granti', 'Statusi', isOrgAdmin ? 'Pagesa' : null, 'Dorëzuar', '']
+                  .filter(Boolean)
+                  .map(h => (
+                    <th key={h} className="px-5 py-3 text-left text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{h}</th>
+                  ))
+                }
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 [...Array(4)].map((_, i) => (
                   <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
-                    {[...Array(5)].map((_, j) => (
+                    {[...Array(isOrgAdmin ? 6 : 5)].map((_, j) => (
                       <td key={j} className="px-5 py-4">
                         <div className="h-4 rounded animate-pulse" style={{ background: 'var(--bg-card)' }} />
                       </td>
@@ -481,7 +682,7 @@ export default function ApplicationsReviewPage() {
                 ))
               ) : apps.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-5 py-10 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
+                  <td colSpan={isOrgAdmin ? 6 : 5} className="px-5 py-10 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
                     Nuk ka aplikime.
                   </td>
                 </tr>
@@ -512,6 +713,17 @@ export default function ApplicationsReviewPage() {
                       </span>
                     </td>
 
+                    {/* Payment column — only ORG_ADMIN */}
+                    {isOrgAdmin && (
+                      <td className="px-5 py-3.5">
+                        <PaymentCell
+                          app={app}
+                          payment={payments[app.id]}
+                          onOpenModal={() => setPaymentModal(app)}
+                        />
+                      </td>
+                    )}
+
                     <td className="px-5 py-3.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
                       {app.submitted_at ? new Date(app.submitted_at).toLocaleDateString('sq-AL') : '—'}
                     </td>
@@ -540,6 +752,15 @@ export default function ApplicationsReviewPage() {
           onClose={() => setSelected(null)}
           onDecision={() => { setSelected(null); fetchApps() }}
           onScored={fetchApps}
+        />
+      )}
+
+      {paymentModal && (
+        <PaymentModal
+          app={paymentModal}
+          payment={payments[paymentModal.id]}
+          onClose={() => setPaymentModal(null)}
+          onSuccess={() => handlePaymentSuccess(paymentModal)}
         />
       )}
     </div>

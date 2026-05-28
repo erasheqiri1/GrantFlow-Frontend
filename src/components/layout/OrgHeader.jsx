@@ -5,6 +5,7 @@ const ORG_NAV = [
   { to: '/org-admin', label: 'Overview' },
   { to: '/org-admin/grants', label: 'Grante' },
   { to: '/org-admin/applications', label: 'Aplikimet' },
+  { to: '/org-admin/payments', label: 'Pagesat' },
   { to: '/org-admin/team', label: 'Ekipi' },
 ]
 

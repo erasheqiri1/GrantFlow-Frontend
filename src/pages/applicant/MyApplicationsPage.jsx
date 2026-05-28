@@ -25,6 +25,50 @@ function grantName(app) {
   return app.grant_title || app.grant?.title || (app.grant_id ? `Grant #${app.grant_id}` : 'Aplikim')
 }
 
+function fmtDate(iso) {
+  if (!iso) return ''
+  return new Date(iso).toLocaleDateString('sq-AL', { day: '2-digit', month: 'short', year: 'numeric' })
+}
+
+function PaymentBadge({ payment }) {
+  // undefined = ende duke u ngarkuar, null = nuk ekziston
+  if (payment === undefined || payment === null) return null
+
+  if (payment.status === 'PAID') {
+    const amount = payment.amount != null
+      ? `€${Number(payment.amount).toLocaleString('sq-AL', { minimumFractionDigits: 2 })}`
+      : ''
+    return (
+      <div
+        className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold"
+        style={{
+          background: 'rgba(0,230,118,0.08)',
+          color: '#00e676',
+          border: '1px solid rgba(0,230,118,0.2)',
+        }}
+      >
+        <span style={{ fontSize: 10 }}>✓</span>
+        <span>Pagesa u krye {amount}{payment.paid_at ? ` · ${fmtDate(payment.paid_at)}` : ''}</span>
+      </div>
+    )
+  }
+
+  // PENDING
+  return (
+    <div
+      className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold"
+      style={{
+        background: 'rgba(251,191,36,0.08)',
+        color: '#fbbf24',
+        border: '1px solid rgba(251,191,36,0.18)',
+      }}
+    >
+      <span style={{ fontSize: 10 }}>◷</span>
+      <span>Pagesa në pritje</span>
+    </div>
+  )
+}
+
 const PAGE_SIZE = 20
 
 export default function MyApplicationsPage() {
@@ -37,17 +81,32 @@ export default function MyApplicationsPage() {
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
 
+  // payments: { [application_id]: payment }
+  const [payments, setPayments] = useState({})
+
   const fetchApps = (p = 1, s = status) => {
     setLoading(true)
     api.get('/applications/my', { params: { page: p, size: PAGE_SIZE, ...(s && { status: s }) } })
       .then(res => {
-        setApplications(res.data?.items ?? res.data ?? [])
+        const items = res.data?.items ?? res.data ?? []
+        setApplications(items)
         setTotal(res.data?.total ?? 0)
       })
       .finally(() => setLoading(false))
   }
 
   useEffect(() => { fetchApps(1) }, [])
+
+  // Fetch payment status for APPROVED applications (ndarja nga fetchApps)
+  useEffect(() => {
+    const approved = applications.filter(a => a.status === 'APPROVED')
+    approved.forEach(a => {
+      if (a.id in payments) return  // tashme e kemi
+      api.get(`/payments/my/${a.id}`)
+        .then(r => setPayments(prev => ({ ...prev, [a.id]: r.data })))
+        .catch(() => setPayments(prev => ({ ...prev, [a.id]: null })))
+    })
+  }, [applications])
 
   const visible = applications
     .filter(app => !search || grantName(app).toLowerCase().includes(search.toLowerCase()))
@@ -152,6 +211,7 @@ export default function MyApplicationsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {visible.map(app => {
               const si = STATUS_INFO[app.status] || STATUS_INFO.DRAFT
+              const payment = payments[app.id]
               return (
                 <div key={app.id}
                   className="rounded-2xl flex flex-col transition-all duration-200 hover:scale-[1.02] grant-card"
@@ -176,10 +236,17 @@ export default function MyApplicationsPage() {
                   <h3 className="font-black text-white mb-4 line-clamp-2 text-base">{grantName(app)}</h3>
 
                   {app.decision_reason && (
-                    <p className="text-xs mb-5 px-3 py-2 rounded-lg line-clamp-2"
+                    <p className="text-xs mb-3 px-3 py-2 rounded-lg line-clamp-2"
                       style={{ background: 'rgba(248,113,113,0.08)', color: '#f87171', border: '1px solid rgba(248,113,113,0.2)' }}>
                       {app.decision_reason}
                     </p>
+                  )}
+
+                  {/* Payment status — only for APPROVED */}
+                  {app.status === 'APPROVED' && (
+                    <div className="mb-3">
+                      <PaymentBadge payment={payment} />
+                    </div>
                   )}
 
                   <div className="flex-1" />
