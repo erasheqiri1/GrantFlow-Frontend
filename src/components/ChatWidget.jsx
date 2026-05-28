@@ -23,12 +23,18 @@ export default function ChatWidget() {
     const msg = input.trim()
     if (!msg || loading) return
 
+    // Capture history BEFORE adding the new user message
+    const historySnapshot = messages
+
     setMessages(prev => [...prev, { role: 'user', text: msg }])
     setInput('')
     setLoading(true)
 
     try {
-      const res = await api.post('/chatbot', { message: msg })
+      const res = await api.post('/chatbot', {
+        message: msg,
+        history: historySnapshot,
+      })
       setMessages(prev => [...prev, { role: 'assistant', text: res.data.reply }])
     } catch {
       setMessages(prev => [...prev, {
