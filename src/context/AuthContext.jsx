@@ -10,16 +10,21 @@ export function AuthProvider({ children }) {
     catch { localStorage.removeItem('user'); return null }
   })
 
-  const login = (newToken, newUser) => {
+  const login = (newToken, newRefreshToken, newUser) => {
     localStorage.setItem('token', newToken)
+    localStorage.setItem('refresh_token', newRefreshToken)
     localStorage.setItem('user', JSON.stringify(newUser))
     setToken(newToken)
     setUser(newUser)
   }
 
   const logout = async () => {
-    try { await api.post('/auth/logout') } catch { /* vazhdo edhe nëse dështon */ }
+    const refreshToken = localStorage.getItem('refresh_token')
+    try {
+      await api.post('/auth/logout', { refresh_token: refreshToken || undefined })
+    } catch { /* vazhdo edhe nëse dështon */ }
     localStorage.removeItem('token')
+    localStorage.removeItem('refresh_token')
     localStorage.removeItem('user')
     setToken(null)
     setUser(null)

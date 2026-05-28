@@ -59,8 +59,8 @@ export default function LoginPage() {
       const payload = { email: form.email, password: form.password }
       if (form.tenant_slug) payload.tenant_slug = form.tenant_slug
       const res = await api.post('/auth/login', payload, { skipAuthRedirect: true })
-      const { access_token, role, user_id, tenant_slug } = res.data
-      login(access_token, { role, user_id, tenant_slug })
+      const { access_token, refresh_token, role, user_id, tenant_slug } = res.data
+      login(access_token, refresh_token, { role, user_id, tenant_slug })
       navigate('/')
     } catch (err) {
       const detail = err.response?.data?.detail || 'Email ose fjalëkalim i gabuar'

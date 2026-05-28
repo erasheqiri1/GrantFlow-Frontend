@@ -35,7 +35,7 @@ export default function AcceptInvitePage() {
         password:   form.password,
       })
       // Kyçu automatikisht pas aktivizimit
-      login(res.data.access_token, {
+      login(res.data.access_token, res.data.refresh_token, {
         user_id:     res.data.user_id,
         role:        res.data.role,
         tenant_slug: res.data.tenant_slug,
