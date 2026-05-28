@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import SuperAdminHeader from '../../components/layout/SuperAdminHeader'
+import Pagination from '../../components/layout/Pagination'
 import api from '../../api/axios'
 
 const NAV = [
@@ -34,17 +35,35 @@ const ACTION_LABEL = {
   REMOVE_MEMBER:       'Largoi anëtarin',
 }
 
+const PAGE_SIZE = 20
+
 export default function AuditLogsPage() {
-  const [logs, setLogs]       = useState([])
-  const [search, setSearch]   = useState('')
+  const [logs,    setLogs]    = useState([])
+  const [total,   setTotal]   = useState(0)
+  const [page,    setPage]    = useState(1)
+  const [search,  setSearch]  = useState('')
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    api.get('/audit-logs?limit=200')
-      .then(r => setLogs(Array.isArray(r.data) ? r.data : r.data.items ?? []))
+  const totalPages = Math.ceil(total / PAGE_SIZE)
+
+  const fetchLogs = (currentPage = page) => {
+    setLoading(true)
+    api.get('/audit-logs', { params: { page: currentPage, size: PAGE_SIZE } })
+      .then(r => {
+        setLogs(r.data?.items ?? (Array.isArray(r.data) ? r.data : []))
+        setTotal(r.data?.total ?? 0)
+      })
       .catch(() => {})
       .finally(() => setLoading(false))
-  }, [])
+  }
+
+  useEffect(() => { fetchLogs(1) }, [])
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage)
+    fetchLogs(newPage)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   const filtered = logs.filter(l =>
     l.user_email?.toLowerCase().includes(search.toLowerCase()) ||
@@ -100,7 +119,7 @@ export default function AuditLogsPage() {
         <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
           <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-white">{logs.length} regjistrime</span>
+              <span className="font-semibold text-white">{total} regjistrime</span>
             <div className="super-search">
               <input
                 value={search}
@@ -162,6 +181,8 @@ export default function AuditLogsPage() {
             </table>
           )}
         </div>
+
+        <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
       </main>
     </div>
   )

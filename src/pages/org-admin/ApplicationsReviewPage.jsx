@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import OrgHeader from '../../components/layout/OrgHeader'
+import Pagination from '../../components/layout/Pagination'
 import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
 
@@ -46,7 +47,7 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
   useEffect(() => {
     if (!isOrgAdmin) return
     api.get('/team').then(r => {
-      const members = Array.isArray(r.data) ? r.data : []
+      const members = r.data?.items ?? (Array.isArray(r.data) ? r.data : [])
       setCommissioners(members.filter(m => m.role === 'COMMISSIONER'))
     }).catch(() => {})
   }, [isOrgAdmin])
@@ -398,26 +399,41 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
   )
 }
 
+const PAGE_SIZE = 10
+
 export default function ApplicationsReviewPage() {
-  const [apps, setApps]       = useState([])
+  const [apps,    setApps]    = useState([])
+  const [total,   setTotal]   = useState(0)
+  const [page,    setPage]    = useState(1)
   const [loading, setLoading] = useState(true)
-  const [status, setStatus]   = useState('')
+  const [status,  setStatus]  = useState('')
   const [selected, setSelected] = useState(null)
 
-  const fetchApps = useCallback(() => {
+  const totalPages = Math.ceil(total / PAGE_SIZE)
+
+  const fetchApps = useCallback((currentPage = page) => {
     setLoading(true)
     const searchParams = new URLSearchParams(window.location.search)
     const grantId = searchParams.get('grant_id')
-    const params = {}
+    const params = { page: currentPage, size: PAGE_SIZE }
     if (status) params.status = status
     if (grantId) params.grant_id = grantId
     api.get('/applications', { params })
-      .then(r => setApps(Array.isArray(r.data) ? r.data : r.data.items ?? []))
+      .then(r => {
+        setApps(r.data?.items ?? (Array.isArray(r.data) ? r.data : []))
+        setTotal(r.data?.total ?? 0)
+      })
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [status])
 
-  useEffect(() => { fetchApps() }, [fetchApps])
+  useEffect(() => { setPage(1); fetchApps(1) }, [status])
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage)
+    fetchApps(newPage)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   return (
     <div className="org-admin-shell min-h-screen">
@@ -427,7 +443,7 @@ export default function ApplicationsReviewPage() {
           <div>
             <h1 className="text-2xl font-bold text-white">Aplikimet</h1>
             <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-              {apps.length} aplikim{apps.length !== 1 ? 'e' : ''}
+              {total} aplikim{total !== 1 ? 'e' : ''}
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -515,6 +531,8 @@ export default function ApplicationsReviewPage() {
             </tbody>
           </table>
         </div>
+
+        <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
       </main>
 
       {selected && (

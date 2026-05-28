@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import OrgHeader from '../../components/layout/OrgHeader'
+import Pagination from '../../components/layout/Pagination'
 import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
 
@@ -14,10 +15,16 @@ const INVITE_ROLES = [
   { value: 'ORG_ADMIN',    label: 'Org Admin — menaxhon organizatën' },
 ]
 
+const PAGE_SIZE = 10
+
 export default function TeamPage() {
   const { user: currentUser } = useAuth()
-  const [members, setMembers]   = useState([])
-  const [loading, setLoading]   = useState(true)
+  const [members, setMembers] = useState([])
+  const [page,    setPage]    = useState(1)
+  const [loading, setLoading] = useState(true)
+
+  const totalPages    = Math.ceil(members.length / PAGE_SIZE)
+  const visibleMembers = members.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
   const [invite, setInvite]     = useState({ email: '', role: 'COMMISSIONER' })
   const [inviting, setInviting]       = useState(false)
   const [inviteLink, setInviteLink]   = useState('')   // linku i plotë i ftesës
@@ -28,7 +35,7 @@ export default function TeamPage() {
   const loadTeam = () => {
     setLoading(true)
     api.get('/team')
-      .then(r => setMembers(Array.isArray(r.data) ? r.data : []))
+      .then(r => setMembers(r.data?.items ?? (Array.isArray(r.data) ? r.data : [])))
       .catch(() => {})
       .finally(() => setLoading(false))
   }
@@ -218,7 +225,7 @@ export default function TeamPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {members.map(m => {
+                  {visibleMembers.map(m => {
                     const rs = ROLE_LABELS[m.role] || { label: m.role, bg: 'var(--bg-card)', color: 'var(--text-muted)' }
                     const isMe = m.id === currentUser?.user_id
                     return (
@@ -261,6 +268,7 @@ export default function TeamPage() {
             )}
           </div>
 
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
       </main>
     </div>

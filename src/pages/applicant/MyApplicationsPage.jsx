@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
+import Pagination from '../../components/layout/Pagination'
 
 const STATUS_INFO = {
   DRAFT:        { label: 'Draft', bg: 'rgba(107,114,128,0.15)', color: '#9ca3af' },
@@ -24,6 +25,8 @@ function grantName(app) {
   return app.grant_title || app.grant?.title || (app.grant_id ? `Grant #${app.grant_id}` : 'Aplikim')
 }
 
+const PAGE_SIZE = 8
+
 export default function MyApplicationsPage() {
   const { logout } = useAuth()
   const navigate = useNavigate()
@@ -31,16 +34,30 @@ export default function MyApplicationsPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
+  const [page, setPage] = useState(1)
 
   useEffect(() => {
     api.get('/applications/my')
-      .then(res => setApplications(res.data))
+      .then(res => setApplications(res.data?.items ?? (Array.isArray(res.data) ? res.data : [])))
       .finally(() => setLoading(false))
   }, [])
 
-  const visible = applications
+  const filtered = applications
     .filter(app => !status || app.status === status)
     .filter(app => !search || grantName(app).toLowerCase().includes(search.toLowerCase()))
+
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
+  const visible    = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+
+  const handleFilterChange = (newStatus) => {
+    setStatus(newStatus)
+    setPage(1)
+  }
+
+  const handleSearch = (val) => {
+    setSearch(val)
+    setPage(1)
+  }
 
   return (
     <div className="min-h-screen applicant-shell" style={{ background: '#0a0d14' }}>
@@ -95,7 +112,7 @@ export default function MyApplicationsPage() {
                 type="text"
                 placeholder="Kërko sipas grantit..."
                 value={search}
-                onChange={e => setSearch(e.target.value)}
+                onChange={e => handleSearch(e.target.value)}
                 className="w-full pl-5 pr-5 py-3 text-sm text-white outline-none rounded-2xl grant-search-input"
                 style={{ background: 'rgba(5,14,22,0.78)', border: '2px solid rgba(0,230,118,0.34)' }}
               />
@@ -105,7 +122,7 @@ export default function MyApplicationsPage() {
           {FILTERS.map(key => (
             <button
               key={key}
-              onClick={() => setStatus(key)}
+              onClick={() => handleFilterChange(key)}
               className="application-status-button text-xs rounded-lg font-semibold transition"
               data-active={status === key ? 'true' : 'false'}
             >
@@ -116,7 +133,7 @@ export default function MyApplicationsPage() {
 
         {!loading && (
           <p className="text-xs mb-7 font-semibold uppercase tracking-widest" style={{ color: 'rgba(0,230,118,0.58)' }}>
-            {visible.length} aplikime të gjetura
+            {filtered.length} aplikime të gjetura
           </p>
         )}
 
@@ -191,6 +208,8 @@ export default function MyApplicationsPage() {
             })}
           </div>
         )}
+
+        <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
       </div>
     </div>
   )

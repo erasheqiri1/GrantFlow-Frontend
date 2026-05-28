@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import SuperAdminHeader from '../../components/layout/SuperAdminHeader'
+import Pagination from '../../components/layout/Pagination'
 import api from '../../api/axios'
 import { useAuth } from '../../context/AuthContext'
 
@@ -18,15 +19,18 @@ const ROLE_STYLE = {
   APPLICANT:    { bg: 'rgba(74,222,128,0.15)',  color: '#4ade80' },
 }
 
+const PAGE_SIZE = 15
+
 export default function UsersListPage() {
-  const [users, setUsers] = useState([])
-  const [search, setSearch] = useState('')
-  const [loading, setLoading] = useState(true)
+  const [users,    setUsers]    = useState([])
+  const [search,   setSearch]   = useState('')
+  const [page,     setPage]     = useState(1)
+  const [loading,  setLoading]  = useState(true)
   const [actionId, setActionId] = useState(null)
   const { user: currentUser } = useAuth()
 
   const loadUsers = () => {
-    api.get('/users')
+    api.get('/users', { params: { size: 500 } })
       .then(r => setUsers(r.data.items ?? r.data))
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -61,6 +65,11 @@ export default function UsersListPage() {
     u.last_name?.toLowerCase().includes(search.toLowerCase())
   )
 
+  const totalPages   = Math.ceil(filtered.length / PAGE_SIZE)
+  const visibleUsers = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+
+  const handleSearch = (val) => { setSearch(val); setPage(1) }
+
   return (
     <div className="org-admin-shell min-h-screen">
       <SuperAdminHeader />
@@ -79,7 +88,7 @@ export default function UsersListPage() {
             <div className="super-search">
               <input
                 value={search}
-                onChange={e => setSearch(e.target.value)}
+                onChange={e => handleSearch(e.target.value)}
                 placeholder="Kërko sipas emrit ose email..."
                 className="text-xs text-white outline-none"
               />
@@ -99,7 +108,7 @@ export default function UsersListPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map(u => {
+                {visibleUsers.map(u => {
                   const rs = ROLE_STYLE[u.role] || { bg: 'var(--bg-card)', color: 'var(--text-muted)' }
                   return (
                     <tr key={u.id} style={{ borderBottom: '1px solid var(--border)' }}
@@ -161,6 +170,8 @@ export default function UsersListPage() {
             </table>
           )}
         </div>
+
+        <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
       </main>
     </div>
   )

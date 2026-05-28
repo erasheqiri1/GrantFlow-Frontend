@@ -16,20 +16,22 @@ function StatCard({ label, value, sub, color }) {
 
 export default function OrgDashboard() {
   const { user } = useAuth()
-  const [grants,  setGrants]  = useState([])
-  const [apps,    setApps]    = useState([])
-  const [members, setMembers] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [grants,      setGrants]      = useState([])
+  const [grantsTotal, setGrantsTotal] = useState(0)
+  const [apps,        setApps]        = useState([])
+  const [members,     setMembers]     = useState([])
+  const [loading,     setLoading]     = useState(true)
 
   useEffect(() => {
     Promise.all([
-      api.get('/grants').catch(() => ({ data: [] })),
+      api.get('/grants', { params: { page: 1, size: 500 } }).catch(() => ({ data: [] })),
       api.get('/applications').catch(() => ({ data: [] })),
       api.get('/team').catch(() => ({ data: [] })),
     ]).then(([gRes, aRes, tRes]) => {
-      setGrants(Array.isArray(gRes.data) ? gRes.data : [])
+      setGrants(gRes.data?.items ?? (Array.isArray(gRes.data) ? gRes.data : []))
+      setGrantsTotal(gRes.data?.total ?? 0)
       setApps(Array.isArray(aRes.data) ? aRes.data : aRes.data?.items ?? [])
-      setMembers(Array.isArray(tRes.data) ? tRes.data : [])
+      setMembers(tRes.data?.items ?? (Array.isArray(tRes.data) ? tRes.data : []))
     }).finally(() => setLoading(false))
   }, [])
 
@@ -59,7 +61,7 @@ export default function OrgDashboard() {
 
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4 mb-8">
-          <StatCard label="Grante aktive"    value={loading ? '—' : published}       sub={`${grants.length} gjithsej`} color="var(--accent)" />
+          <StatCard label="Grante aktive"    value={loading ? '—' : published}       sub={`${grantsTotal} gjithsej`} color="var(--accent)" />
           <StatCard label="Aplikime totale"  value={loading ? '—' : apps.length}     sub={`${pending} në pritje`} />
           <StatCard label="Anëtarë ekipit"   value={loading ? '—' : members.length}  sub="komisioner + admin" />
           <StatCard label="Aprovuar"         value={loading ? '—' : approved}         sub="gjithsej" color="#4ade80" />

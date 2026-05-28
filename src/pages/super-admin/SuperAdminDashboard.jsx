@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import SuperAdminHeader from '../../components/layout/SuperAdminHeader'
+import Pagination from '../../components/layout/Pagination'
 import api from '../../api/axios'
 
 const NAV = [
@@ -16,13 +17,16 @@ const STATUS_BADGE = {
   REJECTED: { label: 'Refuzuar',  bg: 'rgba(248,113,113,0.15)', color: '#f87171' },
 }
 
+const PAGE_SIZE = 10
+
 export default function SuperAdminDashboard() {
   const [tenants, setTenants] = useState([])
   const [stats,   setStats]   = useState({ total_grants: 0, total_applications: 0 })
-  const [search, setSearch] = useState('')
+  const [search,  setSearch]  = useState('')
+  const [page,    setPage]    = useState(1)
 
   const load = () => {
-    api.get('/tenants').then(r => setTenants(r.data.items ?? r.data)).catch(() => {})
+    api.get('/tenants', { params: { size: 200 } }).then(r => setTenants(r.data.items ?? r.data)).catch(() => {})
     api.get('/tenants/stats').then(r => setStats(r.data)).catch(() => {})
   }
 
@@ -37,6 +41,10 @@ export default function SuperAdminDashboard() {
     t.email?.toLowerCase().includes(search.toLowerCase()) ||
     t.slug?.toLowerCase().includes(search.toLowerCase())
   )
+  const totalPages    = Math.ceil(filtered.length / PAGE_SIZE)
+  const visibleTenants = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+
+  const handleSearch = (val) => { setSearch(val); setPage(1) }
 
   return (
     <div className="org-admin-shell min-h-screen">
@@ -75,7 +83,7 @@ export default function SuperAdminDashboard() {
               <div className="super-search">
                 <input
                   value={search}
-                  onChange={e => setSearch(e.target.value)}
+                  onChange={e => handleSearch(e.target.value)}
                   placeholder="Kërko..."
                   className="text-xs text-white outline-none"
                 />
@@ -91,7 +99,7 @@ export default function SuperAdminDashboard() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((t) => {
+              {visibleTenants.map((t) => {
                 const s = STATUS_BADGE[t.status] || STATUS_BADGE.PENDING
                 return (
                   <tr key={t.id} style={{ borderBottom: '1px solid var(--border)' }}
@@ -118,6 +126,8 @@ export default function SuperAdminDashboard() {
             </tbody>
           </table>
         </div>
+
+        <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
       </main>
     </div>
   )
