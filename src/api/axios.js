@@ -76,9 +76,10 @@ api.interceptors.response.use(
         { refresh_token: refreshToken },
         { skipAuthRedirect: true }
       )
-      const { access_token } = response.data
+      const { access_token, refresh_token: new_refresh_token } = response.data
 
       localStorage.setItem('token', access_token)
+      if (new_refresh_token) localStorage.setItem('refresh_token', new_refresh_token)
       originalRequest.headers.Authorization = `Bearer ${access_token}`
       processQueue(null, access_token)
       return api(originalRequest)
