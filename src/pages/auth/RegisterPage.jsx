@@ -49,6 +49,14 @@ export default function RegisterPage() {
         setError('Slug-u duhet të ketë të paktën 3 karaktere')
         return
       }
+      if (!form.nipt.trim()) {
+        setError('NIPT është i detyrueshëm')
+        return
+      }
+      if (!form.docFile) {
+        setError('Dokumenti i verifikimit është i detyrueshëm')
+        return
+      }
     }
 
     const pwdErr = validatePassword(form.password)
@@ -265,11 +273,11 @@ export default function RegisterPage() {
                   </div>
 
                   <div>
-                    <FieldLabel>NIPT (opsional)</FieldLabel>
+                    <FieldLabel>NIPT</FieldLabel>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base"
                         style={{ color: 'rgba(255,255,255,0.2)' }}>🪪</span>
-                      <input value={form.nipt} onChange={set('nipt')}
+                      <input required value={form.nipt} onChange={set('nipt')}
                         placeholder="p.sh. K12345678A"
                         className={inputBase} style={{ ...inputStyle }}
                         onFocus={onFocus} onBlur={onBlur} />
@@ -277,7 +285,7 @@ export default function RegisterPage() {
                   </div>
 
                   <div>
-                    <FieldLabel>Dokument verifikimi (opsional)</FieldLabel>
+                    <FieldLabel>Dokument verifikimi</FieldLabel>
                     <div className="rounded-xl px-4 py-3"
                       style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
                       <input type="file" accept=".pdf,.jpg,.jpeg,.png"
@@ -294,13 +302,6 @@ export default function RegisterPage() {
                     </p>
                   </div>
 
-                  {/* Divider */}
-                  <div className="flex items-center gap-3 pt-1">
-                    <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
-                    <span className="text-xs font-semibold uppercase tracking-widest"
-                      style={{ color: 'rgba(255,255,255,0.2)' }}>Siguria</span>
-                    <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
-                  </div>
                 </>
               )}
 
