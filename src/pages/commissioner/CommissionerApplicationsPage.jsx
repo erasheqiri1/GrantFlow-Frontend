@@ -26,7 +26,7 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
   const [scoreSubmitted, setScoreSubmitted] = useState(false)
   const [reviewed, setReviewed]     = useState(initialApp.status === 'UNDER_REVIEW')
 
-  // AI Scoring
+
   const [aiScore, setAiScore]       = useState(null)
   const [aiLoading, setAiLoading]   = useState(false)
   const [aiError, setAiError]       = useState('')
@@ -43,16 +43,16 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
       const res = await api.patch(`/applications/${app.id}/commissioner-score`, { score: val })
       setAiScore(res.data)
       setScoreSubmitted(true)
-      // Aplikimi kaloi në UNDER_REVIEW — pasqyro në modal
+
       setApp(prev => ({ ...prev, status: 'UNDER_REVIEW' }))
       setReviewed(true)
-      onScored()   // rifresko tabelën pa e mbyllur modalin
+      onScored()
     } catch (err) {
       setActErr(err.response?.data?.detail || 'Gabim gjatë ruajtjes së pikëve')
     } finally { setActing(false) }
   }
 
-  // Kur hapet modali: nëse ka score ekzistues → shfaqe, nëse jo → nis automatikisht
+
   useEffect(() => {
     const startPolling = async () => {
       setAiLoading(true)
@@ -71,7 +71,7 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
               setAiError('Shërbimi AI është i padisponueshëm. Ri-provo scoring-un kur shërbimi të jetë aktiv.')
               clearInterval(pollRef.current)
             }
-          } catch { /* ende 404 — vazhdo polling */ }
+          } catch { }
         }, 3000)
       } catch (err) {
         setAiError(err.response?.data?.detail || 'Gabim gjatë vlerësimit AI')
@@ -83,7 +83,7 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
       try {
         const existing = await api.get(`/applications/${initialApp.id}/score`)
 
-        // Nëse AI ishte i padisponueshëm herën e fundit — ritento tani
+
         if (existing.data?.model_used === 'unavailable') {
           setAiScore(null)
           setAiError('')
@@ -97,7 +97,7 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
           setScoreSubmitted(true)
         }
       } catch {
-        // 404 — nuk ka score fare, nis herën e parë
+
         await startPolling()
       }
     }
@@ -115,7 +115,7 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
         setAiLoading(false)
         return
       }
-      // status === 'processing' — poll every 3 s until score is ready
+
       pollRef.current = setInterval(async () => {
         try {
           const sr = await api.get(`/applications/${app.id}/score`)
@@ -129,7 +129,7 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
             setAiError('Shërbimi AI është i padisponueshëm. Ri-provo scoring-un kur shërbimi të jetë aktiv.')
             clearInterval(pollRef.current)
           }
-        } catch { /* 404 still — keep polling */ }
+        } catch { }
       }, 3000)
     } catch (err) {
       setAiError(err.response?.data?.detail || 'Gabim gjatë vlerësimit AI')
@@ -147,7 +147,6 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
       onClick={e => { if (e.target === e.currentTarget) onClose() }}>
       <div className="application-modal-card">
 
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 flex-shrink-0"
           style={{ borderBottom: '1px solid var(--border)' }}>
           <div>
@@ -160,7 +159,6 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
           </button>
         </div>
 
-        {/* Body */}
         <div className="px-6 py-4 overflow-y-auto flex-1 space-y-1">
           {[
             ['Aplikanti', app.user_name || app.user_email || '—'],
@@ -176,14 +174,12 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
             </div>
           ))}
 
-          {/* Statusi */}
           <div className="flex items-center justify-between py-2" style={{ borderBottom: '1px solid var(--border)' }}>
             <span className="text-xs w-28 flex-shrink-0" style={{ color: 'var(--text-muted)' }}>Statusi</span>
             <span className="text-xs font-semibold px-2.5 py-1 rounded-full"
               style={{ background: sb.bg, color: sb.color }}>{sb.label}</span>
           </div>
 
-          {/* Arsyeja e refuzimit */}
           {app.decision_reason && (
             <div className="py-2" style={{ borderBottom: '1px solid var(--border)' }}>
               <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Arsyeja e refuzimit</p>
@@ -191,7 +187,6 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
             </div>
           )}
 
-          {/* Letra motivuese */}
           {app.motivation_letter && (
             <div className="py-3" style={{ borderBottom: '1px solid var(--border)' }}>
               <p className="text-xs mb-2 font-medium text-white">Letra motivuese</p>
@@ -201,7 +196,6 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
             </div>
           )}
 
-          {/* Përgjigjet */}
           {app.answers?.length > 0 && (
             <div className="py-3" style={{ borderBottom: '1px solid var(--border)' }}>
               <p className="text-xs mb-3 font-medium text-white">Përgjigjet ({app.answers.length})</p>
@@ -217,7 +211,6 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
             </div>
           )}
 
-          {/* Attachments */}
           {app.attachments?.length > 0 && (
             <div className="py-3" style={{ borderBottom: '1px solid var(--border)' }}>
               <p className="text-xs mb-2 font-medium text-white">Dokumentet ({app.attachments.length})</p>
@@ -236,7 +229,6 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
             </div>
           )}
 
-          {/* ── AI Scoring ── */}
           <div className="py-3">
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-medium text-white">Vlerësimi AI</p>
@@ -263,7 +255,6 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
             ) : aiScore ? (
               <div className="rounded-lg p-3 space-y-2"
                 style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                {/* Score number + progress bar */}
                 <div className="flex items-center gap-3">
                   <span className="text-3xl font-bold tabular-nums"
                     style={{ color: aiScore.ai_score >= 70 ? '#4ade80' : aiScore.ai_score >= 50 ? '#fbbf24' : '#f87171' }}>
@@ -290,7 +281,6 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
                     </p>
                   </div>
                 </div>
-                {/* Justification */}
                 {aiScore.justification && (
                   <p className="text-xs leading-relaxed pt-2"
                     style={{ color: 'var(--text-secondary)', borderTop: '1px solid var(--border)' }}>
@@ -306,11 +296,9 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
           </div>
         </div>
 
-        {/* Footer — Komisioner jep pikët e tij */}
         <div className="px-6 py-4 flex-shrink-0" style={{ borderTop: '1px solid var(--border)' }}>
           {actErr && <p className="text-xs mb-3" style={{ color: 'var(--danger)' }}>{actErr}</p>}
 
-          {/* Kriteret e grantit */}
           {app.criteria?.length > 0 && (
             <div className="mb-3 rounded-lg p-3"
               style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>

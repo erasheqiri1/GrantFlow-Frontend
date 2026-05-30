@@ -39,10 +39,10 @@ export default function GrantFormPage() {
   const [error,     setError]         = useState('')
   const [success,   setSuccess]       = useState('')
 
-  // Mund të editorohet vetëm granti DRAFT
+
   const canEdit = !isEdit || grantStatus === 'DRAFT'
 
-  // Pesha totale e kritereve (0 nëse nuk ka kriter) — duhet 100 para publikimit
+
   const totalCriteriaWeight = criteria.reduce((sum, c) => {
     return sum + (String(c.id).startsWith('local-') ? c.weight : Math.round(c.weight * 100))
   }, 0)
@@ -54,7 +54,7 @@ export default function GrantFormPage() {
   const blur  = e => (e.target.style.borderColor = 'var(--border)')
   const set   = f => e => setForm(p => ({ ...p, [f]: e.target.value }))
 
-  // Ngarko të dhënat kur në edit mode
+
   useEffect(() => {
     if (!isEdit) return
     api.get(`/grants/${id}`).then(res => {
@@ -87,7 +87,7 @@ export default function GrantFormPage() {
     setError('')
     setSuccess('')
 
-    // Validim: buxheti total nuk mund të jetë më i vogël se shuma e çmimit
+
     const gv = form.grant_value ? parseFloat(form.grant_value) : null
     const bud = form.budget     ? parseFloat(form.budget)      : null
     const maxApp = form.max_applicants ? parseInt(form.max_applicants) : null
@@ -120,12 +120,12 @@ export default function GrantFormPage() {
       } else {
         const res = await api.post('/grants', payload)
         const gid = res.data.id
-        // Dërgo pyetjet lokale nëse ka
+
         if (questions.length > 0) {
           const qPayload = questions.map(({ question_text, question_type, is_required }) => ({ question_text, question_type, is_required }))
           await api.post(`/grants/${gid}/questions`, qPayload).catch(() => {})
         }
-        // Dërgo kriteret lokale nëse ka
+
         if (criteria.length > 0) {
           const cPayload = criteria.map(({ name, weight, is_required }) => ({ name, weight: parseFloat(weight) / 100, is_required }))
           await api.post(`/grants/${gid}/criteria`, cPayload).catch(() => {})
@@ -149,11 +149,11 @@ export default function GrantFormPage() {
     }
   }
 
-  // ── Questions ──────────────────────────────────────
+
   const addQuestion = async () => {
     if (!newQ.question_text.trim()) return
     if (isEdit) {
-      // Edit mode → ruaj direkt në API
+
       try {
         const res = await api.post(`/grants/${id}/questions`, [newQ])
         setQuestions(q => [...q, ...res.data])
@@ -162,7 +162,7 @@ export default function GrantFormPage() {
         return
       }
     } else {
-      // Create mode → ruaj lokalisht me ID të përkohshëm
+
       setQuestions(q => [...q, { ...newQ, id: `local-${Date.now()}` }])
     }
     setNewQ({ question_text: '', question_type: 'LONG_TEXT', is_required: true })
@@ -176,7 +176,7 @@ export default function GrantFormPage() {
     setQuestions(q => q.filter(x => x.id !== qid))
   }
 
-  // ── Criteria ───────────────────────────────────────
+
   const addCriteria = async () => {
     if (!newC.name.trim()) return
     if (isEdit) {
@@ -189,7 +189,7 @@ export default function GrantFormPage() {
         return
       }
     } else {
-      // Create mode — ruaj lokalisht, weight si % (do konvertohet para POST)
+
       setCriteria(c => [...c, { ...newC, id: `local-${Date.now()}` }])
     }
     setNewC({ name: '', weight: 30, is_required: true })
@@ -207,7 +207,6 @@ export default function GrantFormPage() {
     <div className="org-admin-shell min-h-screen">
       <OrgHeader />
       <main className="org-page-content">
-        {/* Header */}
         <div className="org-form-hero flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-white">
@@ -225,7 +224,6 @@ export default function GrantFormPage() {
 
         <div className="max-w-3xl space-y-5">
 
-          {/* ── Informata bazë ─────────────────────────── */}
           <div className="rounded-2xl p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
             <h2 className="font-semibold text-white mb-4">Informata bazë</h2>
             <div className="space-y-4">
@@ -332,7 +330,6 @@ export default function GrantFormPage() {
 
           </div>
 
-          {/* ── Pyetjet ─────────── */}
           {(
           <div className="rounded-2xl p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
             <div className="flex items-center justify-between mb-1">
@@ -456,7 +453,6 @@ export default function GrantFormPage() {
           </div>
           )}
 
-          {/* ── Kriteret e vlerësimit ── */}
           {(() => {
             const totalWeight = criteria.reduce((sum, c) => {
               return sum + (String(c.id).startsWith('local-') ? c.weight : Math.round(c.weight * 100))
@@ -470,7 +466,6 @@ export default function GrantFormPage() {
             return (
             <div className="rounded-2xl p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
 
-              {/* Header */}
               <div className="flex items-center justify-between mb-1">
                 <h2 className="font-semibold text-white">Kriteret e vlerësimit</h2>
                 {canEdit && (
@@ -486,7 +481,6 @@ export default function GrantFormPage() {
                 )}
               </div>
 
-              {/* Progress bar */}
               <div className="mb-5">
                 <div className="flex items-center justify-between mb-1.5">
                   <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Pesha totale e kritereve</p>
@@ -503,7 +497,6 @@ export default function GrantFormPage() {
                 </div>
               </div>
 
-              {/* Form shto kriter */}
               {showCForm && (
                 <div className="rounded-xl p-4 mb-4 space-y-4"
                   style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
@@ -557,7 +550,6 @@ export default function GrantFormPage() {
                 </div>
               )}
 
-              {/* Lista kritereve */}
               {fetchingQ ? (
                 <div className="space-y-2">
                   {[...Array(2)].map((_, i) => (
@@ -609,7 +601,6 @@ export default function GrantFormPage() {
           })()}
 
 
-          {/* ── Veprimet ── */}
           {error && (
             <div className="rounded-lg px-4 py-3 text-sm"
               style={{ background: 'rgba(248,113,113,0.1)', color: 'var(--danger)', border: '1px solid rgba(248,113,113,0.2)' }}>

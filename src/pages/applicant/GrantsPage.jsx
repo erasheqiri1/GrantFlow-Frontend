@@ -136,9 +136,7 @@ export default function GrantsPage() {
           </p>
         </div>
 
-        {/* Search + Filterat në një rresht */}
         <div className="flex flex-wrap items-center gap-3 mb-6">
-          {/* Search */}
           <div className="relative flex-1" style={{ minWidth: 220, maxWidth: 360 }}>
             <input
               type="text"
@@ -160,7 +158,6 @@ export default function GrantsPage() {
             </button>
           </div>
 
-          {/* Kategoria */}
           <select
             value={filters.applicant_type}
             onChange={e => updateFilters({ applicant_type: e.target.value })}
@@ -172,7 +169,6 @@ export default function GrantsPage() {
             <option value="INDIVIDUAL">Individual</option>
           </select>
 
-          {/* Rendit */}
           <select
             value={filters.sort}
             onChange={e => updateFilters({ sort: e.target.value })}
@@ -185,7 +181,6 @@ export default function GrantsPage() {
             <option value="title_asc">Titulli A-Z</option>
           </select>
 
-          {/* Afati */}
           <input
             type="date"
             value={filters.deadline_to}
@@ -193,14 +188,12 @@ export default function GrantsPage() {
             className="grant-search-input grant-inline-filter"
           />
 
-          {/* Kërko */}
           <button
             onClick={() => { setPage(1); pageRef.current = 1; fetchGrants(filtersRef.current, 1) }}
             className="grant-filter-submit grant-inline-btn">
             Kërko
           </button>
 
-          {/* Pastro */}
           <button
             onClick={clearFilters}
             className="grant-filter-clear grant-inline-btn">

@@ -59,7 +59,7 @@ export default function OrgRegisterPage() {
         nipt:       form.nipt,
       })
 
-      // Ngarko dokumentin e regjistrimit (i detyrueshëm)
+
       const fd = new FormData()
       fd.append('file', docFile)
       await api.post(`/auth/register-org/upload-doc?org_slug=${form.slug}`, fd, {
@@ -74,7 +74,7 @@ export default function OrgRegisterPage() {
     }
   }
 
-  /* ── Shared input helpers ── */
+
   const inputBase  = "w-full pl-11 pr-4 py-3.5 rounded-xl text-sm text-white outline-none transition-all duration-200"
   const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }
   const onFocus    = e => { e.target.style.borderColor = 'rgba(0,230,118,0.5)'; e.target.style.background = 'rgba(0,230,118,0.03)' }
@@ -106,7 +106,7 @@ export default function OrgRegisterPage() {
     </button>
   )
 
-  /* ── Success state ── */
+
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#0a0d14' }}>
@@ -136,7 +136,6 @@ export default function OrgRegisterPage() {
     <div className="min-h-screen flex items-center justify-center py-12 px-4" style={{ background: '#0a0d14' }}>
       <div className="w-full max-w-lg">
 
-        {/* Logo */}
         <div className="flex items-center justify-center gap-3 mb-8">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center"
             style={{ background: 'rgba(0,230,118,0.15)', border: '1px solid rgba(0,230,118,0.3)' }}>
@@ -147,11 +146,9 @@ export default function OrgRegisterPage() {
           </span>
         </div>
 
-        {/* Card */}
         <div className="rounded-2xl p-8"
           style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
 
-          {/* Header */}
           <div className="flex items-center gap-4 mb-6">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
               style={{ background: 'rgba(0,230,118,0.1)', border: '1px solid rgba(0,230,118,0.2)' }}>
@@ -165,7 +162,6 @@ export default function OrgRegisterPage() {
             </div>
           </div>
 
-          {/* Error */}
           {error && (
             <div className="flex items-start gap-3 rounded-xl px-4 py-3 mb-5 text-sm"
               style={{ background: 'rgba(248,113,113,0.08)', color: '#f87171', border: '1px solid rgba(248,113,113,0.15)' }}>
@@ -176,7 +172,6 @@ export default function OrgRegisterPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
 
-            {/* ── Organizata ── */}
             <SectionDivider label="Informata e organizatës" />
 
             <div>
@@ -236,7 +231,6 @@ export default function OrgRegisterPage() {
               </div>
             </div>
 
-            {/* ── Administratori ── */}
             <SectionDivider label="Administratori kryesor" />
 
             <div className="grid grid-cols-2 gap-3">
@@ -264,7 +258,6 @@ export default function OrgRegisterPage() {
               </div>
             </div>
 
-            {/* ── Siguria ── */}
             <SectionDivider label="Siguria" />
 
             <div>
@@ -295,7 +288,6 @@ export default function OrgRegisterPage() {
               </div>
             </div>
 
-            {/* ── Dokumentet ── */}
             <SectionDivider label="Dokumentet" />
 
             <div>
@@ -336,7 +328,6 @@ export default function OrgRegisterPage() {
               <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.25)' }}>PNG, JPG · max 2 MB</p>
             </div>
 
-            {/* Submit */}
             <button type="submit" disabled={loading || !docFile}
               className="w-full py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all duration-200 mt-2"
               style={{
@@ -354,7 +345,6 @@ export default function OrgRegisterPage() {
             </button>
           </form>
 
-          {/* Divider */}
           <div className="flex items-center gap-3 my-6">
             <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
             <span className="text-xs" style={{ color: 'rgba(255,255,255,0.2)' }}>ose</span>

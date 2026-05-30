@@ -16,26 +16,26 @@ const ROLE_COLOR = {
   APPLICANT:    '#fbbf24',
 }
 
-// Lejet që nuk mund të hiqen (minimumi i domosdoshëm për funksionim)
+
 const LOCKED = new Set([
-  // profile — të gjithë duhet të lexojnë/ndryshojnë profilin
+
   'SUPER_ADMIN::profile:read',   'SUPER_ADMIN::profile:update',
   'ORG_ADMIN::profile:read',     'ORG_ADMIN::profile:update',
   'COMMISSIONER::profile:read',  'COMMISSIONER::profile:update',
   'APPLICANT::profile:read',     'APPLICANT::profile:update',
-  // platform — SUPER_ADMIN nuk duhet të humbasë aksesin e platformës
+
   'SUPER_ADMIN::tenants:read',
   'SUPER_ADMIN::users:read',
   'SUPER_ADMIN::audit:read',
-  // org-admin — minimumi për të funksionuar brenda org-ës
+
   'ORG_ADMIN::grants:read',
   'ORG_ADMIN::team:read',
   'ORG_ADMIN::applications:read_all',
-  // aplikanti — minimumi për të aplikuar
+
   'APPLICANT::grants:read',
   'APPLICANT::applications:submit',
   'APPLICANT::applications:read_own',
-  // komisioneri — minimumi për të vlerësuar
+
   'COMMISSIONER::grants:read',
   'COMMISSIONER::applications:read_all',
 ])
@@ -51,9 +51,9 @@ const RESOURCE_LABELS = {
 }
 
 export default function ManagePermissionsPage() {
-  const [data,    setData]    = useState(null)   // { permissions, roles, mappings }
+  const [data,    setData]    = useState(null)
   const [loading, setLoading] = useState(true)
-  const [toggling, setToggling] = useState(new Set())  // "ROLE::codename" keys
+  const [toggling, setToggling] = useState(new Set())
   const [toast,   setToast]   = useState(null)
 
   const load = useCallback(async () => {
@@ -85,7 +85,7 @@ export default function ManagePermissionsPage() {
       await api.patch(`/permissions/roles/${roleName}`, {
         permission_codename: codename,
       })
-      // Update local state pa refetch
+
       setData(prev => {
         const cur = prev.mappings[roleName] || []
         const has = cur.includes(codename)
@@ -107,7 +107,7 @@ export default function ManagePermissionsPage() {
     }
   }
 
-  // Grupo permissions sipas resource
+
   const grouped = data
     ? data.permissions.reduce((acc, p) => {
         if (!acc[p.resource]) acc[p.resource] = []
@@ -125,7 +125,6 @@ export default function ManagePermissionsPage() {
       <SuperAdminHeader />
       <main className="org-page-content">
 
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-white">Lejet & Rolet</h1>
@@ -141,7 +140,6 @@ export default function ManagePermissionsPage() {
           </button>
         </div>
 
-        {/* Legjenda */}
         <div className="flex items-center gap-4 mb-5">
           <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Rolet:</span>
           {ROLE_ORDER.map(r => (
@@ -155,7 +153,6 @@ export default function ManagePermissionsPage() {
           </span>
         </div>
 
-        {/* Tabela */}
         {loading ? (
           <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
             {[...Array(5)].map((_, i) => (
@@ -169,7 +166,6 @@ export default function ManagePermissionsPage() {
           </div>
         ) : (
           <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
-            {/* Thead */}
             <div className="flex items-center px-5 py-3" style={{ borderBottom: '2px solid var(--border)', background: 'var(--bg-card)' }}>
               <div className="flex-1 text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>
                 Leja / Resursi
@@ -182,10 +178,8 @@ export default function ManagePermissionsPage() {
               ))}
             </div>
 
-            {/* Grupet */}
             {Object.entries(grouped).map(([resource, perms]) => (
               <div key={resource}>
-                {/* Group header */}
                 <div className="px-5 py-2 flex items-center gap-2"
                   style={{ background: 'rgba(0,230,118,0.04)', borderBottom: '1px solid var(--border)' }}>
                   <span className="text-xs font-bold uppercase tracking-widest"
@@ -197,7 +191,6 @@ export default function ManagePermissionsPage() {
                   </span>
                 </div>
 
-                {/* Rreshtat */}
                 {perms.map((perm, idx) => (
                   <div
                     key={perm.id}
@@ -208,14 +201,12 @@ export default function ManagePermissionsPage() {
                     onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
-                    {/* Emri i lejes */}
                     <div className="flex-1">
                       <span className="text-xs font-mono" style={{ color: 'var(--text-secondary)' }}>
                         {perm.action}
                       </span>
                     </div>
 
-                    {/* Checkboxat per secillin rol */}
                     {sortedRoles.map(roleName => {
                       const key      = `${roleName}::${perm.codename}`
                       const locked   = LOCKED.has(key)
@@ -256,7 +247,6 @@ export default function ManagePermissionsPage() {
                   </div>
                 ))}
 
-                {/* Hap mes grupeve */}
                 <div style={{ height: 1, background: '2px solid var(--border)' }} />
               </div>
             ))}
@@ -265,7 +255,6 @@ export default function ManagePermissionsPage() {
 
       </main>
 
-      {/* Toast */}
       {toast && (
         <div
           className="fixed bottom-6 right-6 px-4 py-3 rounded-xl text-sm font-semibold z-50 transition"

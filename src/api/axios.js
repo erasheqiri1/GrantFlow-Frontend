@@ -6,20 +6,20 @@ const api = axios.create({
     : '/api',
 })
 
-// Shto token + no-cache automatikisht çdo request
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
   if (token && !config.noAuth) {
     config.headers.Authorization = `Bearer ${token}`
   }
-  // Parandalon browser cache për GET requests
+
   if (!config.method || config.method === 'get') {
     config.params = { ...config.params, _t: Date.now() }
   }
   return config
 })
 
-// Queue për requestet që presin refresh
+
 let isRefreshing = false
 let failedQueue = []
 
@@ -31,13 +31,13 @@ function processQueue(error, token = null) {
   failedQueue = []
 }
 
-// Nëse token skadoi (401) → provo refresh → ripërsërit request-in
+
 api.interceptors.response.use(
   (res) => res,
   async (err) => {
     const originalRequest = err.config
 
-    // Nëse nuk është 401, ose tashmë u provua, ose është i shënuar si skip → dil
+
     if (
       err.response?.status !== 401 ||
       originalRequest._retry ||
@@ -46,7 +46,7 @@ api.interceptors.response.use(
       return Promise.reject(err)
     }
 
-    // Nëse refresh po ndodh tashmë → fut në queue dhe prit
+
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({ resolve, reject })

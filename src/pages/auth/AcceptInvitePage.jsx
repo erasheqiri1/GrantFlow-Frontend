@@ -34,7 +34,7 @@ export default function AcceptInvitePage() {
         last_name:  form.last_name,
         password:   form.password,
       })
-      // Kyçu automatikisht pas aktivizimit
+
       login(res.data.access_token, res.data.refresh_token, {
         user_id:     res.data.user_id,
         role:        res.data.role,
@@ -72,7 +72,6 @@ export default function AcceptInvitePage() {
       style={{ background: 'var(--bg-primary)' }}>
       <div className="invite-activate-wrap w-full px-4">
 
-        {/* Logo */}
         <div className="invite-activate-logo flex flex-col items-center mb-6">
           <div className="w-12 h-12 rounded-full flex items-center justify-center mb-2"
             style={{ background: 'var(--accent-dim)', border: '2px solid var(--accent)' }}>

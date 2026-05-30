@@ -46,7 +46,6 @@ export default function AddSuperAdminPage() {
         <div className="max-w-md">
           <div className="rounded-2xl p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
 
-            {/* Hapat */}
             <div className="super-admin-steps flex items-start gap-3 mb-6">
               <div className="space-y-2 text-xs w-full" style={{ color: 'var(--text-secondary)' }}>
                 {[

@@ -25,7 +25,7 @@ export default function TeamPage() {
 
   const [invite, setInvite]     = useState({ email: '', role: 'COMMISSIONER' })
   const [inviting, setInviting]       = useState(false)
-  const [inviteLink, setInviteLink]   = useState('')   // linku i plotë i ftesës
+  const [inviteLink, setInviteLink]   = useState('')
   const [inviteEmailSent, setInviteEmailSent] = useState(false)
   const [inviteErr, setInviteErr]     = useState('')
   const [removingId, setRemovingId]   = useState(null)
@@ -100,7 +100,6 @@ export default function TeamPage() {
 
         <div className="max-w-3xl space-y-5">
 
-          {/* ── Forma e ftesës — gjithmonë e dukshme ── */}
           <div className="rounded-2xl p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
             <h2 className="font-semibold text-white mb-1">Fto anëtar të ri</h2>
             <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
@@ -162,7 +161,6 @@ export default function TeamPage() {
               </button>
             </form>
 
-            {/* Konfirmim pas gjenerimit */}
             {inviteLink && (
               <div className="mt-4 rounded-xl p-4"
                 style={{ background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.25)' }}>
@@ -192,7 +190,6 @@ export default function TeamPage() {
             )}
           </div>
 
-          {/* ── Lista e anëtarëve ── */}
           <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
             <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
               <span className="font-semibold text-white">

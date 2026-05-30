@@ -95,31 +95,24 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex relative overflow-hidden" style={{ background: '#0a0d14' }}>
 
-      {/* ── BACKGROUND KREJT FAQEN ── */}
 
-      {/* Grid mbi krejt faqen */}
       <div className="absolute inset-0" style={{
         backgroundImage: 'linear-gradient(rgba(0,230,118,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(0,230,118,0.12) 1px, transparent 1px)',
         backgroundSize: '60px 60px',
       }} />
 
-      {/* Glow i majtë */}
       <div className="absolute -bottom-40 -left-40 w-[600px] h-[600px] rounded-full pointer-events-none"
         style={{ background: 'radial-gradient(circle, rgba(0,230,118,0.08) 0%, transparent 70%)', filter: 'blur(40px)' }} />
 
-      {/* Glow i djathtë lart */}
       <div className="absolute -top-20 right-[30%] w-[400px] h-[400px] rounded-full pointer-events-none"
         style={{ background: 'radial-gradient(circle, rgba(0,230,118,0.05) 0%, transparent 70%)', filter: 'blur(60px)' }} />
 
-      {/* Gradient overlay majtas — jep thellësi panelin të majtë */}
       <div className="absolute inset-0 hidden lg:block pointer-events-none" style={{
         background: 'linear-gradient(90deg, rgba(10,13,20,0.5) 0%, rgba(15,32,39,0.3) 50%, transparent 100%)',
       }} />
 
-      {/* ── Paneli i majtë — Branding ── */}
       <div className="hidden lg:flex flex-col w-[62%] relative z-10 px-16 pt-20 pb-12">
 
-        {/* Logo */}
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center"
             style={{ background: 'rgba(0,230,118,0.15)', border: '1px solid rgba(0,230,118,0.3)' }}>
@@ -130,7 +123,6 @@ export default function LoginPage() {
           </span>
         </div>
 
-        {/* Teksti kryesor */}
         <div className="flex-1 flex flex-col justify-center">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-7 w-fit"
             style={{ background: 'rgba(0,230,118,0.08)', border: '1px solid rgba(0,230,118,0.2)' }}>
@@ -149,7 +141,6 @@ export default function LoginPage() {
             Platforma all-in-one për organizata dhe aplikantë. Publiko grante, menaxho aplikime dhe merr vendime me besim.
           </p>
 
-          {/* Stats */}
           <div className="grid grid-cols-3 gap-4">
             {stats.map(s => (
               <div key={s.label} className="rounded-xl p-4"
@@ -172,10 +163,8 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* ── Paneli i djathtë — Forma ── */}
       <div className="flex-1 flex items-center justify-center px-6 py-12 relative z-10">
 
-        {/* Logo për mobile */}
         <div className="lg:hidden absolute top-6 left-1/2 -translate-x-1/2 flex items-center gap-2">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center"
             style={{ background: 'rgba(0,230,118,0.15)', border: '1px solid rgba(0,230,118,0.3)' }}>
@@ -186,7 +175,6 @@ export default function LoginPage() {
           </span>
         </div>
 
-        {/* ── CARD GLASSMORPHISM ── */}
         <div className="w-full max-w-sm rounded-2xl flex flex-col"
           style={{
             minHeight: '560px',
@@ -198,16 +186,13 @@ export default function LoginPage() {
             boxShadow: '0 8px 40px rgba(0,0,0,0.15)',
           }}>
 
-          {/* Header */}
           <div className="text-center">
             <h1 className="text-2xl font-black text-white mb-2">Mirë se vini</h1>
             <p className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>Hyni për të vazhduar</p>
           </div>
 
-          {/* Spacer */}
           <div className="flex-1" />
 
-          {/* Alert: organizata pret aprovim */}
           {isPending && !error && (
             <div className="flex items-start gap-2 rounded-lg px-3 py-2.5 mb-6 text-xs"
               style={{ background: 'rgba(234,179,8,0.1)', color: '#facc15', border: '1px solid rgba(234,179,8,0.25)' }}>
@@ -216,7 +201,6 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Error */}
           {error && (
             <div className="flex items-start gap-2 rounded-lg px-3 py-2.5 mb-6 text-xs"
               style={{ background: 'rgba(248,113,113,0.1)', color: '#f87171', border: '1px solid rgba(248,113,113,0.2)' }}>
@@ -225,10 +209,8 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Forma */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-8">
 
-            {/* Email */}
             <div>
               <label className="block text-xs font-semibold uppercase tracking-widest mb-4"
                 style={{ color: 'rgba(255,255,255,0.35)' }}>Email</label>
@@ -242,7 +224,6 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Fjalëkalimi */}
             <div>
               <div className="flex items-center justify-between mb-4">
                 <label className="text-xs font-semibold uppercase tracking-widest"
@@ -273,7 +254,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Tenant slug */}
             {showStaffLogin && (
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-widest mb-4"
@@ -289,7 +269,6 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Butoni */}
             <button type="submit" disabled={loading}
               className="w-full rounded-xl font-bold text-sm tracking-widest uppercase transition-all duration-200"
               style={{
@@ -308,10 +287,8 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Spacer */}
           <div className="flex-1" />
 
-          {/* Footer */}
           <div>
             <div className="flex items-center gap-3 mb-5">
               <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />

@@ -22,7 +22,7 @@ export function AuthProvider({ children }) {
     const refreshToken = localStorage.getItem('refresh_token')
     try {
       await api.post('/auth/logout', { refresh_token: refreshToken || undefined })
-    } catch { /* vazhdo edhe nëse dështon */ }
+    } catch { }
     localStorage.removeItem('token')
     localStorage.removeItem('refresh_token')
     localStorage.removeItem('user')

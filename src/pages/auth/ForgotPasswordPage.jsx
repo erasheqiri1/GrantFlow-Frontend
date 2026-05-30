@@ -30,7 +30,6 @@ export default function ForgotPasswordPage() {
       style={{ background: '#0f1117' }}>
       <div className="w-full max-w-sm">
 
-        {/* Logo */}
         <div className="text-center mb-10">
           <span style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-0.5px' }}>
             <span style={{ color: '#fff' }}>GRANT</span>

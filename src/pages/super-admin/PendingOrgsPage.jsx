@@ -11,7 +11,7 @@ const NAV = [
   { to: '/super-admin/add-admin',  icon: '➕', label: 'Shto super_admin' },
 ]
 
-/* ─── Modal me detaje + Aprovo / Refuzo ─── */
+
 function OrgModal({ org, onClose, onApprove, onReject, actionId }) {
   const busy = actionId === org.id
   const docUrl  = org.doc_path ? `/${org.doc_path.replace(/\\/g, '/')}` : null
@@ -26,7 +26,6 @@ function OrgModal({ org, onClose, onApprove, onReject, actionId }) {
       <div className="w-full max-w-lg rounded-2xl relative"
         style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
 
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4"
           style={{ borderBottom: '1px solid var(--border)' }}>
           <div className="flex items-center gap-3">
@@ -48,7 +47,6 @@ function OrgModal({ org, onClose, onApprove, onReject, actionId }) {
           </button>
         </div>
 
-        {/* Body */}
         <div className="px-6 py-4 space-y-0">
           {[
             ['Email',               org.email || '—'],
@@ -70,7 +68,6 @@ function OrgModal({ org, onClose, onApprove, onReject, actionId }) {
             </div>
           ))}
 
-          {/* Dokument */}
           <div className="flex gap-3 py-2.5">
             <span className="text-xs w-36 flex-shrink-0 font-medium"
               style={{ color: 'var(--text-muted)' }}>Dokument</span>
@@ -86,7 +83,6 @@ function OrgModal({ org, onClose, onApprove, onReject, actionId }) {
           </div>
         </div>
 
-        {/* Footer — Aprovo / Refuzo */}
         <div className="px-6 py-4 flex gap-3"
           style={{ borderTop: '1px solid var(--border)' }}>
           <button
@@ -107,7 +103,7 @@ function OrgModal({ org, onClose, onApprove, onReject, actionId }) {
   )
 }
 
-/* ─── Karta e një organizate ─── */
+
 function OrgCard({ org, onView }) {
   return (
     <div className="rounded-2xl p-5 flex flex-col gap-4 transition"
@@ -115,10 +111,8 @@ function OrgCard({ org, onView }) {
       onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent)'}
       onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}>
 
-      {/* Top row: ikon + emri + badge */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          {/* Ikona e institucionit */}
           <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
             style={{ background: 'var(--accent-dim)', border: '1px solid var(--accent)' }}>
             <span className="text-lg font-black" style={{ color: 'var(--accent)' }}>
@@ -131,14 +125,12 @@ function OrgCard({ org, onView }) {
           </div>
         </div>
 
-        {/* Badge Në pritje */}
         <span className="text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0"
           style={{ background: 'rgba(251,191,36,0.15)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.25)' }}>
           ⊙ Në pritje
         </span>
       </div>
 
-      {/* Info */}
       <div className="space-y-1.5">
         <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
           <span style={{ color: 'var(--text-muted)' }}>✉</span>
@@ -152,7 +144,6 @@ function OrgCard({ org, onView }) {
         )}
       </div>
 
-      {/* Buton */}
       <div className="flex justify-end pt-1">
         <button
           onClick={() => onView(org)}
@@ -170,7 +161,7 @@ function OrgCard({ org, onView }) {
 
 const PAGE_SIZE = 20
 
-/* ─── Faqja kryesore ─── */
+
 export default function PendingOrgsPage() {
   const [orgs,     setOrgs]     = useState([])
   const [loading,  setLoading]  = useState(true)
@@ -229,7 +220,6 @@ export default function PendingOrgsPage() {
       <SuperAdminHeader />
       <main className="org-page-content">
 
-        {/* Titulli */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-white">Organizata në pritje</h1>
           <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
@@ -237,7 +227,6 @@ export default function PendingOrgsPage() {
           </p>
         </div>
 
-        {/* Counter */}
         <div className="mb-5">
           <span className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>
             {total} {total === 1 ? 'kërkesë' : 'kërkesa'}
@@ -268,7 +257,6 @@ export default function PendingOrgsPage() {
           onChange={p => { setPage(p); load(p) }} />
       </main>
 
-      {/* Modal */}
       {selected && (
         <OrgModal
           org={selected}

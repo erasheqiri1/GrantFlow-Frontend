@@ -72,7 +72,6 @@ export default function GrantsManagePage() {
       <OrgHeader />
       <main className="org-page-content">
 
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-white">Grante</h1>
@@ -87,7 +86,6 @@ export default function GrantsManagePage() {
           </Link>
         </div>
 
-        {/* Filter tabs */}
         <div className="flex gap-2 mb-4">
           {STATUS_FILTERS.map(s => (
             <button key={s} onClick={() => { setFilter(s); setPage(1); fetchAll(1, s) }}
@@ -102,7 +100,6 @@ export default function GrantsManagePage() {
           ))}
         </div>
 
-        {/* Table */}
         <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
           <table className="w-full">
             <thead>
@@ -139,7 +136,6 @@ export default function GrantsManagePage() {
                     onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
 
-                    {/* Titulli */}
                     <td className="px-5 py-3.5">
                       <Link to={`/org-admin/grants/${g.id}/edit`}
                         className="text-sm font-medium text-white hover:underline">
@@ -152,7 +148,6 @@ export default function GrantsManagePage() {
                       )}
                     </td>
 
-                    {/* Aplikime */}
                     <td className="px-5 py-3.5">
                       {count > 0 ? (
                         <Link to={`/org-admin/applications?grant_id=${g.id}`}
@@ -165,19 +160,16 @@ export default function GrantsManagePage() {
                       )}
                     </td>
 
-                    {/* Afati */}
                     <td className="px-5 py-3.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
                       {g.deadline
                         ? new Date(g.deadline).toLocaleDateString('sq-AL', { timeZone: 'UTC' })
                         : '—'}
                     </td>
 
-                    {/* Max fitues */}
                     <td className="px-5 py-3.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
                       {g.max_applicants ?? '—'}
                     </td>
 
-                    {/* Statusi */}
                     <td className="px-5 py-3.5">
                       <span className="text-xs font-semibold px-2.5 py-1 rounded-full"
                         style={{ background: expired ? 'rgba(239,68,68,0.15)' : s.bg, color: expired ? '#f87171' : s.color }}>
@@ -185,7 +177,6 @@ export default function GrantsManagePage() {
                       </span>
                     </td>
 
-                    {/* Veprime */}
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-2 flex-wrap">
                         {g.status === 'DRAFT' && (

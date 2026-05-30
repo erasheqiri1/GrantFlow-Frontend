@@ -77,7 +77,6 @@ export default function GrantDetailPage() {
       </nav>
 
       <div className="max-w-3xl mx-auto px-6 py-8">
-        {/* Already applied banner */}
         {existingApplication && (
           <div className="rounded-xl p-4 mb-4 flex items-center justify-between"
             style={{ background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.25)' }}>
@@ -100,7 +99,6 @@ export default function GrantDetailPage() {
           </div>
         )}
 
-        {/* Grant info */}
         <div className="rounded-2xl p-6 mb-4"
           style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
           <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -149,7 +147,6 @@ export default function GrantDetailPage() {
           </div>
         </div>
 
-        {/* Questions */}
         {grant.questions?.length > 0 && (
           <div className="rounded-2xl p-6 mb-4"
             style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
@@ -173,7 +170,6 @@ export default function GrantDetailPage() {
           </div>
         )}
 
-        {/* Criteria */}
         {grant.criteria?.length > 0 && (
           <div className="rounded-2xl p-6 mb-4"
             style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
@@ -200,7 +196,6 @@ export default function GrantDetailPage() {
           </div>
         )}
 
-        {/* Apply button */}
         {existingApplication ? (
           <button
             onClick={() => navigate('/my-applications')}

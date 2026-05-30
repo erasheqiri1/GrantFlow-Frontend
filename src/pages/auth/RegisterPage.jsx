@@ -105,7 +105,7 @@ export default function RegisterPage() {
     }
   }
 
-  /* ── Shared input helpers ── */
+
   const inputBase = "auth-input w-full pl-11 pr-4 py-3.5 rounded-xl text-sm text-white outline-none transition-all duration-200"
   const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }
   const onFocus = e => { e.target.style.borderColor = 'rgba(0,230,118,0.5)'; e.target.style.background = 'rgba(0,230,118,0.03)' }
@@ -132,7 +132,6 @@ export default function RegisterPage() {
     <div className="auth-page min-h-screen flex items-center justify-center py-12 px-4" style={{ background: '#0a0d14' }}>
       <div className="auth-register-wrap w-full max-w-lg">
 
-        {/* Logo */}
         <div className="auth-logo flex items-center justify-center gap-3 mb-8">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center"
             style={{ background: 'rgba(0,230,118,0.15)', border: '1px solid rgba(0,230,118,0.3)' }}>
@@ -143,7 +142,6 @@ export default function RegisterPage() {
           </span>
         </div>
 
-        {/* Card */}
         <div className="auth-card rounded-2xl p-8"
           style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
 
@@ -154,7 +152,6 @@ export default function RegisterPage() {
             </p>
           </div>
 
-          {/* Role tabs */}
           <div className="auth-role-tabs grid grid-cols-2 gap-3 mb-6">
             {[
               { key: 'applicant', icon: '', label: 'Aplikant',   sub: 'Apliko në grante' },
@@ -178,7 +175,6 @@ export default function RegisterPage() {
             ))}
           </div>
 
-          {/* Alerts */}
           {error && (
             <div className="flex items-start gap-3 rounded-xl px-4 py-3 mb-5 text-sm"
               style={{ background: 'rgba(248,113,113,0.08)', color: '#f87171', border: '1px solid rgba(248,113,113,0.15)' }}>
@@ -197,7 +193,6 @@ export default function RegisterPage() {
           {!success ? (
             <form onSubmit={handleSubmit} className="auth-form space-y-5">
 
-              {/* Emri + Mbiemri */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <FieldLabel>Emri</FieldLabel>
@@ -221,7 +216,6 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* Email */}
               <div>
                 <FieldLabel>Email</FieldLabel>
                 <div className="relative">
@@ -233,10 +227,8 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* Organizatë — fushat shtesë */}
               {role === 'org' && (
                 <>
-                  {/* Divider */}
                   <div className="flex items-center gap-3 pt-1">
                     <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
                     <span className="text-xs font-semibold uppercase tracking-widest"
@@ -305,7 +297,6 @@ export default function RegisterPage() {
                 </>
               )}
 
-              {/* Fjalëkalimi */}
               <div>
                 <FieldLabel>Fjalëkalimi</FieldLabel>
                 <div className="relative">
@@ -322,7 +313,6 @@ export default function RegisterPage() {
                 </p>
               </div>
 
-              {/* Konfirmo */}
               <div>
                 <FieldLabel>Konfirmo fjalëkalimin</FieldLabel>
                 <div className="relative">
@@ -336,7 +326,6 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* Submit */}
               <button type="submit" disabled={loading}
                 className="auth-submit w-full py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all duration-200 mt-2"
                 style={{
@@ -366,7 +355,6 @@ export default function RegisterPage() {
             </div>
           )}
 
-          {/* Divider */}
           <div className="flex items-center gap-3 my-6">
             <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
             <span className="text-xs" style={{ color: 'rgba(255,255,255,0.2)' }}>ose</span>

@@ -19,7 +19,7 @@ const STATUS_LABELS = {
   'REJECTED':     'Refuzuar',
 }
 
-/* ──────────────────────────── Payment Modal ──────────────────────────── */
+
 function PaymentModal({ app, payment, onClose, onSuccess }) {
   const [note,    setNote]    = useState('')
   const [loading, setLoading] = useState(false)
@@ -52,7 +52,6 @@ function PaymentModal({ app, payment, onClose, onSuccess }) {
         className="application-modal-card"
         style={{ maxWidth: 440, minHeight: 'unset' }}
       >
-        {/* Header */}
         <div
           className="flex items-center justify-between px-6 py-4 flex-shrink-0"
           style={{ borderBottom: '1px solid var(--border)' }}
@@ -70,7 +69,6 @@ function PaymentModal({ app, payment, onClose, onSuccess }) {
           >✕</button>
         </div>
 
-        {/* Body */}
         <div className="px-6 py-5 space-y-1">
           {[
             ['Marrësi',  app.user_name || app.user_email || '—'],
@@ -112,7 +110,6 @@ function PaymentModal({ app, payment, onClose, onSuccess }) {
           </div>
         </div>
 
-        {/* Footer */}
         <div className="px-6 py-4 flex-shrink-0" style={{ borderTop: '1px solid var(--border)' }}>
           {error && (
             <p className="text-xs mb-3" style={{ color: 'var(--danger)' }}>{error}</p>
@@ -141,7 +138,7 @@ function PaymentModal({ app, payment, onClose, onSuccess }) {
   )
 }
 
-/* ──────────────────────────── Application Modal ──────────────────────────── */
+
 function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
   const { user }                    = useAuth()
   const [app, setApp]               = useState(initialApp)
@@ -152,7 +149,7 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
   const [assignId, setAssignId]     = useState('')
   const [assigning, setAssigning]   = useState(false)
 
-  // AI Scoring
+
   const [aiScore, setAiScore]       = useState(null)
   const [aiLoading, setAiLoading]   = useState(false)
   const [aiError, setAiError]       = useState('')
@@ -167,7 +164,7 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
   const canScore      = user?.role === 'COMMISSIONER' && ['SUBMITTED', 'UNDER_REVIEW'].includes(app.status) && !aiUnavailable
 
 
-  // Ngarko komisionerët kur org-admin hap modalin
+
   useEffect(() => {
     if (!isOrgAdmin) return
     api.get('/team').then(r => {
@@ -176,7 +173,7 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
     }).catch(() => {})
   }, [isOrgAdmin])
 
-  // Prefill nëse ka score ekzistues, nëse jo nis AI automatikisht
+
   useEffect(() => {
     const startPolling = async () => {
       setAiLoading(true)
@@ -207,7 +204,7 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
       try {
         const existing = await api.get(`/applications/${initialApp.id}/score`)
 
-        // Nëse AI ishte i padisponueshëm herën e fundit — ritento tani
+
         if (existing.data?.model_used === 'unavailable') {
           setAiScore(null)
           setAiError('')
@@ -221,7 +218,7 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
           setScoreSubmitted(true)
         }
       } catch {
-        // 404 — nuk ka score fare, nis herën e parë
+
         await startPolling()
       }
     }
@@ -253,7 +250,7 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
       setApp(res.data)
       setAssignMode(false)
       setAssignId('')
-      if (onScored) onScored()   // refresh list pa e mbylle modalin
+      if (onScored) onScored()
     } catch (err) {
       setActErr(err.response?.data?.detail || 'Gabim gjatë ricaktimit')
     } finally { setAssigning(false) }
@@ -264,7 +261,6 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
       onClick={e => { if (e.target === e.currentTarget) onClose() }}>
       <div className="application-modal-card">
 
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 flex-shrink-0"
           style={{ borderBottom: '1px solid var(--border)' }}>
           <div>
@@ -277,10 +273,8 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
           </button>
         </div>
 
-        {/* Body — scroll */}
         <div className="px-6 py-4 overflow-y-auto flex-1 space-y-1">
 
-          {/* Info rreshta */}
           {[
             ['Aplikanti', app.user_name || app.user_email || '—'],
             ['Email',     app.user_email || '—'],
@@ -295,14 +289,12 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
             </div>
           ))}
 
-          {/* Statusi */}
           <div className="flex items-center justify-between py-2" style={{ borderBottom: '1px solid var(--border)' }}>
             <span className="text-xs w-28 flex-shrink-0" style={{ color: 'var(--text-muted)' }}>Statusi</span>
             <span className="text-xs font-semibold px-2.5 py-1 rounded-full"
               style={{ background: sb.bg, color: sb.color }}>{sb.label}</span>
           </div>
 
-          {/* Arsyeja e refuzimit */}
           {app.decision_reason && (
             <div className="py-2" style={{ borderBottom: '1px solid var(--border)' }}>
               <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Arsyeja e refuzimit</p>
@@ -310,7 +302,6 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
             </div>
           )}
 
-          {/* Letra motivuese */}
           {app.motivation_letter && (
             <div className="py-3" style={{ borderBottom: '1px solid var(--border)' }}>
               <p className="text-xs mb-2 font-medium text-white">Letra motivuese</p>
@@ -320,7 +311,6 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
             </div>
           )}
 
-          {/* Përgjigjet */}
           {app.answers?.length > 0 && (
             <div className="py-3" style={{ borderBottom: '1px solid var(--border)' }}>
               <p className="text-xs mb-3 font-medium text-white">Përgjigjet ({app.answers.length})</p>
@@ -336,7 +326,6 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
             </div>
           )}
 
-          {/* Attachments */}
           {app.attachments?.length > 0 && (
             <div className="py-3" style={{ borderBottom: '1px solid var(--border)' }}>
               <p className="text-xs mb-2 font-medium text-white">Dokumentet ({app.attachments.length})</p>
@@ -355,7 +344,6 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
             </div>
           )}
 
-          {/* AI Scoring */}
           <div className="py-3">
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-medium text-white">Vlerësimi AI</p>
@@ -404,11 +392,9 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
           </div>
         </div>
 
-        {/* Footer */}
         <div className="px-6 py-4 flex-shrink-0" style={{ borderTop: '1px solid var(--border)' }}>
           {actErr && <p className="text-xs mb-3" style={{ color: 'var(--danger)' }}>{actErr}</p>}
 
-          {/* Kriteret e grantit — panel informues */}
           {app.criteria?.length > 0 && (
             <div className="mb-3 rounded-lg p-3"
               style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
@@ -424,7 +410,6 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
             </div>
           )}
 
-          {/* Score input — vetëm COMMISSIONER */}
           {canScore && (
             <div className="space-y-2 mb-3">
               <div className="flex items-center justify-between">
@@ -460,7 +445,6 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
             </div>
           )}
 
-          {/* ORG_ADMIN — shiko score-t, pa mundësi ndryshimi */}
           {isOrgAdmin && aiScore && (
             <div className="mb-3 rounded-lg p-3 space-y-1"
               style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
@@ -489,10 +473,8 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
             </button>
           )}
 
-          {/* Ricakto komisioner — vetëm org-admin, vetëm për aplikime aktive */}
           {isOrgAdmin && app.status === 'SUBMITTED' && commissioners.length > 0 && (
             <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--border)' }}>
-              {/* Komisioner aktual */}
               {(() => {
                 const current = commissioners.find(c => c.id === app.assigned_to)
                 return current ? (
@@ -549,12 +531,12 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
   )
 }
 
-/* ──────────────────────────── Payment cell ──────────────────────────── */
+
 function PaymentCell({ app, payment, onOpenModal }) {
   if (app.status !== 'APPROVED') return <span style={{ color: 'var(--text-muted)' }}>—</span>
 
-  // payment=null  → pagesa nuk ekziston ende (grant jo i finalizuar)
-  // payment=undefined → loading
+
+
   if (payment === undefined) {
     return <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Duke ngarkuar...</span>
   }
@@ -576,7 +558,7 @@ function PaymentCell({ app, payment, onOpenModal }) {
     )
   }
 
-  // PENDING
+
   return (
     <button
       onClick={e => { e.stopPropagation(); onOpenModal() }}
@@ -605,9 +587,9 @@ export default function ApplicationsReviewPage() {
   const [status,  setStatus]  = useState('')
   const [selected, setSelected] = useState(null)
 
-  // Payments: { [application_id]: payment | null }
+
   const [payments,      setPayments]      = useState({})
-  const [paymentModal,  setPaymentModal]  = useState(null)  // app object
+  const [paymentModal,  setPaymentModal]  = useState(null)
 
   const fetchApps = useCallback((p = page) => {
     setLoading(true)
@@ -621,7 +603,7 @@ export default function ApplicationsReviewPage() {
         const items = r.data?.items ?? (Array.isArray(r.data) ? r.data : [])
         setApps(items)
         setTotal(r.data?.total ?? 0)
-        // Fetch payments for all APPROVED apps (ORG_ADMIN only)
+
         if (isOrgAdmin) fetchPaymentsForApps(items)
       })
       .catch(() => {})
@@ -631,7 +613,7 @@ export default function ApplicationsReviewPage() {
   const fetchPaymentsForApps = (items) => {
     const approved = items.filter(a => a.status === 'APPROVED')
     if (approved.length === 0) return
-    // Bulk fetch — ORG_ADMIN ka grants:update, nuk ka applications:read_own
+
     api.get('/payments', { params: { size: 100 } })
       .then(r => {
         const list = r.data?.items ?? []
@@ -652,7 +634,7 @@ export default function ApplicationsReviewPage() {
 
   const handlePaymentSuccess = (app) => {
     setPaymentModal(null)
-    // Refetch this payment
+
     api.get(`/payments/application/${app.id}`)
       .then(r => setPayments(prev => ({ ...prev, [app.id]: r.data })))
       .catch(() => {})
@@ -740,7 +722,6 @@ export default function ApplicationsReviewPage() {
                       </span>
                     </td>
 
-                    {/* Payment column — only ORG_ADMIN */}
                     {isOrgAdmin && (
                       <td className="px-5 py-3.5">
                         <PaymentCell

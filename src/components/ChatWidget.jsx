@@ -23,7 +23,7 @@ export default function ChatWidget() {
     const msg = input.trim()
     if (!msg || loading) return
 
-    // Capture history BEFORE adding the new user message
+
     const historySnapshot = messages
 
     setMessages(prev => [...prev, { role: 'user', text: msg }])
@@ -53,7 +53,6 @@ export default function ChatWidget() {
   return (
     <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1000 }}>
 
-      {/* Chat window */}
       {open && (
         <div style={{
           width: 340, height: 480,
@@ -66,7 +65,6 @@ export default function ChatWidget() {
           overflow: 'hidden',
         }}>
 
-          {/* Header */}
           <div style={{
             padding: '14px 16px',
             borderBottom: `1px solid ${BORDER}`,
@@ -85,7 +83,6 @@ export default function ChatWidget() {
             </div>
           </div>
 
-          {/* Messages */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
             {messages.map((m, i) => (
               <div key={i} style={{
@@ -122,7 +119,6 @@ export default function ChatWidget() {
             <div ref={bottomRef} />
           </div>
 
-          {/* Input */}
           <div style={{
             padding: '10px 12px',
             borderTop: `1px solid ${BORDER}`,
@@ -162,7 +158,6 @@ export default function ChatWidget() {
         </div>
       )}
 
-      {/* Toggle button */}
       <button
         onClick={() => setOpen(o => !o)}
         style={{

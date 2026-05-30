@@ -65,7 +65,6 @@ export default function ApplicationDetailPage() {
 
   return (
     <div className="min-h-screen applicant-page" style={{ background: 'var(--bg-primary)' }}>
-      {/* Navbar */}
       <nav className="flex items-center justify-between px-6 py-3 sticky top-0 z-10"
         style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)' }}>
         <div className="flex items-center gap-6">
@@ -84,7 +83,6 @@ export default function ApplicationDetailPage() {
       </nav>
 
       <div className="max-w-3xl mx-auto px-6 py-8">
-        {/* Status + grant header */}
         <div className="rounded-2xl p-6 mb-4"
           style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
           <div className="flex items-center gap-3 mb-3">
@@ -111,7 +109,6 @@ export default function ApplicationDetailPage() {
           )}
         </div>
 
-        {/* Motivation letter */}
         {application?.motivation_letter && (
           <div className="rounded-2xl p-6 mb-4"
             style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
@@ -122,7 +119,6 @@ export default function ApplicationDetailPage() {
           </div>
         )}
 
-        {/* Answers */}
         {application?.answers?.length > 0 && (
           <div className="rounded-2xl p-6 mb-4"
             style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
@@ -143,7 +139,6 @@ export default function ApplicationDetailPage() {
           </div>
         )}
 
-        {/* Dokumentet mbështetëse */}
         {application?.attachments?.length > 0 && (
           <div className="rounded-2xl p-6 mb-4"
             style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
@@ -173,7 +168,6 @@ export default function ApplicationDetailPage() {
           </div>
         )}
 
-        {/* Error */}
         {error && (
           <div className="rounded-lg px-4 py-3 mb-4 text-sm"
             style={{ background: 'rgba(248,113,113,0.1)', color: 'var(--danger)', border: '1px solid rgba(248,113,113,0.2)' }}>
@@ -181,7 +175,6 @@ export default function ApplicationDetailPage() {
           </div>
         )}
 
-        {/* Submit draft */}
         {application?.status === 'DRAFT' && !submitSuccess && (
           <button onClick={handleSubmit} disabled={submitting}
             className="w-full py-3 rounded-xl font-semibold text-sm transition"

@@ -75,7 +75,7 @@ export default function ApplyPage() {
       const res = await api.post('/applications', payload)
       const applicationId = res.data.id
 
-      // Ngarko dokumentin nëse është zgjedhur
+
       if (docFile && applicationId) {
         try {
           const formData = new FormData()
@@ -84,7 +84,7 @@ export default function ApplyPage() {
             headers: { 'Content-Type': 'multipart/form-data' },
           })
         } catch {
-          // Dokumenti dështoi të ngarkohet, por aplikimi u krijua — vazhdo
+
         }
       }
 
@@ -140,7 +140,6 @@ export default function ApplyPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Letër motivimi */}
           <div className="rounded-2xl p-5"
             style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
             <label className="block text-sm font-semibold text-white mb-2">
@@ -158,7 +157,6 @@ export default function ApplyPage() {
             />
           </div>
 
-          {/* Pyetjet */}
           {grant?.questions?.length > 0 && (
             <div className="rounded-2xl p-5 space-y-5"
               style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
@@ -208,7 +206,6 @@ export default function ApplyPage() {
             </div>
           )}
 
-          {/* Dokument mbështetës */}
           <div className="rounded-2xl p-5"
             style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
             <div className="flex items-start justify-between mb-1">
@@ -266,7 +263,6 @@ export default function ApplyPage() {
             )}
           </div>
 
-          {/* Deklarata — e detyrueshme */}
           <div className="rounded-2xl p-5"
             style={{
               background: declaration ? 'rgba(74,222,128,0.05)' : 'var(--bg-secondary)',

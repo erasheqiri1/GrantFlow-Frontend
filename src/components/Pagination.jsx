@@ -1,12 +1,9 @@
-/**
- * Paginator i ripërdorshëm — shfaqet vetëm kur ka >1 faqe.
- * Props: page (int), total (int), size (int), onChange (fn(newPage))
- */
+
 export default function Pagination({ page, total, size, onChange }) {
   const totalPages = Math.ceil(total / size) || 1
   if (totalPages <= 1) return null
 
-  // Gjenero numrat e faqeve me ellipsis
+
   const buildPages = () => {
     if (totalPages <= 7) {
       return Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -58,7 +55,6 @@ export default function Pagination({ page, total, size, onChange }) {
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 20 }}>
-      {/* Butoni Para */}
       <button
         onClick={() => onChange(page - 1)}
         disabled={page <= 1}
@@ -67,7 +63,6 @@ export default function Pagination({ page, total, size, onChange }) {
         ← Para
       </button>
 
-      {/* Numrat */}
       {pages.map((p, i) =>
         p === '…' ? (
           <span key={`e${i}`} style={{ color: 'rgba(255,255,255,0.3)', fontSize: 13, padding: '0 4px' }}>…</span>
@@ -82,7 +77,6 @@ export default function Pagination({ page, total, size, onChange }) {
         )
       )}
 
-      {/* Butoni Tjetër */}
       <button
         onClick={() => onChange(page + 1)}
         disabled={page >= totalPages}

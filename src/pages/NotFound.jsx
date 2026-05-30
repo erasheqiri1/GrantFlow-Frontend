@@ -20,12 +20,10 @@ export default function NotFound() {
     <div className="min-h-screen flex flex-col items-center justify-center px-4"
       style={{ background: 'var(--bg-primary)' }}>
 
-      {/* Numri 404 */}
       <p className="text-8xl font-black mb-2" style={{ color: 'var(--accent)' }}>
         404
       </p>
 
-      {/* Mesazhi */}
       <h1 className="text-2xl font-bold text-white mb-2">
         Faqja nuk u gjet
       </h1>
@@ -33,7 +31,6 @@ export default function NotFound() {
         URL-ja që kërkove nuk ekziston ose është zhvendosur.
       </p>
 
-      {/* Butonat */}
       <div className="flex gap-3">
         <button
           onClick={() => navigate(-1)}

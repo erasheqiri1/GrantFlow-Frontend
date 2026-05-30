@@ -44,7 +44,6 @@ export default function ResetPasswordPage() {
       style={{ background: '#0f1117' }}>
       <div className="w-full max-w-sm">
 
-        {/* Logo */}
         <div className="text-center mb-10">
           <span style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-0.5px' }}>
             <span style={{ color: '#fff' }}>GRANT</span>
@@ -73,7 +72,6 @@ export default function ResetPasswordPage() {
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Fjalëkalimi i ri */}
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-widest mb-4"
                   style={{ color: 'rgba(255,255,255,0.35)' }}>Fjalëkalimi i ri</label>
@@ -94,7 +92,6 @@ export default function ResetPasswordPage() {
                 </div>
               </div>
 
-              {/* Konfirmo */}
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-widest mb-4"
                   style={{ color: 'rgba(255,255,255,0.35)' }}>Konfirmo fjalëkalimin</label>

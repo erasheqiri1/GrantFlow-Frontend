@@ -31,7 +31,7 @@ function fmtDate(iso) {
 }
 
 function PaymentBadge({ payment }) {
-  // undefined = ende duke u ngarkuar, null = nuk ekziston
+
   if (payment === undefined || payment === null) return null
 
   if (payment.status === 'PAID') {
@@ -53,7 +53,7 @@ function PaymentBadge({ payment }) {
     )
   }
 
-  // PENDING
+
   return (
     <div
       className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold"
@@ -81,7 +81,7 @@ export default function MyApplicationsPage() {
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
 
-  // payments: { [application_id]: payment }
+
   const [payments, setPayments] = useState({})
 
   const fetchApps = (p = 1, s = status) => {
@@ -97,11 +97,11 @@ export default function MyApplicationsPage() {
 
   useEffect(() => { fetchApps(1) }, [])
 
-  // Fetch payment status for APPROVED applications (ndarja nga fetchApps)
+
   useEffect(() => {
     const approved = applications.filter(a => a.status === 'APPROVED')
     approved.forEach(a => {
-      if (a.id in payments) return  // tashme e kemi
+      if (a.id in payments) return
       api.get(`/payments/my/${a.id}`)
         .then(r => setPayments(prev => ({ ...prev, [a.id]: r.data })))
         .catch(() => setPayments(prev => ({ ...prev, [a.id]: null })))
@@ -242,7 +242,6 @@ export default function MyApplicationsPage() {
                     </p>
                   )}
 
-                  {/* Payment status — only for APPROVED */}
                   {app.status === 'APPROVED' && (
                     <div className="mb-3">
                       <PaymentBadge payment={payment} />

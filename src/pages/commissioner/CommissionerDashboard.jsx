@@ -53,7 +53,6 @@ export default function CommissionerDashboard() {
           </p>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-5 gap-4 mb-8">
           {loading ? (
             [...Array(5)].map((_, i) => (
@@ -69,14 +68,12 @@ export default function CommissionerDashboard() {
           ))}
         </div>
 
-        {/* Mesazh bosh */}
         {!loading && stats?.total === 0 && (
           <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
             Nuk ke aplikime të caktuara akoma.
           </p>
         )}
 
-        {/* Aplikimet që presin veprim */}
         {!loading && (stats?.pending ?? 0) + (stats?.inReview ?? 0) > 0 && (
           <div className="rounded-2xl p-5" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
             <p className="text-sm font-semibold text-white mb-1">
@@ -86,7 +83,6 @@ export default function CommissionerDashboard() {
               {stats.pending} të reja · {stats.inReview} në shqyrtim
             </p>
 
-            {/* Lista e shkurtër */}
             {stats.recentPending.length > 0 && (
               <div className="space-y-2 mb-4">
                 {stats.recentPending.map(app => (

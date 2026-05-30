@@ -18,7 +18,7 @@ function fmtDate(iso) {
   return new Date(iso).toLocaleDateString('sq-AL', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
-/* ─── Pay Modal ─── */
+
 function MarkPaidModal({ payment, onClose, onSuccess }) {
   const [note,    setNote]    = useState('')
   const [loading, setLoading] = useState(false)
@@ -57,7 +57,6 @@ function MarkPaidModal({ payment, onClose, onSuccess }) {
         maxWidth: 440,
         overflow: 'hidden',
       }}>
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4"
           style={{ borderBottom: '1px solid var(--border)' }}>
           <div>
@@ -71,7 +70,6 @@ function MarkPaidModal({ payment, onClose, onSuccess }) {
           </button>
         </div>
 
-        {/* Body */}
         <div className="px-6 py-5 space-y-1">
           {[
             ['Marrësi',  payment.applicant_name || payment.applicant_email || '—'],
@@ -110,7 +108,6 @@ function MarkPaidModal({ payment, onClose, onSuccess }) {
           </div>
         </div>
 
-        {/* Footer */}
         <div className="px-6 py-4" style={{ borderTop: '1px solid var(--border)' }}>
           {error && <p className="text-xs mb-3" style={{ color: 'var(--danger)' }}>{error}</p>}
           <div className="flex gap-3">
@@ -140,7 +137,7 @@ export default function PaymentsPage() {
   const [page,     setPage]     = useState(1)
   const [loading,  setLoading]  = useState(true)
   const [filter,   setFilter]   = useState('')
-  const [modal,    setModal]    = useState(null)  // payment object
+  const [modal,    setModal]    = useState(null)
 
   const fetchPayments = useCallback((p = page, s = filter) => {
     setLoading(true)
@@ -162,7 +159,7 @@ export default function PaymentsPage() {
     fetchPayments(page, filter)
   }
 
-  // Stats
+
   const pendingCount = payments.filter(p => p.status === 'PENDING').length
   const paidTotal    = payments
     .filter(p => p.status === 'PAID')
@@ -173,7 +170,6 @@ export default function PaymentsPage() {
       <OrgHeader />
       <main className="org-page-content">
 
-        {/* Title */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-white">Pagesat</h1>
@@ -197,7 +193,6 @@ export default function PaymentsPage() {
           </div>
         </div>
 
-        {/* Summary cards */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="rounded-xl p-4"
             style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.2)' }}>
@@ -215,7 +210,6 @@ export default function PaymentsPage() {
           </div>
         </div>
 
-        {/* Table */}
         <div className="rounded-2xl overflow-hidden"
           style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
           <table className="w-full">

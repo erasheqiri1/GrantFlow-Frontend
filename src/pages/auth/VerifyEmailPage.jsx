@@ -7,12 +7,12 @@ export default function VerifyEmailPage() {
   const token     = params.get('token')
   const navigate  = useNavigate()
 
-  const [status, setStatus] = useState('loading') // loading | success | org_pending | error
+  const [status, setStatus] = useState('loading')
   const [message, setMessage] = useState('')
-  const called = useRef(false)   // React 18 Strict Mode thirr useEffect dy herë — ky guard e ndalon
+  const called = useRef(false)
 
   useEffect(() => {
-    if (called.current) return   // mos dërgo kërkesën dy herë
+    if (called.current) return
     called.current = true
 
     if (!token) {
@@ -23,7 +23,7 @@ export default function VerifyEmailPage() {
     api.get(`/auth/verify-email?token=${token}`)
       .then(res => {
         const msg = res.data.message || ''
-        // ORG_ADMIN → shfaq faqen e pritjes (jo ridrejtim automatik)
+
         if (msg.toLowerCase().includes('prisni aprovimin') || msg.toLowerCase().includes('administratori')) {
           setStatus('org_pending')
         } else {
@@ -42,7 +42,6 @@ export default function VerifyEmailPage() {
       style={{ background: '#0a0d14' }}>
       <div className="w-full max-w-md text-center">
 
-        {/* Logo */}
         <div className="flex items-center justify-center gap-3 mb-8">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center"
             style={{ background: 'rgba(0,230,118,0.15)', border: '1px solid rgba(0,230,118,0.3)' }}>
@@ -53,7 +52,6 @@ export default function VerifyEmailPage() {
           </span>
         </div>
 
-        {/* Loading */}
         {status === 'loading' && (
           <div className="rounded-2xl p-10"
             style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
@@ -63,7 +61,6 @@ export default function VerifyEmailPage() {
           </div>
         )}
 
-        {/* ORG_ADMIN — pret aprovim */}
         {status === 'org_pending' && (
           <div className="rounded-2xl p-10"
             style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
@@ -83,7 +80,6 @@ export default function VerifyEmailPage() {
           </div>
         )}
 
-        {/* Success */}
         {status === 'success' && (
           <div className="rounded-2xl p-10"
             style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
@@ -103,7 +99,6 @@ export default function VerifyEmailPage() {
           </div>
         )}
 
-        {/* Error */}
         {status === 'error' && (
           <div className="rounded-2xl p-10"
             style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>

@@ -71,7 +71,6 @@ export default function SuperAdminDashboard() {
           </div>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-4 gap-4 mb-8">
           {[
             { label: 'Organizata aktive', value: counts.active,            sub: `${total} gjithsej`,             color: 'var(--accent)' },
@@ -88,7 +87,6 @@ export default function SuperAdminDashboard() {
           ))}
         </div>
 
-        {/* Tenants table */}
         <div className="rounded-2xl overflow-hidden"
           style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
           <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>

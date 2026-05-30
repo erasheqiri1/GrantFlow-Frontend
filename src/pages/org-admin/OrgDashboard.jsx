@@ -45,7 +45,6 @@ export default function OrgDashboard() {
       <OrgHeader />
 
       <main className="org-page-content">
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-white">Paneli i organizatës</h1>
@@ -60,7 +59,6 @@ export default function OrgDashboard() {
           </Link>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           <StatCard
             label="Grante aktive"
@@ -86,7 +84,6 @@ export default function OrgDashboard() {
           />
         </div>
 
-        {/* Aplikimet e fundit */}
         {!loading && stats?.recentApps?.length > 0 && (
           <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
             <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid var(--border)' }}>
