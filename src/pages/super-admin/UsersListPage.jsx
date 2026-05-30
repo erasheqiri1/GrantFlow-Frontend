@@ -45,7 +45,7 @@ export default function UsersListPage() {
     if (!confirm(`A jeni i sigurt që doni ta ${action} "${u.email}"?`)) return
     setActionId(u.id)
     try {
-      const res = await api.patch(`/users/${u.id}/toggle-active`)
+      const res = await api.patch(`/users/${u.id}`, { is_active: !u.is_active })
       setUsers(prev => prev.map(x =>
         x.id === u.id ? { ...x, is_active: res.data.is_active } : x
       ))

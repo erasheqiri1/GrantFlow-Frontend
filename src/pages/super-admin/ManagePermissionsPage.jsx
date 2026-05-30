@@ -82,7 +82,7 @@ export default function ManagePermissionsPage() {
 
     setToggling(prev => new Set(prev).add(key))
     try {
-      await api.patch(`/permissions/roles/${roleName}/toggle`, {
+      await api.patch(`/permissions/roles/${roleName}`, {
         permission_codename: codename,
       })
       // Update local state pa refetch

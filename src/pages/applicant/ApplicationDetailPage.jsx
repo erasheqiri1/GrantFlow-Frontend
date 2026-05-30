@@ -32,7 +32,7 @@ export default function ApplicationDetailPage() {
     setSubmitting(true)
     setError('')
     try {
-      await api.post(`/applications/${id}/submit`)
+      await api.patch(`/applications/${id}/status`, { status: 'SUBMITTED' })
       setApplication(prev => ({ ...prev, status: 'SUBMITTED' }))
       setSubmitSuccess(true)
     } catch (err) {

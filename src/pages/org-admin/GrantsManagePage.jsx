@@ -57,7 +57,7 @@ export default function GrantsManagePage() {
 
   const handlePublish = async (id) => {
     if (!confirm('Publiko këtë grant?')) return
-    try { await api.patch(`/grants/${id}/publish`) } catch (e) { alert(e.response?.data?.detail || 'Gabim') }
+    try { await api.patch(`/grants/${id}/status`, { status: 'PUBLISHED' }) } catch (e) { alert(e.response?.data?.detail || 'Gabim') }
     fetchAll(page, filter)
   }
 

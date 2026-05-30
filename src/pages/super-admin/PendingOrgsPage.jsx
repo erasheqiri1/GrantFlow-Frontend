@@ -200,7 +200,7 @@ export default function PendingOrgsPage() {
   const approve = async (id) => {
     setActionId(id)
     try {
-      await api.patch(`/tenants/${id}/approve`)
+      await api.patch(`/tenants/${id}/status`, { status: 'APPROVED' })
       setSelected(null)
       load()
     } catch (err) {
@@ -214,7 +214,7 @@ export default function PendingOrgsPage() {
     if (!confirm('A jeni i sigurt që doni ta refuzoni këtë organizatë?')) return
     setActionId(id)
     try {
-      await api.patch(`/tenants/${id}/reject`)
+      await api.patch(`/tenants/${id}/status`, { status: 'REJECTED' })
       setSelected(null)
       load()
     } catch (err) {

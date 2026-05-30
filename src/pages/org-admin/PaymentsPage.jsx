@@ -28,7 +28,7 @@ function MarkPaidModal({ payment, onClose, onSuccess }) {
     setLoading(true)
     setError('')
     try {
-      await api.patch(`/payments/application/${payment.application_id}/mark-paid`, {
+      await api.patch(`/payments/application/${payment.application_id}`, {
         note: note.trim() || null,
       })
       onSuccess()

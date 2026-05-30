@@ -29,7 +29,7 @@ function PaymentModal({ app, payment, onClose, onSuccess }) {
     setLoading(true)
     setError('')
     try {
-      await api.patch(`/payments/application/${app.id}/mark-paid`, {
+      await api.patch(`/payments/application/${app.id}`, {
         note: note.trim() || null,
       })
       onSuccess()
@@ -249,7 +249,7 @@ function AppModal({ app: initialApp, onClose, onDecision, onScored }) {
     if (!assignId) return
     setAssigning(true)
     try {
-      const res = await api.patch(`/applications/${app.id}/assign`, { commissioner_id: assignId })
+      const res = await api.patch(`/applications/${app.id}/commissioner`, { commissioner_id: assignId })
       setApp(res.data)
       setAssignMode(false)
       setAssignId('')

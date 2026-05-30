@@ -142,7 +142,7 @@ export default function GrantFormPage() {
   const handlePublish = async () => {
     if (!confirm('A jeni i sigurt që doni të publikoni këtë grant?')) return
     try {
-      await api.patch(`/grants/${id}/publish`)
+      await api.patch(`/grants/${id}/status`, { status: 'PUBLISHED' })
       navigate('/org-admin/grants')
     } catch (err) {
       setError(err.response?.data?.detail || 'Gabim gjatë publikimit')
