@@ -166,6 +166,44 @@
   background: transparent !important;
 }
 
+/* Filterat inline — njëjtë me search input */
+.applicant-shell .grant-inline-filter {
+  min-height: 48px;
+  padding: 0 1rem;
+  font-size: .875rem;
+  font-weight: 650;
+  color: #fff;
+  background: rgba(5, 14, 22, 0.78) !important;
+  border: 2px solid rgba(0, 230, 118, 0.34) !important;
+  border-radius: 18px !important;
+  outline: none;
+  color-scheme: dark;
+  cursor: pointer;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.applicant-shell .grant-inline-filter:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 5px rgba(0, 230, 118, 0.09), 0 0 38px rgba(0, 230, 118, 0.18) !important;
+}
+
+.applicant-shell .grant-inline-btn {
+  min-height: 48px;
+  padding: 0 1.25rem;
+  border-radius: 18px !important;
+  font-size: .875rem;
+  font-weight: 900;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: opacity .15s;
+  flex-shrink: 0;
+  width: auto !important;
+}
+
+.applicant-shell .grant-inline-btn:hover {
+  opacity: .85;
+}
+
 .applicant-shell .grant-search-button[aria-expanded="true"] {
   color: #07101a;
   background: var(--accent) !important;
@@ -238,7 +276,6 @@
 }
 
 .applicant-shell .grant-filter-submit {
-  flex: 1;
   background: var(--accent);
   color: #04100b;
   box-shadow: 0 0 24px rgba(0, 230, 118, 0.18);

@@ -38,13 +38,6 @@ export default function OrgHeader() {
       </div>
 
       <div className="flex items-center gap-3">
-        <Link
-          to="/org-admin/grants/new"
-          className="rounded-xl font-black tracking-wide transition"
-          data-active={location.pathname === '/org-admin/grants/new' ? 'true' : 'false'}
-        >
-          Grant i ri
-        </Link>
         <button
           onClick={async () => { await logout(); navigate('/login') }}
           className="rounded-xl font-black tracking-wide transition"

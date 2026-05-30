@@ -19,28 +19,23 @@ export default function OrgDashboard() {
 
   useEffect(() => {
     Promise.all([
-      api.get('/grants',       { params: { page: 1, size: 500 } }).catch(() => ({ data: {} })),
-      api.get('/applications', { params: { page: 1, size: 500 } }).catch(() => ({ data: {} })),
-      api.get('/team',         { params: { page: 1, size: 200 } }).catch(() => ({ data: {} })),
-    ]).then(([gRes, aRes, tRes]) => {
-      const grants  = gRes.data?.items  ?? (Array.isArray(gRes.data)  ? gRes.data  : [])
-      const apps    = aRes.data?.items  ?? (Array.isArray(aRes.data)  ? aRes.data  : [])
-      const members = tRes.data?.items  ?? (Array.isArray(tRes.data)  ? tRes.data  : [])
-
-      const totalGrants  = gRes.data?.total  ?? grants.length
-      const totalApps    = aRes.data?.total  ?? apps.length
-      const totalMembers = tRes.data?.total  ?? members.length
+      api.get('/grants', { params: { page: 1, size: 1 } }).catch(() => ({ data: {} })),
+      api.get('/grants', { params: { page: 1, size: 1, status: 'PUBLISHED' } }).catch(() => ({ data: {} })),
+      api.get('/applications', { params: { page: 1, size: 1 } }).catch(() => ({ data: {} })),
+      api.get('/applications', { params: { page: 1, size: 1, status: 'APPROVED' } }).catch(() => ({ data: {} })),
+      api.get('/applications', { params: { page: 1, size: 5, sortBy: 'submitted_at', sortDir: 'desc' } }).catch(() => ({ data: {} })),
+      api.get('/team',         { params: { page: 1, size: 1 } }).catch(() => ({ data: {} })),
+    ]).then(([gAll, gPublished, aAll, aApproved, aRecent, tRes]) => {
+      const recentApps = aRecent.data?.items ?? []
 
       setStats({
-        totalGrants,
-        published:  grants.filter(g => g.status === 'PUBLISHED').length,
-        totalApps,
-        approved:   apps.filter(a => a.status === 'APPROVED').length,
-        pending:    apps.filter(a => ['SUBMITTED', 'UNDER_REVIEW'].includes(a.status)).length,
-        totalMembers,
-        recentApps: apps
-          .sort((a, b) => new Date(b.submitted_at || b.created_at) - new Date(a.submitted_at || a.created_at))
-          .slice(0, 5),
+        totalGrants:  gAll.data?.total      ?? 0,
+        published:    gPublished.data?.total ?? 0,
+        totalApps:    aAll.data?.total       ?? 0,
+        approved:     aApproved.data?.total  ?? 0,
+        pending:      (aAll.data?.total ?? 0) - (aApproved.data?.total ?? 0),
+        totalMembers: tRes.data?.total       ?? 0,
+        recentApps:   recentApps,
       })
     }).finally(() => setLoading(false))
   }, [])

@@ -22,11 +22,10 @@ export default function GrantsPage() {
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState(EMPTY_FILTERS)
-  const [showFilters, setShowFilters] = useState(false)
   const [appliedGrantIds, setAppliedGrantIds] = useState(new Set())
 
-  const filtersRef = useRef(filters)
-  const pageRef = useRef(1)
+  const filtersRef  = useRef(filters)
+  const pageRef     = useRef(1)
   const latestFetchId = useRef(0)
 
   const fetchGrants = async (overrideFilters, overridePage) => {
@@ -137,8 +136,10 @@ export default function GrantsPage() {
           </p>
         </div>
 
-        <div className="relative mb-5 grant-search-wrap" style={{ maxWidth: 520 }}>
-          <div className="relative">
+        {/* Search + Filterat në një rresht */}
+        <div className="flex flex-wrap items-center gap-3 mb-6">
+          {/* Search */}
+          <div className="relative flex-1" style={{ minWidth: 220, maxWidth: 360 }}>
             <input
               type="text"
               placeholder="Kërko grant..."
@@ -149,9 +150,8 @@ export default function GrantsPage() {
               style={{ background: 'rgba(5,14,22,0.78)', border: '2px solid rgba(0,230,118,0.34)' }}
             />
             <button
-              onClick={() => setShowFilters(value => !value)}
-              title="Filtrat"
-              aria-expanded={showFilters}
+              onClick={() => { setPage(1); pageRef.current = 1; fetchGrants(filtersRef.current, 1) }}
+              title="Kërko"
               className="absolute right-2.5 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-xl transition grant-search-button">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
@@ -159,52 +159,54 @@ export default function GrantsPage() {
               </svg>
             </button>
           </div>
+
+          {/* Kategoria */}
+          <select
+            value={filters.applicant_type}
+            onChange={e => updateFilters({ applicant_type: e.target.value })}
+            className="grant-search-input grant-inline-filter">
+            <option value="">Të gjitha</option>
+            <option value="STUDENT">Student</option>
+            <option value="BUSINESS">Biznes</option>
+            <option value="ORGANIZATION">Organizatë</option>
+            <option value="INDIVIDUAL">Individual</option>
+          </select>
+
+          {/* Rendit */}
+          <select
+            value={filters.sort}
+            onChange={e => updateFilters({ sort: e.target.value })}
+            className="grant-search-input grant-inline-filter">
+            <option value="">Rendit: Default</option>
+            <option value="deadline_asc">Afati më i afërt</option>
+            <option value="deadline_desc">Afati më i largët</option>
+            <option value="budget_desc">Buxheti më i madh</option>
+            <option value="budget_asc">Buxheti më i vogël</option>
+            <option value="title_asc">Titulli A-Z</option>
+          </select>
+
+          {/* Afati */}
+          <input
+            type="date"
+            value={filters.deadline_to}
+            onChange={e => updateFilters({ deadline_to: e.target.value })}
+            className="grant-search-input grant-inline-filter"
+          />
+
+          {/* Kërko */}
+          <button
+            onClick={() => { setPage(1); pageRef.current = 1; fetchGrants(filtersRef.current, 1) }}
+            className="grant-filter-submit grant-inline-btn">
+            Kërko
+          </button>
+
+          {/* Pastro */}
+          <button
+            onClick={clearFilters}
+            className="grant-filter-clear grant-inline-btn">
+            Pastro
+          </button>
         </div>
-
-        {showFilters && (
-          <div className="grant-filter-panel">
-            <div className="grant-filter-grid">
-              <label className="grant-filter-field">
-                <span>Kategoria</span>
-                <select value={filters.applicant_type} onChange={e => updateFilters({ applicant_type: e.target.value })}>
-                  <option value="">Të gjitha</option>
-                  <option value="ANY">Çdo lloj</option>
-                  <option value="STUDENT">Student</option>
-                  <option value="BUSINESS">Biznes</option>
-                  <option value="ORGANIZATION">Organizatë</option>
-                  <option value="INDIVIDUAL">Individual</option>
-                </select>
-              </label>
-
-              <label className="grant-filter-field">
-                <span>Rendit sipas</span>
-                <select value={filters.sort} onChange={e => updateFilters({ sort: e.target.value })}>
-                  <option value="">Rendit: Default</option>
-                  <option value="deadline_asc">Afati më i afërt</option>
-                  <option value="deadline_desc">Afati më i largët</option>
-                  <option value="budget_desc">Buxheti më i madh</option>
-                  <option value="budget_asc">Buxheti më i vogël</option>
-                  <option value="title_asc">Titulli A-Z</option>
-                </select>
-              </label>
-
-              <label className="grant-filter-field">
-                <span>Afati deri</span>
-                <input type="date" value={filters.deadline_to} onChange={e => updateFilters({ deadline_to: e.target.value })} />
-              </label>
-            </div>
-
-            <div className="grant-filter-actions">
-              <button type="button" className="grant-filter-submit"
-                onClick={() => { setPage(1); pageRef.current = 1; fetchGrants(filtersRef.current, 1) }}>
-                Kërko
-              </button>
-              <button type="button" className="grant-filter-clear" onClick={clearFilters}>
-                Pastro
-              </button>
-            </div>
-          </div>
-        )}
 
         {!loading && (
           <p className="text-xs mb-7 font-semibold uppercase tracking-widest" style={{ color: 'rgba(0,230,118,0.58)' }}>
