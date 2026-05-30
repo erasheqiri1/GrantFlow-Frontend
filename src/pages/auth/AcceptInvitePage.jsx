@@ -41,9 +41,10 @@ export default function AcceptInvitePage() {
         tenant_slug: res.data.tenant_slug,
       })
       const role = res.data.role
-      if (role === 'SUPER_ADMIN')  navigate('/super-admin')
-      else if (role === 'ORG_ADMIN') navigate('/org-admin')
-      else navigate('/dashboard')
+      if (role === 'SUPER_ADMIN')       navigate('/super-admin')
+      else if (role === 'ORG_ADMIN')    navigate('/org-admin')
+      else if (role === 'COMMISSIONER') navigate('/commissioner')
+      else navigate('/')
     } catch (err) {
       setError(err.response?.data?.detail || 'Gabim gjatë aktivizimit')
     } finally {
